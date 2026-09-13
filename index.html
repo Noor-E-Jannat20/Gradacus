@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CGPA Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#05060d;
+    --bg-1:#0b0e1c;
+    --panel:#10142a;
+    --panel-2:#151a33;
+    --line:#232a4d;
+    --text:#c7cdf0;
+    --text-dim:#6b729a;
+    --cyan:#4deeea;
+    --magenta:#ff3e9a;
+    --amber:#ffb84d;
+    --green:#41ffb0;
+    --red:#ff4d6d;
+    --violet:#9d7bff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(157,123,255,0.16), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 90% 0%, rgba(77,238,234,0.12), transparent 55%),
+      var(--bg-0);
+    color:var(--text);
+    font-family:'Chakra Petch', sans-serif;
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+
+  /* skyline backdrop */
+  .skyline{
+    position:fixed; left:0; right:0; bottom:0; height:220px;
+    pointer-events:none; z-index:0; opacity:0.55;
+  }
+
+  .wrap{
+    position:relative; z-index:1;
+    max-width:1180px; margin:0 auto; padding:48px 28px 100px;
+  }
+
+  header.hero{
+    display:flex; flex-wrap:wrap; gap:32px; align-items:flex-end; justify-content:space-between;
+    margin-bottom:40px; padding-bottom:28px; border-bottom:1px solid var(--line);
+  }
+  .titleblock h1{
+    font-size:2.1rem; margin:0 0 6px; font-weight:700; letter-spacing:0.5px;
+    color:#eef0ff;
+  }
+  .titleblock p{margin:0; color:var(--text-dim); font-size:0.95rem; max-width:46ch;}
+
+  .cgpa-display{
+    text-align:right;
+  }
+  .cgpa-display .label{font-size:0.8rem; color:var(--text-dim);}
+  .cgpa-display .value{
+    font-family:'JetBrains Mono', monospace;
+    font-size:3.4rem; font-weight:700; color:var(--cyan);
+    text-shadow:0 0 12px rgba(77,238,234,0.65), 0 0 40px rgba(77,238,234,0.25);
+    line-height:1;
+  }
+  .cgpa-display .value.dim{color:#4a5178; text-shadow:none;}
+
+  .grid{
+    display:grid; grid-template-columns:340px 1fr; gap:24px;
+  }
+  @media (max-width:920px){ .grid{grid-template-columns:1fr;} }
+
+  .panel{
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px;
+  }
+  .panel + .panel{margin-top:24px;}
+  .panel h2{
+    margin:0 0 16px; font-size:1rem; font-weight:600; color:#e4e7ff;
+    display:flex; align-items:center; gap:8px;
+  }
+  .panel h2 .dot{width:7px;height:7px;border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
+
+  label{display:block; font-size:0.8rem; color:var(--text-dim); margin-bottom:6px;}
+  input[type=number], input[type=text], input[type=password], select{
+    width:100%; background:var(--bg-1); border:1px solid var(--line); color:var(--text);
+    padding:10px 12px; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:0.92rem;
+    outline:none; transition:border-color .15s, box-shadow .15s;
+  }
+  input[type=number]:focus, input[type=text]:focus, input[type=password]:focus, select:focus{
+    border-color:var(--cyan); box-shadow:0 0 0 3px rgba(77,238,234,0.15);
+  }
+  .field{margin-bottom:16px;}
+  .field-row{display:flex; gap:12px;}
+  .field-row .field{flex:1;}
+
+  select{appearance:none; background-image:linear-gradient(45deg, transparent 50%, var(--cyan) 50%), linear-gradient(135deg, var(--cyan) 50%, transparent 50%); background-position: calc(100% - 18px) center, calc(100% - 13px) center; background-size:5px 5px, 5px 5px; background-repeat:no-repeat;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:transparent; border:1px solid var(--cyan); color:var(--cyan);
+    padding:9px 16px; border-radius:6px; cursor:pointer; font-family:'Chakra Petch',sans-serif;
+    font-size:0.85rem; font-weight:600; transition:all .15s;
+  }
+  .btn:hover{background:rgba(77,238,234,0.1); box-shadow:0 0 14px rgba(77,238,234,0.25);}
+  .btn.ghost{border-color:var(--line); color:var(--text-dim);}
+  .btn.ghost:hover{border-color:var(--text-dim); background:rgba(255,255,255,0.03); box-shadow:none;}
+  .btn.small{padding:5px 10px; font-size:0.75rem;}
+  .btn.magenta{border-color:var(--magenta); color:var(--magenta);}
+  .btn.magenta:hover{background:rgba(255,62,154,0.1); box-shadow:0 0 14px rgba(255,62,154,0.25);}
+  .btn.full{width:100%; justify-content:center;}
+
+  table{width:100%; border-collapse:collapse; font-size:0.88rem;}
+  thead th{
+    text-align:left; font-weight:500; color:var(--text-dim); font-size:0.75rem;
+    padding:0 10px 10px; border-bottom:1px solid var(--line);
+  }
+  tbody td{padding:10px; border-bottom:1px solid rgba(35,42,77,0.6); vertical-align:middle;}
+  tbody tr.excluded td{opacity:0.4;}
+  tbody tr.excluded .code, tbody tr.excluded .grade-pill{text-decoration:line-through;}
+  tbody tr:hover td{background:rgba(255,255,255,0.015);}
+
+  .code-input{width:110px;}
+  .credit-input{width:64px;}
+  .grade-select{width:112px; cursor:pointer;}
+  .icon-btn.revert{border-color:var(--amber); color:var(--amber);}
+  .icon-btn.revert:hover{border-color:var(--amber); color:var(--amber); background:rgba(255,184,77,0.12);}
+  .icon-btn:disabled{opacity:0.3; cursor:not-allowed;}
+  .icon-btn:disabled:hover{border-color:var(--line); color:var(--text-dim); box-shadow:none; background:none;}
+  .retake-tag{font-size:0.68rem; color:var(--violet); display:block; margin-top:3px;}
+
+  .grade-pill{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.85rem;
+    padding:3px 9px; border-radius:20px; display:inline-block; min-width:44px; text-align:center;
+  }
+  .row-actions{display:flex; gap:6px; white-space:nowrap;}
+  .icon-btn{
+    background:transparent; border:1px solid var(--line); color:var(--text-dim);
+    width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:0.85rem;
+    display:inline-flex; align-items:center; justify-content:center; transition:all .15s;
+  }
+  .icon-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+  .icon-btn.danger:hover{border-color:var(--red); color:var(--red);}
+  .icon-btn.active{border-color:var(--violet); color:var(--violet); background:rgba(157,123,255,0.1);}
+
+  .empty-row td{text-align:center; color:var(--text-dim); padding:30px 10px; font-size:0.85rem;}
+
+  .stats-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px;}
+  .stat{
+    background:var(--bg-1); border:1px solid var(--line); border-radius:8px; padding:14px 16px;
+  }
+  .stat .label{font-size:0.72rem; color:var(--text-dim); margin-bottom:4px;}
+  .stat .val{font-family:'JetBrains Mono',monospace; font-size:1.3rem; font-weight:700; color:#e4e7ff;}
+  .stat .val.accent{color:var(--green); text-shadow:0 0 10px rgba(65,255,176,0.4);}
+  .stat .val.warn{color:var(--amber);}
+
+  .progress-track{
+    width:100%; height:10px; background:var(--bg-1); border-radius:6px; overflow:hidden; margin-top:10px;
+    border:1px solid var(--line);
+  }
+  .progress-fill{
+    height:100%; border-radius:6px;
+    background:linear-gradient(90deg, var(--violet), var(--cyan));
+    box-shadow:0 0 10px rgba(77,238,234,0.5);
+    transition:width .4s ease;
+  }
+  .progress-caption{display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-dim); margin-top:8px;}
+
+  .scale-toggle{cursor:pointer; font-size:0.78rem; color:var(--text-dim); text-decoration:underline; text-underline-offset:3px; background:none; border:none; padding:0; margin-top:14px;}
+  .scale-table{display:none; margin-top:12px; font-size:0.8rem;}
+  .scale-table.open{display:block;}
+  .scale-table table td, .scale-table table th{padding:6px 8px;}
+
+  .hint{font-size:0.76rem; color:var(--text-dim); margin-top:4px;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--panel-2); border:1px solid var(--cyan); color:var(--text);
+    padding:10px 20px; border-radius:8px; font-size:0.85rem; opacity:0; pointer-events:none;
+    transition:all .25s; box-shadow:0 0 20px rgba(77,238,234,0.2); z-index:10;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  footer{margin-top:44px; text-align:center; color:var(--text-dim); font-size:0.78rem;}
+
+  /* ---- auth overlay ---- */
+  #authOverlay{
+    position:fixed; inset:0; z-index:20;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(157,123,255,0.18), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 90% 10%, rgba(77,238,234,0.14), transparent 55%),
+      var(--bg-0);
+  }
+  .auth-card{
+    width:100%; max-width:360px; background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line); border-radius:12px; padding:32px 28px;
+    box-shadow:0 0 40px rgba(77,238,234,0.08);
+  }
+  .auth-card h1{
+    font-size:1.4rem; margin:0 0 4px; color:#eef0ff; text-shadow:0 0 16px rgba(77,238,234,0.3);
+  }
+  .auth-card .sub{color:var(--text-dim); font-size:0.85rem; margin:0 0 22px;}
+  .auth-error{
+    color:var(--red); font-size:0.8rem; margin-top:10px; min-height:1em;
+  }
+  .auth-switch{
+    margin-top:18px; text-align:center; font-size:0.82rem; color:var(--text-dim);
+  }
+  .auth-switch button{
+    background:none; border:none; color:var(--cyan); cursor:pointer; font-size:0.82rem;
+    text-decoration:underline; text-underline-offset:3px; padding:0; font-family:inherit;
+  }
+
+  .user-bar{
+    display:flex; align-items:center; gap:12px; font-size:0.8rem; color:var(--text-dim);
+  }
+  .user-bar .email{color:var(--text); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  #appRoot{display:none;}
+</style>
+</head>
+<body>
+
+<div id="authOverlay">
+  <div class="auth-card">
+    <h1>CGPA Console</h1>
+    <p class="sub" id="authSub">Log in to load your saved data.</p>
+    <div class="field">
+      <label for="authEmail">Email</label>
+      <input type="text" id="authEmail" autocomplete="email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label for="authPassword">Password</label>
+      <input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters" style="font-family:'JetBrains Mono',monospace;">
+    </div>
+    <button class="btn full" id="authSubmit">Log in</button>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-switch">
+      <span id="authSwitchText">Don't have an account?</span>
+      <button id="authSwitchBtn">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<svg class="skyline" viewBox="0 0 1200 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b0e1c" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0b0e1c" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <g fill="#141a33">
+    <rect x="0" y="120" width="60" height="100"/>
+    <rect x="70" y="90" width="45" height="130"/>
+    <rect x="125" y="140" width="70" height="80"/>
+    <rect x="205" y="60" width="40" height="160"/>
+    <rect x="255" y="110" width="55" height="110"/>
+    <rect x="320" y="150" width="90" height="70"/>
+    <rect x="420" y="40" width="35" height="180"/>
+    <rect x="465" y="100" width="60" height="120"/>
+    <rect x="535" y="70" width="45" height="150"/>
+    <rect x="590" y="130" width="80" height="90"/>
+    <rect x="680" y="30" width="40" height="190"/>
+    <rect x="730" y="95" width="55" height="125"/>
+    <rect x="795" y="140" width="70" height="80"/>
+    <rect x="875" y="60" width="45" height="160"/>
+    <rect x="930" y="110" width="60" height="110"/>
+    <rect x="1000" y="150" width="80" height="70"/>
+    <rect x="1090" y="80" width="40" height="140"/>
+    <rect x="1140" y="130" width="60" height="90"/>
+  </g>
+  <g fill="#4deeea" opacity="0.55">
+    <rect x="10" y="140" width="5" height="6"/><rect x="10" y="155" width="5" height="6"/>
+    <rect x="85" y="105" width="5" height="6"/><rect x="85" y="125" width="5" height="6"/>
+    <rect x="215" y="80" width="5" height="6"/><rect x="215" y="100" width="5" height="6"/>
+    <rect x="430" y="60" width="5" height="6"/><rect x="430" y="80" width="5" height="6"/>
+    <rect x="690" y="55" width="5" height="6"/><rect x="690" y="75" width="5" height="6"/>
+    <rect x="885" y="80" width="5" height="6"/><rect x="885" y="100" width="5" height="6"/>
+  </g>
+  <g fill="#ff3e9a" opacity="0.5">
+    <rect x="330" y="165" width="5" height="6"/>
+    <rect x="605" y="150" width="5" height="6"/>
+    <rect x="1010" y="165" width="5" height="6"/>
+  </g>
+  <rect x="0" y="0" width="1200" height="220" fill="url(#fade)"/>
+</svg>
+
+<div class="wrap" id="appRoot">
+
+  <header class="hero">
+    <div class="titleblock">
+      <h1>CGPA Console</h1>
+      <p>Track your cumulative GPA, test out repeats and drops before they count, and see how far you are from graduation.</p>
+      <div class="user-bar" style="margin-top:14px;">
+        <span>Signed in as</span>
+        <span class="email" id="userEmail"></span>
+        <button class="btn ghost small" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+    <div class="cgpa-display">
+      <div class="label">cumulative CGPA</div>
+      <div class="value mono" id="cgpaValue">--</div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT COLUMN -->
+    <div>
+      <div class="panel">
+        <h2><span class="dot"></span>Program</h2>
+        <div class="field">
+          <label for="program">Degree</label>
+          <select id="program">
+            <option value="136">CSE — 136 credits required</option>
+            <option value="124">CS — 124 credits required</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="priorCgpa">Current CGPA (before adding courses below)</label>
+          <input type="number" id="priorCgpa" step="0.01" min="0" max="4" placeholder="e.g. 3.42">
+        </div>
+        <div class="field">
+          <label for="priorCredits">Credits completed so far</label>
+          <input type="number" id="priorCredits" step="0.5" min="0" placeholder="e.g. 60">
+        </div>
+        <div class="hint">Leave both blank if you want to build your CGPA from scratch using only the course table.</div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="dot" style="background:var(--green); box-shadow:0 0 8px var(--green);"></span>Path to graduation</h2>
+        <div class="stat" style="margin-bottom:12px;">
+          <div class="label">credits earned</div>
+          <div class="val" id="creditsEarned">0</div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="gradFill" style="width:0%"></div></div>
+        <div class="progress-caption">
+          <span id="gradPct">0%</span>
+          <span id="gradRemainText">-- credits left</span>
+        </div>
+        <div class="stat" style="margin-top:16px;">
+          <div class="label">≈ courses remaining <span class="mono" style="font-size:0.68rem;">(3 credits avg.)</span></div>
+          <div class="val warn" id="coursesLeft">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+      <div class="panel">
+        <h2><span class="dot" style="background:var(--magenta); box-shadow:0 0 8px var(--magenta);"></span>Courses</h2>
+        <table id="courseTable">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Credits</th>
+              <th>Grade</th>
+              <th>Points</th>
+              <th>Include</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="courseBody"></tbody>
+        </table>
+        <button class="btn full" id="addCourseBtn" style="margin-top:14px;">+ Add course</button>
+
+        <button class="scale-toggle" id="scaleToggle">show grading scale</button>
+        <div class="scale-table" id="scaleTable">
+          <table>
+            <thead><tr><th>Score</th><th>Grade</th><th>Point</th></tr></thead>
+            <tbody id="scaleBody"></tbody>
+          </table>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat">
+            <div class="label">courses on this table</div>
+            <div class="val" id="statCourseCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">credits from table (active)</div>
+            <div class="val" id="statTableCredits">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">CGPA including all above</div>
+            <div class="val accent" id="statCgpaMirror">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Repeated courses replace the old grade in your CGPA — click ↺ on the old attempt to undo it. Uncheck "Include" to preview dropping a course's GPA without losing it; check it again to restore.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAG5Jez19bPq395Mf3dukdBP1jHZz71Nqs",
+  authDomain: "gradacus-fd082.firebaseapp.com",
+  projectId: "gradacus-fd082",
+  storageBucket: "gradacus-fd082.firebasestorage.app",
+  messagingSenderId: "160033318436",
+  appId: "1:160033318436:web:2bdcd1bd7e33b5e0245ab1"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+</script>
+
+<script>
+const GRADE_SCALE = [
+  {min:97, letter:'A+', point:4.0},
+  {min:90, letter:'A',  point:4.0},
+  {min:85, letter:'A-', point:3.7},
+  {min:80, letter:'B+', point:3.3},
+  {min:75, letter:'B',  point:3.0},
+  {min:70, letter:'B-', point:2.7},
+  {min:65, letter:'C+', point:2.3},
+  {min:60, letter:'C',  point:2.0},
+  {min:57, letter:'C-', point:1.7},
+  {min:55, letter:'D+', point:1.3},
+  {min:52, letter:'D',  point:1.0},
+  {min:50, letter:'D-', point:0.7},
+  {min:-Infinity, letter:'F', point:0.0},
+];
+
+const GRADE_COLOR = {
+  'A+':'#41ffb0','A':'#41ffb0','A-':'#4deeea','B+':'#4deeea','B':'#4deeea',
+  'B-':'#9d7bff','C+':'#ffb84d','C':'#ffb84d','C-':'#ffb84d',
+  'D+':'#ff8a4d','D':'#ff8a4d','D-':'#ff8a4d','F':'#ff4d6d'
+};
+
+function gradeFromLetter(letter){
+  if (!letter) return null;
+  return GRADE_SCALE.find(g => g.letter === letter) || null;
+}
+
+let state = {
+  program: '136',
+  priorCgpa: '',
+  priorCredits: '',
+  courses: []
+};
+
+function newCourse(code, credits, repeatOf){
+  return {
+    id: crypto.randomUUID(),
+    code: code||'',
+    credits: credits!=null?credits:3,
+    grade: '',
+    included: true,
+    replaced: false,
+    repeatOf: repeatOf || null
+  };
+}
+
+function defaultCreditFor(code){
+  return /400/.test(code||'') ? 4 : 3;
+}
+
+function render(){
+  document.getElementById('program').value = state.program;
+  document.getElementById('priorCgpa').value = state.priorCgpa;
+  document.getElementById('priorCredits').value = state.priorCredits;
+
+  const body = document.getElementById('courseBody');
+  body.innerHTML = '';
+
+  if (state.courses.length === 0){
+    body.innerHTML = '<tr class="empty-row"><td colspan="6">No courses yet — add one to start building your CGPA.</td></tr>';
+  }
+
+  state.courses.forEach(c => {
+    const tr = document.createElement('tr');
+    if (!c.included || c.replaced) tr.classList.add('excluded');
+    const grade = gradeFromLetter(c.grade);
+    const pointHtml = grade
+      ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
+      : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">—</span>`;
+
+    const gradeOptions = ['<option value="">--</option>']
+      .concat(GRADE_SCALE.map(g => `<option value="${g.letter}" ${c.grade===g.letter?'selected':''}>${g.letter} (${g.point.toFixed(1)})</option>`))
+      .join('');
+
+    const isRetake = !!c.repeatOf;
+    const retakeTag = isRetake ? `<span class="retake-tag">retake</span>` : '';
+
+    let actions = '';
+    if (c.replaced){
+      // this row has been repeated elsewhere — only option is to revert
+      actions = `<button class="icon-btn revert" data-action="revert" data-id="${c.id}" title="Undo repeat — restore this attempt">↺</button>`;
+    } else {
+      actions = `
+        <button class="icon-btn" data-action="repeat" data-id="${c.id}" title="Repeat this course">↻</button>
+        <button class="icon-btn danger" data-action="delete" data-id="${c.id}" title="Remove row">✕</button>
+      `;
+    }
+
+    tr.innerHTML = `
+      <td><input class="code-input mono code" type="text" data-field="code" data-id="${c.id}" value="${c.code}" placeholder="CSE101">${retakeTag}</td>
+      <td><input class="credit-input mono" type="number" step="0.5" min="0" data-field="credits" data-id="${c.id}" value="${c.credits}"></td>
+      <td><select class="grade-select mono" data-field="grade" data-id="${c.id}">${gradeOptions}</select></td>
+      <td>${pointHtml}</td>
+      <td>
+        <input type="checkbox" data-field="included" data-id="${c.id}" ${c.included?'checked':''} ${c.replaced?'disabled':''} title="Temporarily exclude this course's GPA from the calculation">
+      </td>
+      <td>
+        <div class="row-actions">${actions}</div>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+
+  attachRowListeners();
+  computeAndDisplay();
+  saveState();
+}
+
+function attachRowListeners(){
+  document.querySelectorAll('[data-field]').forEach(el => {
+    el.addEventListener('input', onFieldChange);
+    el.addEventListener('change', onFieldChange);
+  });
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', onRowAction);
+  });
+}
+
+function onFieldChange(e){
+  const id = e.target.dataset.id;
+  const field = e.target.dataset.field;
+  const course = state.courses.find(c => c.id === id);
+  if (!course) return;
+  if (field === 'included'){
+    course.included = e.target.checked;
+  } else {
+    course[field] = e.target.value;
+  }
+  computeAndDisplay();
+  saveState();
+  if (field === 'grade') {
+    renderGradePillOnly(id);
+  }
+}
+
+function renderGradePillOnly(id){
+  const course = state.courses.find(c => c.id === id);
+  if (!course) return;
+  const row = document.querySelector(`[data-id="${id}"][data-field="grade"]`).closest('tr');
+  const grade = gradeFromLetter(course.grade);
+  const pillCell = row.children[3];
+  pillCell.innerHTML = grade
+    ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
+    : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">—</span>`;
+}
+
+function onRowAction(e){
+  const id = e.target.dataset.id;
+  const action = e.target.dataset.action;
+  const idx = state.courses.findIndex(c => c.id === id);
+  if (idx === -1) return;
+  const course = state.courses[idx];
+
+  if (action === 'delete'){
+    // if this row is itself a retake, deleting it means the original repeat is undone too
+    if (course.repeatOf){
+      const original = state.courses.find(c => c.id === course.repeatOf);
+      if (original){ original.replaced = false; original.included = true; }
+    }
+    state.courses.splice(idx, 1);
+    render();
+    showToast('Course removed');
+  } else if (action === 'repeat'){
+    course.replaced = true;
+    course.included = false;
+    const retake = newCourse(course.code, course.credits, course.id);
+    state.courses.splice(idx + 1, 0, retake);
+    render();
+    showToast(`Retake row added for ${course.code || 'course'} — old attempt excluded`);
+  } else if (action === 'revert'){
+    // undo a repeat: remove the retake row(s) pointing at this course, restore this one
+    state.courses = state.courses.filter(c => c.repeatOf !== course.id);
+    course.replaced = false;
+    course.included = true;
+    render();
+    showToast(`Repeat undone for ${course.code || 'course'} — original attempt restored`);
+  }
+}
+
+function computeAndDisplay(){
+  const priorCgpa = parseFloat(state.priorCgpa);
+  const priorCredits = parseFloat(state.priorCredits);
+  const hasPrior = !isNaN(priorCgpa) && !isNaN(priorCredits) && priorCredits > 0;
+
+  let qualityPoints = hasPrior ? priorCgpa * priorCredits : 0;
+  let attemptedCredits = hasPrior ? priorCredits : 0;
+  let earnedCredits = hasPrior ? priorCredits : 0;
+  let tableActiveCredits = 0;
+  let activeCount = 0;
+
+  state.courses.forEach(c => {
+    if (!c.included) return;
+    const credits = parseFloat(c.credits);
+    if (isNaN(credits) || credits <= 0) return;
+    const grade = gradeFromLetter(c.grade);
+    if (!grade) { tableActiveCredits += 0; return; }
+    qualityPoints += grade.point * credits;
+    attemptedCredits += credits;
+    tableActiveCredits += credits;
+    activeCount++;
+    if (grade.point > 0) earnedCredits += credits;
+  });
+
+  const cgpa = attemptedCredits > 0 ? (qualityPoints / attemptedCredits) : null;
+
+  const cgpaEl = document.getElementById('cgpaValue');
+  const mirrorEl = document.getElementById('statCgpaMirror');
+  if (cgpa === null){
+    cgpaEl.textContent = '--';
+    cgpaEl.classList.add('dim');
+    mirrorEl.textContent = '--';
+  } else {
+    cgpaEl.textContent = cgpa.toFixed(2);
+    cgpaEl.classList.remove('dim');
+    mirrorEl.textContent = cgpa.toFixed(2);
+  }
+
+  document.getElementById('statCourseCount').textContent = state.courses.length;
+  document.getElementById('statTableCredits').textContent = tableActiveCredits;
+
+  // graduation math
+  const required = parseFloat(state.program);
+  const remaining = Math.max(required - earnedCredits, 0);
+  const pct = Math.min(100, Math.round((earnedCredits / required) * 100));
+  document.getElementById('creditsEarned').textContent = `${round1(earnedCredits)} / ${required}`;
+  document.getElementById('gradFill').style.width = pct + '%';
+  document.getElementById('gradPct').textContent = pct + '%';
+  document.getElementById('gradRemainText').textContent = `${round1(remaining)} credits left`;
+  document.getElementById('coursesLeft').textContent = remaining <= 0 ? '0 🎓' : Math.ceil(remaining / 3);
+}
+
+function round1(n){ return Math.round(n*10)/10; }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function buildScaleTable(){
+  const body = document.getElementById('scaleBody');
+  const rows = [
+    ['97 – 100','A+','4.0'],['90 – <97','A','4.0'],['85 – <90','A-','3.7'],
+    ['80 – <85','B+','3.3'],['75 – <80','B','3.0'],['70 – <75','B-','2.7'],
+    ['65 – <70','C+','2.3'],['60 – <65','C','2.0'],['57 – <60','C-','1.7'],
+    ['55 – <57','D+','1.3'],['52 – <55','D','1.0'],['50 – <52','D-','0.7'],
+    ['< 50','F','0.0'],
+  ];
+  body.innerHTML = rows.map(r => `<tr><td class="mono">${r[0]}</td><td style="color:${GRADE_COLOR[r[1]]}">${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('');
+}
+
+let saveTimer = null;
+async function saveState(){
+  if (!currentUser) return;
+  // debounce so we're not writing to Firestore on every keystroke
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try{
+      await db.collection('users').doc(currentUser.uid).set(
+        { data: JSON.stringify(state) },
+        { merge: true }
+      );
+    } catch(err){
+      console.error('Save failed:', err);
+      showToast('Could not save — check your connection');
+    }
+  }, 500);
+}
+
+async function loadState(){
+  if (!currentUser) return;
+  try{
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (doc.exists && doc.data().data){
+      const parsed = JSON.parse(doc.data().data);
+      if (parsed && Array.isArray(parsed.courses)){
+        state = parsed;
+        return;
+      }
+    }
+  } catch(err){ console.error('Load failed:', err); }
+  // no saved data yet — start fresh for this user
+  state = { program:'136', priorCgpa:'', priorCredits:'', courses:[] };
+}
+
+// ---- wiring ----
+document.getElementById('program').addEventListener('change', e => { state.program = e.target.value; computeAndDisplay(); saveState(); });
+document.getElementById('priorCgpa').addEventListener('input', e => { state.priorCgpa = e.target.value; computeAndDisplay(); saveState(); });
+document.getElementById('priorCredits').addEventListener('input', e => { state.priorCredits = e.target.value; computeAndDisplay(); saveState(); });
+
+document.getElementById('addCourseBtn').addEventListener('click', () => {
+  state.courses.push(newCourse('', 3));
+  render();
+  const inputs = document.querySelectorAll('.code-input');
+  if (inputs.length) inputs[inputs.length-1].focus();
+});
+
+document.getElementById('scaleToggle').addEventListener('click', (e) => {
+  const table = document.getElementById('scaleTable');
+  table.classList.toggle('open');
+  e.target.textContent = table.classList.contains('open') ? 'hide grading scale' : 'show grading scale';
+});
+
+// live default-credit suggestion when typing a code that looks like a 400-level capstone
+document.addEventListener('input', (e) => {
+  if (e.target.dataset && e.target.dataset.field === 'code'){
+    const id = e.target.dataset.id;
+    const course = state.courses.find(c => c.id === id);
+    if (course && (course.credits === 3 || course.credits === '3') && /400/.test(e.target.value)){
+      course.credits = 4;
+      render();
+    }
+  }
+});
+
+// ---- auth wiring ----
+let authMode = 'login'; // or 'signup'
+
+function setAuthMode(mode){
+  authMode = mode;
+  document.getElementById('authSubmit').textContent = mode === 'login' ? 'Log in' : 'Sign up';
+  document.getElementById('authSub').textContent = mode === 'login'
+    ? 'Log in to load your saved data.'
+    : 'Create an account to save your CGPA data to the cloud.';
+  document.getElementById('authSwitchText').textContent = mode === 'login'
+    ? "Don't have an account?"
+    : 'Already have an account?';
+  document.getElementById('authSwitchBtn').textContent = mode === 'login' ? 'Sign up' : 'Log in';
+  document.getElementById('authError').textContent = '';
+}
+
+document.getElementById('authSwitchBtn').addEventListener('click', () => {
+  setAuthMode(authMode === 'login' ? 'signup' : 'login');
+});
+
+document.getElementById('authSubmit').addEventListener('click', async () => {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errorEl = document.getElementById('authError');
+  errorEl.textContent = '';
+
+  if (!email || !password){
+    errorEl.textContent = 'Enter both an email and a password.';
+    return;
+  }
+
+  try{
+    if (authMode === 'login'){
+      await auth.signInWithEmailAndPassword(email, password);
+    } else {
+      await auth.createUserWithEmailAndPassword(email, password);
+    }
+    // onAuthStateChanged below picks up from here
+  } catch(err){
+    errorEl.textContent = friendlyAuthError(err);
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await auth.signOut();
+});
+
+function friendlyAuthError(err){
+  const map = {
+    'auth/invalid-email': 'That email address looks invalid.',
+    'auth/user-not-found': 'No account found with that email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/email-already-in-use': 'An account with that email already exists — try logging in instead.',
+    'auth/weak-password': 'Password should be at least 6 characters.',
+  };
+  return map[err.code] || 'Something went wrong. Please try again.';
+}
+
+buildScaleTable();
+
+auth.onAuthStateChanged(async (user) => {
+  const overlay = document.getElementById('authOverlay');
+  const appRoot = document.getElementById('appRoot');
+
+  if (user){
+    currentUser = user;
+    overlay.style.display = 'none';
+    appRoot.style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('authError').textContent = '';
+    document.getElementById('authEmail').value = '';
+    document.getElementById('authPassword').value = '';
+    await loadState();
+    render();
+  } else {
+    currentUser = null;
+    overlay.style.display = 'flex';
+    appRoot.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
