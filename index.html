@@ -308,6 +308,26 @@
   .semester-empty{color:var(--text-dim); font-size:0.82rem; text-align:center; padding:20px 0;}
   .rename-input{background:transparent; border:none; border-bottom:1px dashed var(--line); color:var(--text); font-family:'Chakra Petch',sans-serif; font-size:0.95rem; font-weight:600; padding:2px 0; width:140px;}
   .rename-input:focus{outline:none; border-color:var(--cyan);}
+  
+  /* Editable custom inputs in semester planner */
+  .custom-edit {
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed var(--line);
+    color: var(--text);
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    transition: border-color .15s;
+  }
+  .custom-edit:focus {
+    border-color: var(--cyan);
+    background: var(--bg-1);
+    outline: none;
+  }
+  .custom-edit.code-input { width: 75px; color: var(--cyan); font-weight: bold; }
+  .custom-edit.name-input { flex: 1; min-width: 100px; }
+  .custom-edit.credit-input { width: 45px; text-align: center; }
 </style>
 </head>
 <body>
@@ -493,7 +513,7 @@
               <option value="code">Sort: Code</option>
               <option value="name">Sort: Name</option>
             </select>
-            <button class="btn small ghost" id="addCustomCourseBtn" title="Add a course not in the list">+ Custom</button>
+            <button class="btn small ghost" id="addCustomCourseBtn" title="Add an editable custom course">+ Custom</button>
           </div>
           <div class="pool-list" id="poolList"></div>
         </div>
@@ -644,7 +664,6 @@ function render(){
 
     let actions = '';
     if (c.replaced){
-      // this row has been repeated elsewhere — only option is to revert
       actions = `<button class="icon-btn text-btn revert" data-action="revert" data-id="${c.id}" title="Undo repeat — restore this attempt">Undo Repeat</button>`;
     } else {
       actions = `
@@ -899,8 +918,13 @@ const PROGRAM_POOLS = {
 };
 
 function getCourseInfo(code) {
-  if (state.customCourses && state.customCourses[code]) return state.customCourses[code];
-  return COURSE_DB[code] || null;
+  if (state.customCourses && state.customCourses[code]) {
+    return state.customCourses[code];
+  }
+  if (COURSE_DB[code]) {
+    return { code: code, name: COURSE_DB[code].name, credits: COURSE_DB[code].credits, tag: 'course' };
+  }
+  return null;
 }
 
 function getPoolForProgram(program){
@@ -911,8 +935,8 @@ function getPoolForProgram(program){
   FOUNDATION_CODES.forEach(code => items.push({code, tag:'foundation'}));
   
   if (state.customCourses) {
-    Object.keys(state.customCourses).forEach(code => {
-      items.push({code, tag:'custom'});
+    Object.keys(state.customCourses).forEach(id => {
+      items.push({code: id, tag:'custom'});
     });
   }
   
@@ -947,9 +971,20 @@ async function loadState(){
         if (!parsed.planner || !Array.isArray(parsed.planner.semesters)){
           parsed.planner = defaultPlanner();
         }
+        
         if (!parsed.customCourses) {
           parsed.customCourses = {};
+        } else {
+          // migrate old custom courses that used code as key
+          Object.keys(parsed.customCourses).forEach(k => {
+             if (!parsed.customCourses[k].isCustom) {
+                 parsed.customCourses[k].isCustom = true;
+                 parsed.customCourses[k].code = k;
+                 parsed.customCourses[k].tag = 'custom';
+             }
+          });
         }
+        
         state = parsed;
         return;
       }
@@ -1028,20 +1063,37 @@ function renderSemesterCard(){
   if (sem.codes.length === 0){
     rows = `<div class="semester-empty">No courses yet — add some from the list on the left.</div>`;
   } else {
-    rows = sem.codes.map((code, idx) => {
-      const c = getCourseInfo(code);
-      return `
-        <div class="sem-course-row">
-          <div>
-            <span class="code">${code}</span>
-            <span class="name">${c ? c.name : 'Unknown course'}</span>
-          </div>
-          <div class="sem-course-actions">
-            <button class="icon-btn" data-planner-action="up" data-code="${code}" ${idx===0?'disabled':''} title="Move up">↑</button>
-            <button class="icon-btn" data-planner-action="down" data-code="${code}" ${idx===sem.codes.length-1?'disabled':''} title="Move down">↓</button>
-            <button class="icon-btn danger" data-planner-action="remove" data-code="${code}" title="Remove from semester">✕</button>
-          </div>
-        </div>`;
+    rows = sem.codes.map((codeId, idx) => {
+      const c = getCourseInfo(codeId);
+      
+      if (c && c.isCustom) {
+        return `
+          <div class="sem-course-row">
+            <div style="display:flex; gap:8px; flex:1; align-items:center;">
+              <input class="custom-edit code-input mono" data-field="code" data-id="${codeId}" value="${c.code}" placeholder="Code">
+              <input class="custom-edit name-input" data-field="name" data-id="${codeId}" value="${c.name}" placeholder="Course Name">
+              <input class="custom-edit credit-input mono" data-field="credits" data-id="${codeId}" type="number" step="0.5" min="0" value="${c.credits}">
+            </div>
+            <div class="sem-course-actions" style="margin-left:8px;">
+              <button class="icon-btn" data-planner-action="up" data-code="${codeId}" ${idx===0?'disabled':''} title="Move up">↑</button>
+              <button class="icon-btn" data-planner-action="down" data-code="${codeId}" ${idx===sem.codes.length-1?'disabled':''} title="Move down">↓</button>
+              <button class="icon-btn danger" data-planner-action="remove" data-code="${codeId}" title="Remove from semester">✕</button>
+            </div>
+          </div>`;
+      } else {
+        return `
+          <div class="sem-course-row">
+            <div>
+              <span class="code">${c ? c.code : codeId}</span>
+              <span class="name">${c ? c.name : 'Unknown course'}</span>
+            </div>
+            <div class="sem-course-actions">
+              <button class="icon-btn" data-planner-action="up" data-code="${codeId}" ${idx===0?'disabled':''} title="Move up">↑</button>
+              <button class="icon-btn" data-planner-action="down" data-code="${codeId}" ${idx===sem.codes.length-1?'disabled':''} title="Move down">↓</button>
+              <button class="icon-btn danger" data-planner-action="remove" data-code="${codeId}" title="Remove from semester">✕</button>
+            </div>
+          </div>`;
+      }
     }).join('');
   }
 
@@ -1057,6 +1109,36 @@ function renderSemesterCard(){
     sem.label = e.target.value;
     renderSemesterTabs();
     saveState();
+  });
+  
+  // Attach event listeners for inline custom course edits
+  card.querySelectorAll('.custom-edit').forEach(input => {
+    input.addEventListener('input', e => {
+      const id = e.target.dataset.id;
+      const field = e.target.dataset.field;
+      let val = e.target.value;
+      if (field === 'credits') val = parseFloat(val) || 0;
+      
+      if (state.customCourses[id]) {
+        state.customCourses[id][field] = val;
+        saveState();
+        
+        if (field === 'credits') {
+            renderSemesterTabs(); 
+            renderPlannerSummary();
+            const currentSem = activeSemester();
+            const newTotal = currentSem.codes.reduce((sum, cId) => sum + (getCourseInfo(cId)?.credits || 0), 0);
+            const headerTotal = card.querySelector('.credit-total');
+            if (headerTotal) {
+                headerTotal.textContent = newTotal + ' credits';
+                headerTotal.className = 'credit-total ' + (newTotal > 18 ? 'over' : (newTotal >= 12 && newTotal <= 18 ? 'ok' : 'warn'));
+            }
+        }
+        
+        // Render the pool to reflect the name/code changes there
+        renderPool(); 
+      }
+    });
   });
 
   card.querySelectorAll('[data-planner-action]').forEach(btn => {
@@ -1092,7 +1174,8 @@ function renderPool(){
   if (search){
     items = items.filter(i => {
       const info = getCourseInfo(i.code);
-      return i.code.toLowerCase().includes(search) || (info && info.name.toLowerCase().includes(search));
+      const displayCode = (info?.code || i.code).toLowerCase();
+      return displayCode.includes(search) || (info && info.name.toLowerCase().includes(search));
     });
   }
   
@@ -1108,12 +1191,13 @@ function renderPool(){
   }
 
   list.innerHTML = items.map(i => {
-    const info = getCourseInfo(i.code) || { name:'Unknown', credits:3 };
+    const info = getCourseInfo(i.code) || { name:'Unknown', credits:3, code: i.code };
+    const displayCode = info.code || i.code;
     const isPlaced = placed.has(i.code);
     return `
       <div class="pool-item ${isPlaced ? 'placed' : ''}">
         <div class="info">
-          <span class="code">${i.code}</span>
+          <span class="code">${displayCode}</span>
           <span class="tag ${i.tag}">${i.tag}</span>
           <span class="credit-badge">${info.credits}cr</span>
           <div class="name">${info.name}</div>
@@ -1141,25 +1225,31 @@ function renderPool(){
 
 // Add Custom Course Logic
 document.getElementById('addCustomCourseBtn').addEventListener('click', () => {
-  const code = prompt("Enter Course Code (e.g., MKT101):")?.trim().toUpperCase();
-  if(!code) return;
-  if(getCourseInfo(code)) {
-    alert("This course already exists!");
+  const sem = activeSemester();
+  if (!sem) {
+    showToast("Please add or select a semester first.");
     return;
   }
-  const name = prompt("Enter Course Name:")?.trim() || 'Custom Course';
-  const creditsStr = prompt("Enter Credits (e.g., 3):");
-  const credits = parseFloat(creditsStr) || 3;
   
   if(!state.customCourses) state.customCourses = {};
-  state.customCourses[code] = { name, credits, tag: 'custom' };
   
-  // Also switch to custom tab to view the new course
-  document.getElementById('poolCategory').value = 'custom';
+  const id = 'CUST_' + crypto.randomUUID();
+  state.customCourses[id] = { code: 'CUSTOM', name: 'Click here to edit name', credits: 3, tag: 'custom', isCustom: true };
   
+  sem.codes.push(id);
+  
+  // Refresh the planner view to show the new inline editable inputs in the active semester
   renderPlanner();
   saveState();
-  showToast(`${code} added to custom courses.`);
+  
+  // Auto-focus the new course code input if possible
+  setTimeout(() => {
+    const newInput = document.querySelector(`.custom-edit.code-input[data-id="${id}"]`);
+    if (newInput) {
+        newInput.focus();
+        newInput.select();
+    }
+  }, 50);
 });
 
 function renderPlannerSummary(){
