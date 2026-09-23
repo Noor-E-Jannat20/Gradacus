@@ -223,6 +223,73 @@
   }
   .user-bar .email{color:var(--text); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   #appRoot{display:none;}
+
+  /* ---- semester planner ---- */
+  .planner-note{font-size:0.76rem; color:var(--text-dim); margin:-6px 0 16px;}
+  .planner-controls{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
+  .planner-controls .field{margin-bottom:0; flex:1; min-width:140px;}
+  .planner-layout{display:grid; grid-template-columns:1fr 1.3fr; gap:20px;}
+  @media (max-width:820px){ .planner-layout{grid-template-columns:1fr;} }
+
+  .pool-filters{display:flex; gap:8px; margin-bottom:12px;}
+  .pool-filters select, .pool-filters input{font-size:0.8rem; padding:8px 10px;}
+  .pool-list{
+    max-height:480px; overflow-y:auto; border:1px solid var(--line); border-radius:8px;
+    background:var(--bg-1);
+  }
+  .pool-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 12px; border-bottom:1px solid rgba(35,42,77,0.5); font-size:0.85rem;
+  }
+  .pool-item:last-child{border-bottom:none;}
+  .pool-item .info{min-width:0;}
+  .pool-item .code{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--cyan); font-size:0.82rem;}
+  .pool-item .name{color:var(--text-dim); font-size:0.78rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pool-item .tag{
+    font-size:0.65rem; text-transform:lowercase; padding:1px 7px; border-radius:10px; margin-left:8px;
+    border:1px solid var(--line); color:var(--text-dim); white-space:nowrap;
+  }
+  .pool-item .tag.core{border-color:var(--magenta); color:var(--magenta);}
+  .pool-item .tag.elective{border-color:var(--violet); color:var(--violet);}
+  .pool-item .tag.foundation{border-color:var(--amber); color:var(--amber);}
+  .pool-item .credit-badge{font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-dim); margin-left:8px;}
+  .pool-item button{flex-shrink:0;}
+  .pool-item.placed{opacity:0.45;}
+
+  .semester-tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .sem-tab{
+    background:var(--bg-1); border:1px solid var(--line); color:var(--text-dim);
+    padding:7px 14px; border-radius:20px; font-size:0.78rem; cursor:pointer; font-family:'Chakra Petch',sans-serif;
+    transition:all .15s;
+  }
+  .sem-tab.active{border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 10px rgba(77,238,234,0.2);}
+  .sem-tab .credits{opacity:0.7; margin-left:5px;}
+  .add-sem-btn{
+    background:none; border:1px dashed var(--line); color:var(--text-dim);
+    padding:7px 14px; border-radius:20px; font-size:0.78rem; cursor:pointer;
+  }
+  .add-sem-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  .semester-card{
+    background:var(--bg-1); border:1px solid var(--line); border-radius:8px; padding:16px; min-height:120px;
+  }
+  .semester-card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .semester-card-head .credit-total{font-family:'JetBrains Mono',monospace; font-size:0.85rem; font-weight:700;}
+  .credit-total.ok{color:var(--green);}
+  .credit-total.warn{color:var(--amber);}
+  .credit-total.over{color:var(--red);}
+  .sem-course-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:8px 4px; border-bottom:1px solid rgba(35,42,77,0.5); font-size:0.85rem;
+  }
+  .sem-course-row:last-child{border-bottom:none;}
+  .sem-course-row .code{font-family:'JetBrains Mono',monospace; color:var(--cyan); font-weight:700; font-size:0.8rem;}
+  .sem-course-row .name{color:var(--text-dim); font-size:0.78rem;}
+  .sem-course-actions{display:flex; gap:4px;}
+  .sem-course-actions button{width:24px; height:24px; font-size:0.7rem; padding:0;}
+  .semester-empty{color:var(--text-dim); font-size:0.82rem; text-align:center; padding:20px 0;}
+  .rename-input{background:transparent; border:none; border-bottom:1px dashed var(--line); color:var(--text); font-family:'Chakra Petch',sans-serif; font-size:0.95rem; font-weight:600; padding:2px 0; width:140px;}
+  .rename-input:focus{outline:none; border-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -395,6 +462,60 @@
     </div>
   </div>
 
+  <div class="panel" style="margin-top:24px;">
+    <h2><span class="dot" style="background:var(--violet); box-shadow:0 0 8px var(--violet);"></span>Semester Planner</h2>
+    <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against your own advising sheet before registering.</p>
+
+    <div class="planner-controls">
+      <div class="field">
+        <label for="plannerProgram">Planning for</label>
+        <select id="plannerProgram">
+          <option value="CSE">CSE — Computer Science & Engineering</option>
+          <option value="CS">CS — Computer Science</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="planner-layout">
+      <div class="pool-col">
+        <div class="pool-filters">
+          <input type="text" id="poolSearch" placeholder="Search course or code...">
+          <select id="poolCategory">
+            <option value="all">All</option>
+            <option value="core">Core</option>
+            <option value="elective">Elective</option>
+            <option value="foundation">Foundation</option>
+          </select>
+          <select id="poolSort">
+            <option value="code">Sort: Code</option>
+            <option value="name">Sort: Name</option>
+          </select>
+        </div>
+        <div class="pool-list" id="poolList"></div>
+      </div>
+
+      <div class="semesters-col">
+        <div class="semester-tabs" id="semesterTabs"></div>
+        <div class="semester-card" id="semesterCard"></div>
+      </div>
+    </div>
+
+    <div class="stats-row" style="margin-top:20px;">
+      <div class="stat">
+        <div class="label">completed so far (from CGPA tab)</div>
+        <div class="val" id="plannerCompleted">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">planned across all semesters</div>
+        <div class="val" id="plannerPlanned">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">still unaccounted for</div>
+        <div class="val warn" id="plannerRemaining">0</div>
+      </div>
+    </div>
+  </div>
+
   <footer>Repeated courses replace the old grade in your CGPA — click ↺ on the old attempt to undo it. Uncheck "Include" to preview dropping a course's GPA without losing it; check it again to restore.</footer>
 </div>
 
@@ -446,11 +567,21 @@ function gradeFromLetter(letter){
   return GRADE_SCALE.find(g => g.letter === letter) || null;
 }
 
+function defaultPlanner(){
+  const firstSemId = crypto.randomUUID();
+  return {
+    program: 'CSE',
+    activeSemesterId: firstSemId,
+    semesters: [ { id: firstSemId, label: 'Semester 1', codes: [] } ]
+  };
+}
+
 let state = {
   program: '136',
   priorCgpa: '',
   priorCredits: '',
-  courses: []
+  courses: [],
+  planner: defaultPlanner()
 };
 
 function newCourse(code, credits, repeatOf){
@@ -524,6 +655,9 @@ function render(){
 
   attachRowListeners();
   computeAndDisplay();
+  if (typeof renderPlannerSummary === 'function' && document.getElementById('plannerCompleted')){
+    renderPlannerSummary();
+  }
   saveState();
 }
 
@@ -672,7 +806,96 @@ function buildScaleTable(){
   body.innerHTML = rows.map(r => `<tr><td class="mono">${r[0]}</td><td style="color:${GRADE_COLOR[r[1]]}">${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('');
 }
 
-let saveTimer = null;
+// ---- BRAC University course data (source: bracu.ac.bd CSE dept pages) ----
+const COURSE_DB = {
+  // Foundation / General Education
+  ENG101:{name:'English Fundamentals', credits:3},
+  ENG102:{name:'English Composition', credits:3},
+  MAT110:{name:'Mathematics I', credits:3},
+  MAT120:{name:'Mathematics II', credits:3},
+  MAT215:{name:'Mathematics III', credits:3},
+  MAT216:{name:'Mathematics IV', credits:3},
+  PHY111:{name:'Principles of Physics I', credits:3},
+  PHY112:{name:'Principles of Physics II', credits:3},
+  STA201:{name:'Elements of Statistics and Probability', credits:3},
+  DEV101:{name:'Bangladesh Studies', credits:3},
+  HUM103:{name:'Ethics and Culture', credits:3},
+  // CSE department courses
+  CSE101:{name:'Introduction to Computer Science', credits:3},
+  CSE110:{name:'Programming Language I', credits:3},
+  CSE111:{name:'Programming Language II', credits:3},
+  CSE220:{name:'Data Structures', credits:3},
+  CSE221:{name:'Algorithms', credits:3},
+  CSE230:{name:'Discrete Mathematics', credits:3},
+  CSE250:{name:'Circuits and Electronics', credits:3},
+  CSE251:{name:'Electronic Devices and Circuits', credits:3},
+  CSE260:{name:'Digital Logic Design', credits:3},
+  CSE310:{name:'Object-Oriented Programming', credits:3},
+  CSE320:{name:'Data Communications', credits:3},
+  CSE321:{name:'Operating Systems', credits:3},
+  CSE330:{name:'Numerical Methods', credits:3},
+  CSE331:{name:'Automata and Computability', credits:3},
+  CSE340:{name:'Computer Architecture', credits:3},
+  CSE341:{name:'Microprocessors', credits:3},
+  CSE342:{name:'Computer Systems Engineering', credits:3},
+  CSE350:{name:'Digital Electronics and Pulse Techniques', credits:3},
+  CSE360:{name:'Computer Interfacing', credits:3},
+  CSE370:{name:'Database Systems', credits:3},
+  CSE371:{name:'Management Information Systems', credits:3},
+  CSE390:{name:'Technical Communication', credits:3},
+  CSE391:{name:'Programming for the Internet', credits:3},
+  CSE392:{name:'Signals and Systems', credits:3},
+  CSE400:{name:'Final Year Design Project', credits:4},
+  CSE410:{name:'Advanced Programming in UNIX', credits:3},
+  CSE419:{name:'Programming Languages & Competitive Programming', credits:3},
+  CSE420:{name:'Compiler Design', credits:3},
+  CSE421:{name:'Computer Networks', credits:3},
+  CSE422:{name:'Artificial Intelligence', credits:3},
+  CSE423:{name:'Computer Graphics', credits:3},
+  CSE424:{name:'Pattern Recognition', credits:3},
+  CSE425:{name:'Neural Networks', credits:3},
+  CSE426:{name:'Advanced Algorithms', credits:3},
+  CSE427:{name:'Machine Learning', credits:3},
+  CSE428:{name:'Image Processing', credits:3},
+  CSE429:{name:'Basic Multimedia Theory', credits:3},
+  CSE430:{name:'Digital Signal Processing', credits:3},
+  CSE431:{name:'Natural Language Processing', credits:3},
+  CSE432:{name:'Speech Recognition and Synthesis', credits:3},
+  CSE460:{name:'VLSI Design', credits:3},
+  CSE461:{name:'Introduction to Robotics', credits:3},
+  CSE462:{name:'Fault-Tolerant Systems', credits:3},
+  CSE470:{name:'Software Engineering', credits:3},
+  CSE471:{name:'Systems Analysis and Design', credits:3},
+  CSE472:{name:'Human-Computer Interface', credits:3},
+  CSE473:{name:'Financial Engineering & Technology', credits:3},
+  CSE474:{name:'Simulation and Modeling', credits:3},
+  CSE490:{name:'Special Topics', credits:3},
+  CSE491:{name:'Independent Study', credits:3},
+};
+
+const FOUNDATION_CODES = ['ENG101','ENG102','MAT110','MAT120','MAT215','MAT216','PHY111','PHY112','STA201','DEV101','HUM103'];
+
+const PROGRAM_POOLS = {
+  CSE: {
+    core: ['CSE110','CSE111','CSE220','CSE221','CSE230','CSE250','CSE251','CSE260','CSE320','CSE321','CSE330','CSE331','CSE340','CSE341','CSE350','CSE360','CSE370','CSE400','CSE420','CSE421','CSE422','CSE423','CSE460','CSE461','CSE470','CSE471'],
+    elective: ['CSE101','CSE310','CSE342','CSE371','CSE390','CSE391','CSE392','CSE410','CSE419','CSE424','CSE425','CSE426','CSE427','CSE428','CSE429','CSE430','CSE431','CSE432','CSE462','CSE472','CSE473','CSE474','CSE490','CSE491'],
+  },
+  CS: {
+    core: ['CSE110','CSE111','CSE220','CSE221','CSE230','CSE260','CSE321','CSE330','CSE331','CSE340','CSE370','CSE400','CSE420','CSE421','CSE422','CSE423','CSE470'],
+    elective: ['CSE250','CSE251','CSE310','CSE320','CSE341','CSE342','CSE350','CSE360','CSE390','CSE391','CSE392','CSE410','CSE419','CSE424','CSE425','CSE426','CSE427','CSE428','CSE429','CSE430','CSE431','CSE432','CSE460','CSE461','CSE462','CSE471','CSE472','CSE473','CSE474','CSE490','CSE491'],
+  }
+};
+
+function getPoolForProgram(program){
+  const pools = PROGRAM_POOLS[program];
+  const items = [];
+  pools.core.forEach(code => items.push({code, tag:'core'}));
+  pools.elective.forEach(code => items.push({code, tag:'elective'}));
+  FOUNDATION_CODES.forEach(code => items.push({code, tag:'foundation'}));
+  return items;
+}
+
+
 async function saveState(){
   if (!currentUser) return;
   // debounce so we're not writing to Firestore on every keystroke
@@ -697,16 +920,206 @@ async function loadState(){
     if (doc.exists && doc.data().data){
       const parsed = JSON.parse(doc.data().data);
       if (parsed && Array.isArray(parsed.courses)){
+        if (!parsed.planner || !Array.isArray(parsed.planner.semesters)){
+          parsed.planner = defaultPlanner();
+        }
         state = parsed;
         return;
       }
     }
   } catch(err){ console.error('Load failed:', err); }
   // no saved data yet — start fresh for this user
-  state = { program:'136', priorCgpa:'', priorCredits:'', courses:[] };
+  state = { program:'136', priorCgpa:'', priorCredits:'', courses:[], planner: defaultPlanner() };
 }
 
-// ---- wiring ----
+// ---- semester planner ----
+function activeSemester(){
+  return state.planner.semesters.find(s => s.id === state.planner.activeSemesterId) || state.planner.semesters[0];
+}
+
+function allPlacedCodes(){
+  const set = new Set();
+  state.planner.semesters.forEach(s => s.codes.forEach(c => set.add(c)));
+  return set;
+}
+
+function renderPlanner(){
+  document.getElementById('plannerProgram').value = state.planner.program;
+  renderSemesterTabs();
+  renderSemesterCard();
+  renderPool();
+  renderPlannerSummary();
+}
+
+function renderSemesterTabs(){
+  const wrap = document.getElementById('semesterTabs');
+  wrap.innerHTML = '';
+  state.planner.semesters.forEach(sem => {
+    const total = sem.codes.reduce((sum, c) => sum + (COURSE_DB[c]?.credits || 0), 0);
+    const tab = document.createElement('button');
+    tab.className = 'sem-tab' + (sem.id === state.planner.activeSemesterId ? ' active' : '');
+    tab.innerHTML = `${sem.label} <span class="credits">${total}cr</span>`;
+    tab.addEventListener('click', () => { state.planner.activeSemesterId = sem.id; renderPlanner(); saveState(); });
+    wrap.appendChild(tab);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-sem-btn';
+  addBtn.textContent = '+ Add semester';
+  addBtn.addEventListener('click', () => {
+    const id = crypto.randomUUID();
+    state.planner.semesters.push({ id, label: `Semester ${state.planner.semesters.length + 1}`, codes: [] });
+    state.planner.activeSemesterId = id;
+    renderPlanner();
+    saveState();
+  });
+  wrap.appendChild(addBtn);
+}
+
+function renderSemesterCard(){
+  const sem = activeSemester();
+  const card = document.getElementById('semesterCard');
+  if (!sem){ card.innerHTML = ''; return; }
+
+  const total = sem.codes.reduce((sum, c) => sum + (COURSE_DB[c]?.credits || 0), 0);
+  const totalClass = total > 18 ? 'over' : (total >= 12 && total <= 18 ? 'ok' : 'warn');
+
+  let rows = '';
+  if (sem.codes.length === 0){
+    rows = `<div class="semester-empty">No courses yet — add some from the list on the left.</div>`;
+  } else {
+    rows = sem.codes.map((code, idx) => {
+      const c = COURSE_DB[code];
+      return `
+        <div class="sem-course-row">
+          <div>
+            <span class="code">${code}</span>
+            <span class="name">${c ? c.name : 'Unknown course'}</span>
+          </div>
+          <div class="sem-course-actions">
+            <button class="icon-btn" data-planner-action="up" data-code="${code}" ${idx===0?'disabled':''} title="Move up">↑</button>
+            <button class="icon-btn" data-planner-action="down" data-code="${code}" ${idx===sem.codes.length-1?'disabled':''} title="Move down">↓</button>
+            <button class="icon-btn danger" data-planner-action="remove" data-code="${code}" title="Remove from semester">✕</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  card.innerHTML = `
+    <div class="semester-card-head">
+      <input class="rename-input" id="semLabelInput" value="${sem.label}" title="Rename this semester">
+      <span class="credit-total ${totalClass}">${total} credits</span>
+    </div>
+    ${rows}
+  `;
+
+  document.getElementById('semLabelInput').addEventListener('input', e => {
+    sem.label = e.target.value;
+    renderSemesterTabs();
+    saveState();
+  });
+
+  card.querySelectorAll('[data-planner-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.dataset.code;
+      const action = btn.dataset.plannerAction;
+      const idx = sem.codes.indexOf(code);
+      if (action === 'remove'){
+        sem.codes.splice(idx, 1);
+      } else if (action === 'up' && idx > 0){
+        [sem.codes[idx-1], sem.codes[idx]] = [sem.codes[idx], sem.codes[idx-1]];
+      } else if (action === 'down' && idx < sem.codes.length - 1){
+        [sem.codes[idx+1], sem.codes[idx]] = [sem.codes[idx], sem.codes[idx+1]];
+      }
+      renderPlanner();
+      saveState();
+    });
+  });
+}
+
+function renderPool(){
+  const search = (document.getElementById('poolSearch').value || '').trim().toLowerCase();
+  const category = document.getElementById('poolCategory').value;
+  const sort = document.getElementById('poolSort').value;
+  const placed = allPlacedCodes();
+
+  let items = getPoolForProgram(state.planner.program);
+  if (category !== 'all') items = items.filter(i => i.tag === category);
+  if (search){
+    items = items.filter(i => {
+      const info = COURSE_DB[i.code];
+      return i.code.toLowerCase().includes(search) || (info && info.name.toLowerCase().includes(search));
+    });
+  }
+  items.sort((a, b) => {
+    if (sort === 'name') return (COURSE_DB[a.code]?.name || '').localeCompare(COURSE_DB[b.code]?.name || '');
+    return a.code.localeCompare(b.code);
+  });
+
+  const list = document.getElementById('poolList');
+  if (items.length === 0){
+    list.innerHTML = `<div class="pool-item"><span class="name">No courses match.</span></div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(i => {
+    const info = COURSE_DB[i.code] || { name:'Unknown', credits:3 };
+    const isPlaced = placed.has(i.code);
+    return `
+      <div class="pool-item ${isPlaced ? 'placed' : ''}">
+        <div class="info">
+          <span class="code">${i.code}</span>
+          <span class="tag ${i.tag}">${i.tag}</span>
+          <span class="credit-badge">${info.credits}cr</span>
+          <div class="name">${info.name}</div>
+        </div>
+        <button class="btn small" data-add-code="${i.code}" ${isPlaced ? 'disabled' : ''}>${isPlaced ? 'Added' : '+ Add'}</button>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-add-code]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sem = activeSemester();
+      if (!sem) return;
+      const code = btn.dataset.addCode;
+      if (!sem.codes.includes(code)){
+        sem.codes.push(code);
+        renderPlanner();
+        saveState();
+      }
+    });
+  });
+}
+
+function renderPlannerSummary(){
+  const priorCredits = parseFloat(state.priorCredits) || 0;
+  const tableActive = state.courses.reduce((sum, c) => {
+    if (!c.included) return sum;
+    const credits = parseFloat(c.credits);
+    return isNaN(credits) ? sum : sum + credits;
+  }, 0);
+  const completed = priorCredits + tableActive;
+
+  const planned = state.planner.semesters.reduce((sum, sem) =>
+    sum + sem.codes.reduce((s2, c) => s2 + (COURSE_DB[c]?.credits || 0), 0), 0);
+
+  const required = state.planner.program === 'CSE' ? 136 : 124;
+  const remaining = Math.max(required - completed - planned, 0);
+
+  document.getElementById('plannerCompleted').textContent = round1(completed);
+  document.getElementById('plannerPlanned').textContent = round1(planned);
+  document.getElementById('plannerRemaining').textContent = `${round1(remaining)} / ${required}`;
+}
+
+document.getElementById('plannerProgram').addEventListener('change', e => {
+  state.planner.program = e.target.value;
+  renderPlanner();
+  saveState();
+});
+document.getElementById('poolSearch').addEventListener('input', renderPool);
+document.getElementById('poolCategory').addEventListener('change', renderPool);
+document.getElementById('poolSort').addEventListener('change', renderPool);
+
+
 document.getElementById('program').addEventListener('change', e => { state.program = e.target.value; computeAndDisplay(); saveState(); });
 document.getElementById('priorCgpa').addEventListener('input', e => { state.priorCgpa = e.target.value; computeAndDisplay(); saveState(); });
 document.getElementById('priorCredits').addEventListener('input', e => { state.priorCredits = e.target.value; computeAndDisplay(); saveState(); });
@@ -811,6 +1224,7 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('authPassword').value = '';
     await loadState();
     render();
+    renderPlanner();
   } else {
     currentUser = null;
     overlay.style.display = 'flex';
