@@ -300,6 +300,10 @@
   .pool-item .tag.custom{border-color:var(--green); color:var(--green);}
   .pool-item .credit-badge{font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-dim); margin-left:8px;}
   .pool-item button{flex-shrink:0;}
+  .pool-actions{display:flex; align-items:center; gap:6px; flex-shrink:0;}
+  .source-links{display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; font-size:0.78rem; color:var(--text-dim); margin:-4px 0 18px;}
+  .source-links a, .hint a{color:var(--cyan); text-decoration:underline; text-underline-offset:3px;}
+  .source-links a:hover, .hint a:hover{color:var(--green);}
   .pool-item.placed{opacity:0.45;}
 
   .semester-tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
@@ -443,6 +447,7 @@
               <option value="136">CSE — 136 credits required</option>
               <option value="124">CS — 124 credits required</option>
             </select>
+            <div class="hint">Official curriculum: <a id="programLink" href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-engineering-cse" target="_blank" rel="noopener noreferrer">BRACU CSE program page ↗</a></div>
           </div>
           <div class="field">
             <label for="priorCgpa">Current CGPA (before adding courses below)</label>
@@ -526,7 +531,14 @@
   <div id="page-planner" class="page-section">
     <div class="panel">
       <h2><span class="dot" style="background:var(--violet); box-shadow:0 0 8px var(--violet);"></span>Semester Planner</h2>
-      <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against your own advising sheet before registering.</p>
+      <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against the official pages below and your own advising sheet before registering.</p>
+      <div class="source-links">
+        <span>Official sources:</span>
+        <a href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-engineering-cse" target="_blank" rel="noopener noreferrer">CSE program &amp; courses ↗</a>
+        <a href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-cs" target="_blank" rel="noopener noreferrer">CS program &amp; courses ↗</a>
+        <a href="https://www.bracu.ac.bd/academics/schools-and-departments/school-data-computational-sciences/computer-science-and/degree" target="_blank" rel="noopener noreferrer">Degree plans &amp; course sequences ↗</a>
+        <a href="https://cse.sds.bracu.ac.bd/course/list" target="_blank" rel="noopener noreferrer">CSE department course catalogue ↗</a>
+      </div>
 
       <div class="planner-controls">
         <div class="field">
@@ -583,6 +595,7 @@
 
   <footer style="margin-top:44px; text-align:center; color:var(--text-dim); font-size:0.78rem; padding-bottom: 20px;">
     Repeated courses replace the old grade in your CGPA — click <b>Undo Repeat</b> on the old attempt to undo it. Uncheck "Include" to preview dropping a course's GPA without losing it; check it again to restore.
+    <br>Always verify against the <a href="https://www.bracu.ac.bd/academics/schools-and-departments/school-data-computational-sciences/computer-science-and/degree" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);">official BRACU degree plans</a>.
   </footer>
 </div>
 
@@ -686,8 +699,17 @@ function newCourse(code, credits, repeatOf){
   };
 }
 
+const PROGRAM_LINKS = {
+  '136': { href: 'https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-engineering-cse', text: 'BRACU CSE program page ↗' },
+  '124': { href: 'https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-cs', text: 'BRACU CS program page ↗' }
+};
+
 function render(){
   document.getElementById('program').value = state.program;
+  const pl = PROGRAM_LINKS[state.program] || PROGRAM_LINKS['136'];
+  const linkEl = document.getElementById('programLink');
+  linkEl.href = pl.href;
+  linkEl.textContent = pl.text;
   document.getElementById('priorCgpa').value = state.priorCgpa;
   document.getElementById('priorCredits').value = state.priorCredits;
 
@@ -963,7 +985,7 @@ const COURSE_DB = {
   CSE491:{name:'Independent Study', credits:3},
 };
 
-const FOUNDATION_CODES = ['ENG101','ENG102','MAT110','MAT120','MAT215','MAT216','PHY111','PHY112','STA201','DEV101','HUM103'];
+const FOUNDATION_CODES = ['ENG101','ENG102','MAT110','MAT120','MAT215','MAT216','PHY111','PHY112','STA201','HUM103'];
 
 const PROGRAM_POOLS = {
   CSE: {
@@ -1356,9 +1378,32 @@ function renderPool(){
           <span class="credit-badge">${info.credits}cr</span>
           <div class="name">${info.name}</div>
         </div>
-        <button class="btn small" data-add-code="${i.code}" ${isPlaced ? 'disabled' : ''}>${isPlaced ? 'Added' : '+ Add'}</button>
+        <div class="pool-actions">
+          <button class="btn small" data-add-code="${i.code}" ${isPlaced ? 'disabled' : ''}>${isPlaced ? 'Added' : '+ Add'}</button>
+          ${i.tag === 'custom' ? `<button class="icon-btn text-btn danger" data-delete-custom="${i.code}" title="Delete this custom course">Delete</button>` : ''}
+        </div>
       </div>`;
   }).join('');
+
+  // Two-step delete: first click arms the button, second click (within 3s) confirms.
+  list.querySelectorAll('[data-delete-custom]').forEach(btn => {
+    let armed = false, timer = null;
+    btn.addEventListener('click', () => {
+      if (!armed){
+        armed = true;
+        btn.textContent = 'Confirm?';
+        btn.classList.add('armed');
+        timer = setTimeout(() => {
+          armed = false;
+          btn.textContent = 'Delete';
+          btn.classList.remove('armed');
+        }, 3000);
+        return;
+      }
+      clearTimeout(timer);
+      deleteCustomCourse(btn.dataset.deleteCustom);
+    });
+  });
 
   list.querySelectorAll('[data-add-code]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1375,6 +1420,19 @@ function renderPool(){
       }
     });
   });
+}
+
+// Delete a custom course entirely (also pulls it out of any semester it was placed in).
+function deleteCustomCourse(id){
+  const info = state.customCourses && state.customCourses[id];
+  if (!info) return;
+  delete state.customCourses[id];
+  state.planner.semesters.forEach(sem => {
+    sem.codes = sem.codes.filter(c => c !== id);
+  });
+  renderPlanner();
+  saveState();
+  showToast(`Deleted custom course ${info.code || ''}`.trim());
 }
 
 // Add Custom Course Logic
