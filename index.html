@@ -443,6 +443,10 @@
   .dl-banners{position:fixed; top:14px; right:14px; z-index:70; display:flex; flex-direction:column; gap:8px; max-width:340px;}
   .dl-banner{background:var(--panel-2); border:1px solid var(--amber); border-radius:8px; padding:10px 12px; font-size:0.82rem; display:flex; gap:10px; justify-content:space-between; align-items:flex-start;}
   .icon-btn.armed{width:auto; padding:0 8px;}
+  .dl-del{align-self:flex-start; flex-shrink:0; opacity:0.6;}
+  .dl-del:hover,.dl-del.armed{opacity:1;}
+  .tl-item{padding-right:44px;}
+  .tl-item .dl-del{position:absolute; right:8px; top:8px;}
 </style>
 </head>
 <body>
@@ -1949,7 +1953,8 @@ function card(it){
       <div class="dl-meta"><span class="dl-tag">${esc(it.type)}</span><span class="dl-tag" style="color:${pr.c}">${pr.l}</span>${it.seriesId ? '<span class="dl-tag">🔁 repeats</span>' : ''}</div>
       <div class="dl-time">${cdHtml(it)} · Due ${fmtDate(d)} · ${fmtTime(d)}</div>
       <div class="dl-bar"><i style="width:${p}%"></i></div><div class="dl-pct">Progress: ${p}%</div>
-    </div></div>`;
+    </div>
+    <button class="icon-btn danger dl-del" data-del="${it.id}" title="Delete deadline">✕</button></div>`;
 }
 
 function renderContent(){
@@ -1981,6 +1986,7 @@ function timelineView(){
     }
     const c = course(it.courseId);
     html += `<div class="tl-item ${it.completedAt ? 'done' : ''}" data-id="${it.id}" style="--cc:${c ? c.color : 'var(--text-dim)'}">
+      <button class="icon-btn danger dl-del" data-del="${it.id}" title="Delete deadline">✕</button>
       <div class="dl-course">${c ? esc(c.code) : 'No course'} · ${esc(it.type)} · ${fmtTime(d)}</div>
       <div class="dl-title" style="margin:2px 0">${esc(it.title)}</div>
       <div class="dl-time">${cdHtml(it)} · ${it.completedAt ? 100 : prog(it)}% done</div></div>`;
@@ -2319,6 +2325,8 @@ function init(){
     render();
   };
   $('dlContent').onclick = e => {
+    const del = e.target.closest('[data-del]');
+    if (del){ e.stopPropagation(); if (!armed(del)) return; D().items = D().items.filter(o => o.id !== del.dataset.del); commit(); showToast('Deadline deleted'); return; }
     const chk = e.target.closest('[data-done]'); if (chk){ e.stopPropagation(); toggleDone(chk.dataset.done); return; }
     const cm = e.target.closest('[data-cm]');
     if (cm){ const k = +cm.dataset.cm; if (k) calMonth.setMonth(calMonth.getMonth() + k); else { calMonth = new Date(); calMonth.setDate(1); } renderContent(); return; }
