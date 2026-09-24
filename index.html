@@ -88,8 +88,16 @@
 
   .grid{
     display:grid; grid-template-columns:340px 1fr; gap:24px;
+    align-items:start;
   }
-  @media (max-width:920px){ .grid{grid-template-columns:1fr;} }
+  .grid > div:first-child{
+    position:sticky;
+    top:20px;
+  }
+  @media (max-width:920px){
+    .grid{grid-template-columns:1fr;}
+    .grid > div:first-child{position:static;}
+  }
 
   .panel{
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
@@ -454,7 +462,11 @@
             </thead>
             <tbody id="courseBody"></tbody>
           </table>
-          <button class="btn full" id="addCourseBtn" style="margin-top:14px;">+ Add course</button>
+          <div style="display:flex; gap:10px; margin-top:14px;">
+            <button class="btn full" id="addCourseBtn">+ Add course</button>
+            <button class="btn full ghost" id="loadDefaultCoursesBtn" title="Add any of this degree's default courses that aren't on the table yet">Load default courses</button>
+          </div>
+          <div class="hint" style="margin-top:8px;">Switching degree above fills in that program's default courses automatically when the table is empty — add or remove any of them freely afterward.</div>
 
           <button class="scale-toggle" id="scaleToggle">show grading scale</button>
           <div class="scale-table" id="scaleTable">
@@ -917,6 +929,32 @@ const PROGRAM_POOLS = {
   }
 };
 
+// Maps the CGPA-table "Degree" select (136 / 124 credit programs) onto the
+// same course pools used by the planner, and adds any of that program's
+// foundation + core courses that aren't already on the table. Existing rows
+// (and any grades already entered) are left untouched — this only fills in
+// what's missing, it never overwrites or removes anything.
+function defaultCourseCodesForProgram(programValue){
+  const poolKey = programValue === '124' ? 'CS' : 'CSE';
+  const pool = PROGRAM_POOLS[poolKey];
+  if (!pool) return [];
+  return [...FOUNDATION_CODES, ...pool.core];
+}
+
+function loadDefaultCoursesForProgram(programValue){
+  const existing = new Set(state.courses.map(c => c.code));
+  let added = 0;
+  defaultCourseCodesForProgram(programValue).forEach(code => {
+    if (existing.has(code)) return;
+    const info = COURSE_DB[code];
+    if (!info) return;
+    state.courses.push(newCourse(code, info.credits));
+    existing.add(code);
+    added++;
+  });
+  return added;
+}
+
 function getCourseInfo(code) {
   if (state.customCourses && state.customCourses[code]) {
     return state.customCourses[code];
@@ -990,7 +1028,9 @@ async function loadState(){
       }
     }
   } catch(err){ console.error('Load failed:', err); }
+  // Brand-new account: start the table off with the default degree's courses.
   state = { program:'136', priorCgpa:'', priorCredits:'', courses:[], planner: defaultPlanner(), customCourses: {} };
+  loadDefaultCoursesForProgram(state.program);
 }
 
 // ---- semester planner ----
@@ -1032,14 +1072,19 @@ function renderSemesterTabs(){
   addBtn.addEventListener('click', () => {
     let defaultLabel = "Semester " + (state.planner.semesters.length + 1);
     if(state.planner.semesters.length === 0) defaultLabel = "Fall 2024"; // helpful default
-    const label = prompt("Enter semester name (e.g. Fall 2024):", defaultLabel);
-    if(!label) return;
-    
+
     const id = crypto.randomUUID();
-    state.planner.semesters.push({ id, label: label, codes: [] });
+    state.planner.semesters.push({ id, label: defaultLabel, codes: [] });
     state.planner.activeSemesterId = id;
     renderPlanner();
     saveState();
+
+    // Jump straight into the inline rename field so the user can type
+    // the real name immediately — no popup involved.
+    setTimeout(() => {
+      const input = document.getElementById('semLabelInput');
+      if (input){ input.focus(); input.select(); }
+    }, 50);
   });
   wrap.appendChild(addBtn);
 }
@@ -1285,7 +1330,23 @@ document.getElementById('poolCategory').addEventListener('change', renderPool);
 document.getElementById('poolSort').addEventListener('change', renderPool);
 
 
-document.getElementById('program').addEventListener('change', e => { state.program = e.target.value; computeAndDisplay(); saveState(); });
+document.getElementById('program').addEventListener('change', e => {
+  state.program = e.target.value;
+  // If the table is empty, load that degree's default courses right away.
+  if (state.courses.length === 0){
+    const added = loadDefaultCoursesForProgram(state.program);
+    if (added) showToast(`Loaded ${added} default courses for this degree`);
+  }
+  render();
+  saveState();
+});
+
+document.getElementById('loadDefaultCoursesBtn').addEventListener('click', () => {
+  const added = loadDefaultCoursesForProgram(state.program);
+  render();
+  saveState();
+  showToast(added ? `Added ${added} missing course${added===1?'':'s'} for this degree` : 'All default courses for this degree are already on the table');
+});
 document.getElementById('priorCgpa').addEventListener('input', e => { state.priorCgpa = e.target.value; computeAndDisplay(); saveState(); });
 document.getElementById('priorCredits').addEventListener('input', e => { state.priorCredits = e.target.value; computeAndDisplay(); saveState(); });
 
