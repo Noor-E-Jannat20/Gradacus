@@ -2055,18 +2055,18 @@ function openForm(it, pre){
     <div class="field" id="f_newt" style="display:none"><label>New type name</label><input type="text" id="f_tnew" placeholder="e.g. Lab report"></div>
     <div class="field-row"><div class="field"><label>Due date</label><input type="date" id="f_date" value="${v.date}"></div><div class="field"><label>Due time</label><input type="time" id="f_time" value="${v.time}"></div>
       <div class="field"><label>Priority</label><select id="f_prio">${Object.keys(PRIO).map(k => `<option value="${k}" ${v.prio === k ? 'selected' : ''}>${PRIO[k].l}</option>`).join('')}</select></div></div>
-    <div class="field"><label>Progress: <span id="f_pv">${v.prog}%</span></label><input type="range" id="f_prog" min="0" max="100" step="5" value="${v.prog}"><div class="hint" id="f_ph"></div></div>
+    ${it ? `<div class="field"><label>Progress: <span id="f_pv">${v.prog}%</span></label><input type="range" id="f_prog" min="0" max="100" step="5" value="${v.prog}"><div class="hint" id="f_ph"></div></div>` : '<div class="hint" style="margin:-6px 0 14px">Progress is calculated from your subtasks. Add some below to track it.</div>'}
     <div class="field"><label>Subtasks</label><div id="f_subs"></div><div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="f_subin" placeholder="Add a subtask…"><button class="btn small" id="f_subadd" type="button">Add</button></div></div>
     <div class="field"><label>Reminders</label><div id="f_rem"></div><div class="hint">Reminders are delivered while this page is open in a browser tab.</div></div>
     <div class="field"><label>Notes</label><textarea id="f_notes" placeholder="Optional notes">${esc(v.notes)}</textarea></div>
-    ${it ? (it.seriesId ? `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_series"> Apply title, course, type, priority, time, notes &amp; reminders to later items in this series</label>` : '') :
-      `<div class="field-row"><div class="field"><label>Repeat</label><select id="f_rep">${[['','Does not repeat'],['daily','Daily'],['weekly','Weekly'],['biweekly','Every 2 weeks'],['monthly','Monthly']].map(o => `<option value="${o[0]}" ${pre.rep === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
-      <div class="field"><label>Occurrences</label><input type="number" id="f_repn" min="1" max="60" value="8"></div></div>`}
+    ${it && it.seriesId ? `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_series"> Apply title, course, type, priority, time, notes &amp; reminders to later items in this series</label>` : ''}
     <div class="row-actions" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" id="f_cancel" type="button">Cancel</button><button class="btn" id="f_save" type="button">Save</button></div>`);
   const paintSubs = () => {
     $('f_subs').innerHTML = subs.map((s, i) => `<div class="dl-sub ${s.done ? 'done' : ''}"><input type="checkbox" data-sub="${i}" ${s.done ? 'checked' : ''}><input type="text" data-st="${i}" value="${esc(s.text)}"><button class="icon-btn" data-sx="${i}" type="button">✕</button></div>`).join('');
-    $('f_prog').disabled = subs.length > 0;
-    $('f_ph').textContent = subs.length ? `Calculated from subtasks: ${Math.round(subs.filter(s => s.done).length / subs.length * 100)}%` : 'Drag to set progress, or add subtasks to calculate it automatically.';
+    if ($('f_prog')){
+      $('f_prog').disabled = subs.length > 0;
+      $('f_ph').textContent = subs.length ? `Calculated from subtasks: ${Math.round(subs.filter(s => s.done).length / subs.length * 100)}%` : 'Drag to set progress, or add subtasks to calculate it automatically.';
+    }
   };
   const addSub = () => { const i = $('f_subin'), t = i.value.trim(); if (!t) return; subs.push({ id: uid(), text: t, done: false }); i.value = ''; paintSubs(); i.focus(); };
   remWidget('f_rem', rem); paintSubs();
@@ -2105,7 +2105,7 @@ function openForm(it, pre){
     }
     const dueStr = `${date}T${time}`;
     const base = { title, courseId: courseId || null, type, priority: $('f_prio').value, notes: $('f_notes').value.trim(), reminders: rem.slice().sort((a,b) => b-a),
-      subtasks: subs.filter(s => s.text.trim()).map(s => ({ id: s.id || uid(), text: s.text.trim(), done: !!s.done })), progress: +$('f_prog').value };
+      subtasks: subs.filter(s => s.text.trim()).map(s => ({ id: s.id || uid(), text: s.text.trim(), done: !!s.done })), progress: $('f_prog') ? +$('f_prog').value : (it ? it.progress || 0 : 0) };
     if (it){
       const changed = it.due !== dueStr || JSON.stringify(it.reminders) !== JSON.stringify(base.reminders);
       Object.assign(it, base, { due: dueStr }); if (changed) norm(it);
@@ -2116,14 +2116,9 @@ function openForm(it, pre){
         }
       });
     } else {
-      const rep = $('f_rep').value, n = Math.max(1, Math.min(60, +$('f_repn').value || 1)), d0 = new Date(dueStr), sid = rep ? uid() : null;
-      for (let k = 0; k < (rep ? n : 1); k++){
-        const d = new Date(d0);
-        if (k){ if (rep === 'daily') d.setDate(d0.getDate() + k); else if (rep === 'weekly') d.setDate(d0.getDate() + 7*k); else if (rep === 'biweekly') d.setDate(d0.getDate() + 14*k); else { d.setMonth(d0.getMonth() + k); if (d.getDate() !== d0.getDate()) d.setDate(0); } }
-        const o = Object.assign({}, base, { id: uid(), due: dstr(d) + 'T' + tstr(d), seriesId: sid, completedAt: null, createdAt: new Date().toISOString(),
-          reminders: base.reminders.slice(), subtasks: base.subtasks.map(s => ({ id: uid(), text: s.text, done: rep ? false : s.done })) });
-        norm(o); D().items.push(o);
-      }
+      const o = Object.assign({}, base, { id: uid(), due: dueStr, seriesId: null, completedAt: null, createdAt: new Date().toISOString(),
+        reminders: base.reminders.slice(), subtasks: base.subtasks.map(s => ({ id: uid(), text: s.text, done: s.done })) });
+      norm(o); D().items.push(o);
     }
     commit(); closeModal(); showToast(it ? 'Deadline updated' : 'Deadline added');
   }
@@ -2232,8 +2227,6 @@ function parseQuick(txt){
   let s = ' ' + txt + ' ', m; const r = { priority: 'medium' }, now = new Date();
   const cut = re => { const x = s.match(re); if (x) s = s.replace(re, ' '); return x; };
   if ((m = cut(/\b([A-Za-z]{3})\s?-?(\d{3})\b/))) r.code = (m[1] + m[2]).toUpperCase();
-  if ((m = cut(/\b(?:every|each)\s+(sun|mon|tue|wed|thu|fri|sat)[a-z]*\b/i))){ r.rep = 'weekly'; r.wd = WD.indexOf(m[1].toLowerCase()); }
-  else if ((m = cut(/\b(weekly|every week|daily|every day|monthly|every month|biweekly|every (?:other|2) weeks?)\b/i))){ const w = m[1].toLowerCase(); r.rep = /day/.test(w) ? 'daily' : /month/.test(w) ? 'monthly' : /other|2|bi/.test(w) ? 'biweekly' : 'weekly'; }
   if (cut(/\b(urgent|high priority|important|asap)\b/i)) r.priority = 'high'; else if (cut(/\blow priority\b/i)) r.priority = 'low';
   let h = null, mi = 0;
   if ((m = cut(/\b(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?(?![a-z])/i))){ h = (+m[1] % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0); mi = +(m[2] || 0); }
@@ -2272,11 +2265,11 @@ function parseQuick(txt){
 }
 function quickAdd(){
   const txt = $('dlQuick').value.trim(); if (!txt) return;
-  const r = parseQuick(txt), pre = { title: r.title, type: r.type, priority: r.priority, time: r.time, rep: r.rep || '', date: r.date ? dstr(r.date) : '' };
+  const r = parseQuick(txt), pre = { title: r.title, type: r.type, priority: r.priority, time: r.time, date: r.date ? dstr(r.date) : '' };
   const c = r.code && D().courses.find(c => c.code === r.code);
   if (c) pre.courseId = c.id;
   else if (r.code) pre.newCourse = { code: r.code, name: (typeof COURSE_DB !== 'undefined' && COURSE_DB[r.code] ? COURSE_DB[r.code].name : '') };
-  const seen = [r.code ? 'course <b>' + esc(r.code) + '</b>' : '', 'type <b>' + esc(r.type) + '</b>', r.date ? 'due <b>' + esc(fmtDate(r.date)) + ' ' + esc(fmtTime(new Date(dstr(r.date) + 'T' + r.time))) + '</b>' : '', r.rep ? 'repeats <b>' + r.rep + '</b>' : ''].filter(Boolean);
+  const seen = [r.code ? 'course <b>' + esc(r.code) + '</b>' : '', 'type <b>' + esc(r.type) + '</b>', r.date ? 'due <b>' + esc(fmtDate(r.date)) + ' ' + esc(fmtTime(new Date(dstr(r.date) + 'T' + r.time))) + '</b>' : ''].filter(Boolean);
   pre.note = `Quick add understood: ${seen.join(' · ')}.${r.assumed.length ? '<br>Check: ' + r.assumed.map(esc).join('; ') + '.' : ''}<br>Review the details, then press Save to confirm.`;
   $('dlQuick').value = ''; openForm(null, pre);
 }
