@@ -362,6 +362,87 @@
   .custom-edit.code-input { width: 75px; color: var(--cyan); font-weight: bold; }
   .custom-edit.name-input { flex: 1; min-width: 100px; }
   .custom-edit.credit-input { width: 45px; text-align: center; }
+  /* ===== Deadline Tracker ===== */
+  .dl-top{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; align-items:center;}
+  .dl-quick{display:flex; gap:8px; flex:1; min-width:260px;}
+  .dl-quick input{flex:1;}
+  .dl-views,.dl-tabs,.dl-filters{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center;}
+  .dl-views .btn.on{background:rgba(77,238,234,0.14); box-shadow:0 0 12px rgba(77,238,234,0.2);}
+  .dl-tabs .btn{border-color:var(--line); color:var(--text-dim);}
+  .dl-tabs .btn.on{border-color:var(--cyan); color:var(--cyan); background:rgba(77,238,234,0.08);}
+  .dl-filters select{width:auto; min-width:118px; padding:7px 28px 7px 10px; font-size:0.78rem;}
+  .dl-filters label{display:flex; align-items:center; gap:6px; margin:0; font-size:0.78rem;}
+  .btn.armed{border-color:var(--red); color:var(--red); background:rgba(255,77,109,0.1);}
+  .dl-group h3{font-size:0.8rem; margin:18px 0 8px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; display:flex; gap:8px; align-items:center;}
+  .dl-group h3.over{color:var(--red);}
+  .dl-empty{text-align:center; color:var(--text-dim); padding:34px 10px; font-size:0.9rem;}
+  .dl-card{display:flex; gap:12px; background:var(--bg-1); border:1px solid var(--line); border-left:4px solid var(--cc); border-radius:8px; padding:12px 14px; margin-bottom:10px; cursor:pointer; transition:border-color .15s;}
+  .dl-card:hover{border-color:var(--cc);}
+  .dl-card.done{opacity:0.55;}
+  .dl-card.done .dl-title{text-decoration:line-through;}
+  .dl-check{width:24px; height:24px; flex-shrink:0; border-radius:50%; border:2px solid var(--line); background:transparent; color:var(--green); cursor:pointer; font-size:0.8rem; margin-top:2px; padding:0;}
+  .dl-check:hover{border-color:var(--green);}
+  .dl-main{flex:1; min-width:0;}
+  .dl-course{font-size:0.72rem; color:var(--cc); font-family:'JetBrains Mono',monospace;}
+  .dl-title{font-weight:600; color:#eef0ff; margin:2px 0 6px;}
+  .dl-meta{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;}
+  .dl-tag{font-size:0.68rem; border:1px solid var(--line); border-radius:20px; padding:1px 8px; color:var(--text-dim);}
+  .dl-time{font-size:0.8rem; color:var(--text-dim);}
+  .cd{font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--cyan);}
+  .cd.soon{color:var(--amber);}
+  .cd.over{color:var(--red);}
+  .dl-bar{height:6px; background:var(--panel); border-radius:4px; margin-top:8px; overflow:hidden;}
+  .dl-bar i{display:block; height:100%; background:linear-gradient(90deg,var(--violet),var(--cyan));}
+  .dl-pct{font-size:0.72rem; color:var(--text-dim); margin-top:3px;}
+  .tl{margin-left:8px; padding-left:24px; border-left:2px solid var(--line);}
+  .tl-day{font-size:0.78rem; color:var(--text-dim); margin:16px 0 6px; font-weight:600;}
+  .tl-day.over{color:var(--red);}
+  .tl-gap{font-size:0.72rem; color:var(--text-dim); opacity:0.7; margin:8px 0; font-style:italic;}
+  .tl-item{position:relative; background:var(--bg-1); border:1px solid var(--line); border-radius:8px; padding:9px 12px; margin-bottom:8px; cursor:pointer;}
+  .tl-item::before{content:''; position:absolute; left:-32px; top:14px; width:10px; height:10px; border-radius:50%; background:var(--cc); box-shadow:0 0 8px var(--cc);}
+  .tl-item.done{opacity:0.5;}
+  .tl-now{position:relative; margin:14px 0; color:var(--magenta); font-size:0.75rem; font-weight:700; border-top:2px dashed var(--magenta); padding-top:4px;}
+  .tl-now::before{content:''; position:absolute; left:-32px; top:-7px; width:12px; height:12px; background:var(--magenta); border-radius:50%; box-shadow:0 0 10px var(--magenta);}
+  .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:8px;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px;}
+  .cal-wd{font-size:0.7rem; color:var(--text-dim); text-align:center; padding:4px;}
+  .cal-cell{min-height:86px; background:var(--bg-1); border:1px solid var(--line); border-radius:6px; padding:4px; cursor:pointer; overflow:hidden;}
+  .cal-cell.blank{background:transparent; border-color:transparent; cursor:default;}
+  .cal-cell.today{border-color:var(--magenta);}
+  .cal-cell.sel{box-shadow:0 0 0 2px var(--cyan);}
+  .cal-num{font-size:0.72rem; color:var(--text-dim); margin-bottom:2px;}
+  .cal-chip{display:block; width:100%; text-align:left; font-size:0.66rem; padding:1px 4px; margin-bottom:2px; border:none; border-left:3px solid var(--cc); background:rgba(255,255,255,0.05); color:var(--text); border-radius:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; font-family:inherit;}
+  .cal-chip.done{opacity:0.45; text-decoration:line-through;}
+  .cal-chip.over{color:var(--red);}
+  .cal-more{font-size:0.64rem; color:var(--text-dim);}
+  @media (max-width:640px){ .cal-cell{min-height:60px;} .cal-chip{font-size:0.6rem;} }
+  .dl-big{font-family:'JetBrains Mono',monospace; font-size:2rem; font-weight:700; color:var(--cyan); line-height:1.1;}
+  .dl-tiles{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0;}
+  .dl-tile{background:var(--bg-1); border:1px solid var(--line); border-radius:8px; padding:10px 12px;}
+  .dl-tile b{display:block; font-family:'JetBrains Mono',monospace; font-size:1.3rem;}
+  .dl-tile span{font-size:0.7rem; color:var(--text-dim);}
+  .dl-next{border:1px solid var(--cyan); border-radius:8px; padding:12px; margin-top:14px; cursor:pointer;}
+  .dl-modal{position:fixed; inset:0; background:rgba(3,4,10,0.75); display:none; align-items:flex-start; justify-content:center; padding:4vh 14px; z-index:60; overflow-y:auto;}
+  .dl-modal.open{display:flex;}
+  .dl-mbox{position:relative; width:100%; max-width:640px; background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--line); border-radius:12px; padding:24px;}
+  .dl-x{position:absolute; right:12px; top:12px;}
+  .dl-mbox h2{margin:0 0 6px; font-size:1.15rem; color:#eef0ff; padding-right:34px;}
+  .dl-mbox input[type=date],.dl-mbox input[type=time],.dl-mbox input[type=text],.dl-mbox input[type=number],.dl-mbox textarea{
+    width:100%; background:var(--bg-1); border:1px solid var(--line); color:var(--text); padding:9px 11px; border-radius:6px;
+    font-family:'JetBrains Mono',monospace; font-size:0.86rem; color-scheme:dark; outline:none;}
+  .dl-mbox textarea{min-height:70px; resize:vertical;}
+  .dl-mbox input:focus,.dl-mbox textarea:focus{border-color:var(--cyan);}
+  .dl-mbox input[type=range]{width:100%;}
+  .dl-mbox .field-row{flex-wrap:wrap;}
+  .dl-chip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:20px; padding:3px 10px; font-size:0.75rem; color:var(--text-dim); cursor:pointer; margin:0 6px 6px 0; background:none; font-family:inherit;}
+  .dl-chip.on{border-color:var(--cyan); color:var(--cyan); background:rgba(77,238,234,0.08);}
+  .dl-sub{display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid rgba(35,42,77,0.6);}
+  .dl-sub.done .t{text-decoration:line-through; color:var(--text-dim);}
+  .dl-sub .t{flex:1;}
+  .dl-note{background:rgba(255,184,77,0.08); border:1px solid var(--amber); color:var(--amber); border-radius:8px; padding:10px 12px; font-size:0.8rem; margin-bottom:14px;}
+  .dl-banners{position:fixed; top:14px; right:14px; z-index:70; display:flex; flex-direction:column; gap:8px; max-width:340px;}
+  .dl-banner{background:var(--panel-2); border:1px solid var(--amber); border-radius:8px; padding:10px 12px; font-size:0.82rem; display:flex; gap:10px; justify-content:space-between; align-items:flex-start;}
+  .icon-btn.armed{width:auto; padding:0 8px;}
 </style>
 </head>
 <body>
@@ -433,6 +514,7 @@
   <div class="nav-tabs">
     <button class="nav-tab active" data-page="page-cgpa">CGPA Calculator</button>
     <button class="nav-tab" data-page="page-planner">Course Planner</button>
+    <button class="nav-tab" data-page="page-deadlines">Deadline Tracker</button>
   </div>
 
   <div id="page-cgpa" class="page-section active">
@@ -590,6 +672,21 @@
           <div class="val warn" id="plannerRemaining">0</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="page-deadlines" class="page-section">
+    <div class="dl-top">
+      <div class="dl-quick">
+        <input type="text" id="dlQuick" placeholder='Quick add: "CSE422 assignment due Friday at 11:59 PM"'>
+        <button class="btn" id="dlQuickBtn">Quick Add</button>
+      </div>
+      <button class="btn" id="dlAddBtn">+ Add Deadline</button>
+      <button class="btn ghost" id="dlSetBtn">⚙ Courses &amp; settings</button>
+    </div>
+    <div class="grid">
+      <div><div class="panel" id="dlSummary"></div></div>
+      <div><div class="panel"><div id="dlToolbar"></div><div id="dlContent"></div></div></div>
     </div>
   </div>
 
@@ -1680,6 +1777,7 @@ async function enterApp(user){
   const ok = await loadState();
   if (seq !== authSeq || currentUser !== user) return;   // user changed while loading
   stateLoaded = ok;
+  if (window.dlEnsure) dlEnsure();
 
   document.getElementById('authOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = 'block';
@@ -1690,6 +1788,7 @@ async function enterApp(user){
   document.getElementById('authPassword').value = '';
   render();
   renderPlanner();
+  if (window.dlRender) dlRender();
 }
 
 if (auth){
@@ -1707,6 +1806,549 @@ if (auth){
     }
   });
 }
+</script>
+<script>
+(function(){
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const BASE = ['Assignment','Quiz','Exam','Project','Presentation','Other'];
+const PRIO = { low:{l:'Low',c:'var(--green)',w:0}, medium:{l:'Medium',c:'var(--amber)',w:1}, high:{l:'High',c:'var(--red)',w:2} };
+const COLORS = ['#4deeea','#ff3e9a','#9d7bff','#ffb84d','#41ffb0','#ff7a59','#5aa9ff','#e0e36a'];
+const PRESETS = [10080,4320,1440,720,60];
+const WD = ['sun','mon','tue','wed','thu','fri','sat'];
+const MON = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+const DAY = 864e5;
+let F = { course:'', type:'', prio:'', status:'', sort:'due', bucket:'active', showDone:false };
+let calMonth = new Date(); calMonth.setDate(1);
+let calSel = null;
+
+const D = () => state.deadlines;
+const uid = () => 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const pad = n => String(n).padStart(2, '0');
+const dstr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const tstr = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const due = it => new Date(it.due);
+const sod = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+const dayDiff = d => Math.round((sod(d) - sod(new Date())) / DAY);
+const fmtDate = d => d.toLocaleDateString('en-US', Object.assign({month:'short', day:'numeric'}, d.getFullYear() !== new Date().getFullYear() ? {year:'numeric'} : {}));
+const fmtTime = d => d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+const types = () => BASE.concat(D().customTypes);
+const find = id => D().items.find(i => i.id === id);
+const course = id => D().courses.find(c => c.id === id);
+const prog = it => it.subtasks && it.subtasks.length ? Math.round(it.subtasks.filter(s => s.done).length / it.subtasks.length * 100) : (+it.progress || 0);
+const plural = (t, n) => n > 1 ? (/quiz$/i.test(t) ? t + 'zes' : t + 's') : t;
+const remLabel = m => m % 1440 === 0 ? `${m/1440} day${m/1440>1?'s':''}` : m % 60 === 0 ? `${m/60} hour${m/60>1?'s':''}` : `${m} min`;
+
+function ensure(){
+  const d = state.deadlines = state.deadlines || {};
+  d.items = d.items || []; d.courses = d.courses || []; d.customTypes = d.customTypes || [];
+  d.prefs = Object.assign({ defRem:[1440,60], urgentH:48, notif:false, view:'list', period:14 }, d.prefs || {});
+}
+function commit(){ saveState(); render(); }
+
+/* ---------- countdown ---------- */
+function cd(ms){
+  const over = ms < 0, a = Math.abs(ms);
+  const s = Math.floor(a/1000) % 60, m = Math.floor(a/6e4) % 60, h = Math.floor(a/36e5) % 24, d = Math.floor(a/DAY);
+  let t;
+  if (over) t = d >= 1 ? `${d}d ${h}h` : a >= 36e5 ? `${h}h ${m}m` : `${m}m`;
+  else if (a > 7*DAY) t = `${d}d`;
+  else if (a >= 3*DAY) t = `${d}d ${h}h`;
+  else if (a >= DAY) t = `${d}d ${h}h ${m}m`;
+  else if (a >= 36e5) t = `${h}h ${m}m`;
+  else t = `${m}m ${s}s`;
+  return over ? `Overdue by ${t}` : `${t} remaining`;
+}
+function cdHtml(it){
+  if (it.completedAt){
+    const c = new Date(it.completedAt), diff = +due(it) - +c;
+    return `<span style="color:var(--green)">✓ Completed ${fmtDate(c)}${diff >= 0 ? ' (on time)' : ' (late)'}</span>`;
+  }
+  const ms = +due(it) - Date.now();
+  return `<span class="cd ${ms < 0 ? 'over' : ms < D().prefs.urgentH*36e5 ? 'soon' : ''}" data-due="${+due(it)}">${cd(ms)}</span>`;
+}
+function bucket(it){
+  if (it.completedAt) return 'done';
+  const d = due(it); if (d < Date.now()) return 'over';
+  const n = dayDiff(d); return n === 0 ? 'today' : n === 1 ? 'tomorrow' : n <= 7 ? 'week' : 'later';
+}
+const BK = { over:'Overdue', today:'Today', tomorrow:'Tomorrow', week:'This Week', later:'Later', done:'Completed' };
+
+/* ---------- filtering / sorting ---------- */
+function items(){
+  const stOk = it => !F.status || (F.status === 'done' ? !!it.completedAt : !it.completedAt && (F.status === 'none' ? prog(it) === 0 : prog(it) > 0));
+  const cc = it => (course(it.courseId) || {code:'~'}).code;
+  const cmp = {
+    due:(a,b) => due(a)-due(b), dueDesc:(a,b) => due(b)-due(a),
+    prio:(a,b) => PRIO[b.priority].w-PRIO[a.priority].w || due(a)-due(b),
+    course:(a,b) => cc(a).localeCompare(cc(b)) || due(a)-due(b),
+    type:(a,b) => a.type.localeCompare(b.type) || due(a)-due(b),
+    progress:(a,b) => prog(a)-prog(b) || due(a)-due(b)
+  }[F.sort];
+  return D().items.filter(i => (!F.course || i.courseId === F.course) && (!F.type || i.type === F.type) && (!F.prio || i.priority === F.prio) && stOk(i)).sort(cmp);
+}
+
+/* ---------- rendering ---------- */
+function render(){ if (!state.deadlines) return; ensure(); renderSummary(); renderToolbar(); renderContent(); }
+
+function renderSummary(){
+  const now = Date.now(), P = D().prefs;
+  const act = D().items.filter(i => !i.completedAt);
+  const up = act.filter(i => +due(i) >= now).sort((a,b) => due(a)-due(b));
+  const w = up.filter(i => +due(i) < now + 7*DAY);
+  const tc = {}; w.forEach(i => tc[i.type] = (tc[i.type] || 0) + 1);
+  const br = Object.keys(tc).map(t => `<div>${tc[t]} ${esc(plural(t.toLowerCase(), tc[t]))}</div>`).join('') || '<div style="color:var(--text-dim)">Nothing due this week</div>';
+  const urg = up.filter(i => +due(i) < now + P.urgentH*36e5).length;
+  const avg = act.length ? Math.round(act.reduce((s,i) => s + prog(i), 0) / act.length) : 0;
+  const n = up[0], nc = n && course(n.courseId);
+  $('dlSummary').innerHTML = `<h2><span class="dot"></span>Workload</h2>
+    <div style="font-size:0.75rem;color:var(--text-dim)">Next 7 days</div>
+    <div class="dl-big">${w.length} deadline${w.length === 1 ? '' : 's'}</div>
+    <div style="font-size:0.82rem;margin-top:6px">${br}</div>
+    <div class="dl-tiles">
+      <div class="dl-tile"><b style="color:var(--amber)">${urg}</b><span>urgent (under ${P.urgentH}h)</span></div>
+      <div class="dl-tile"><b>${act.length}</b><span>incomplete</span></div>
+      <div class="dl-tile"><b style="color:var(--red)">${act.length - up.length}</b><span>overdue</span></div>
+      <div class="dl-tile"><b style="color:var(--green)">${up.length}</b><span>total upcoming</span></div>
+    </div>
+    <div class="progress-caption"><span>Overall progress (active)</span><span>${avg}%</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${avg}%"></div></div>
+    ${n ? `<div class="dl-next" data-id="${n.id}"><div style="font-size:0.7rem;color:var(--text-dim)">Up next</div>
+      <div class="dl-course" style="--cc:${nc ? nc.color : 'var(--text-dim)'}">${nc ? esc(nc.code) : 'No course'}</div>
+      <div class="dl-title" style="margin-bottom:4px">${esc(n.title)}</div>${cdHtml(n)}
+      <div class="dl-pct">${prog(n)}% done</div></div>` : ''}`;
+}
+
+function renderToolbar(){
+  const P = D().prefs, v = P.view, cnt = {};
+  items().forEach(i => { const k = bucket(i); cnt[k] = (cnt[k] || 0) + 1; });
+  const act = ['over','today','tomorrow','week','later'].reduce((s,k) => s + (cnt[k] || 0), 0);
+  const sel = (k, opts, cur) => `<select data-f="${k}">${opts.map(o => `<option value="${esc(o[0])}" ${cur === o[0] ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select>`;
+  const tabs = [['active','Active',act]].concat(['today','tomorrow','week','later','over','done'].map(k => [k, BK[k], cnt[k] || 0]));
+  $('dlToolbar').innerHTML =
+    `<div class="dl-views">${[['list','☰ List'],['timeline','⏱ Timeline'],['calendar','▦ Calendar']].map(x => `<button class="btn small ${v === x[0] ? 'on' : ''}" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>` +
+    (v === 'list' ? `<div class="dl-tabs">${tabs.map(t => `<button class="btn small ${F.bucket === t[0] ? 'on' : ''}" data-b="${t[0]}">${t[1]} (${t[2]})</button>`).join('')}</div>` : '') +
+    `<div class="dl-filters">
+      ${sel('course', [['','All courses']].concat(D().courses.map(c => [c.id, c.code])), F.course)}
+      ${sel('type', [['','All types']].concat(types().map(t => [t, t])), F.type)}
+      ${sel('prio', [['','Any priority'],['high','High'],['medium','Medium'],['low','Low']], F.prio)}
+      ${sel('status', [['','Any status'],['none','Not started'],['part','In progress'],['done','Completed']], F.status)}
+      ${sel('sort', [['due','Sort: soonest'],['dueDesc','Sort: latest'],['prio','Sort: priority'],['course','Sort: course'],['type','Sort: type'],['progress','Sort: progress']], F.sort)}
+      ${v === 'timeline' ? sel('period', [['7','Next 7 days'],['14','Next 14 days'],['30','Next 30 days'],['60','Next 60 days']], String(P.period)) : ''}
+      ${v !== 'list' ? `<label><input type="checkbox" data-sd ${F.showDone ? 'checked' : ''}> show completed</label>` : ''}
+    </div>`;
+}
+
+function card(it){
+  const c = course(it.courseId), d = due(it), p = it.completedAt ? 100 : prog(it), pr = PRIO[it.priority];
+  return `<div class="dl-card ${it.completedAt ? 'done' : ''}" data-id="${it.id}" style="--cc:${c ? c.color : 'var(--text-dim)'}">
+    <button class="dl-check" data-done="${it.id}" title="${it.completedAt ? 'Reopen' : 'Mark complete'}">${it.completedAt ? '✓' : ''}</button>
+    <div class="dl-main">
+      <div class="dl-course">${c ? esc(c.code) + (c.name ? ' — ' + esc(c.name) : '') : 'No course'}</div>
+      <div class="dl-title">${esc(it.title)}</div>
+      <div class="dl-meta"><span class="dl-tag">${esc(it.type)}</span><span class="dl-tag" style="color:${pr.c}">${pr.l}</span>${it.seriesId ? '<span class="dl-tag">🔁 repeats</span>' : ''}</div>
+      <div class="dl-time">${cdHtml(it)} · Due ${fmtDate(d)} · ${fmtTime(d)}</div>
+      <div class="dl-bar"><i style="width:${p}%"></i></div><div class="dl-pct">Progress: ${p}%</div>
+    </div></div>`;
+}
+
+function renderContent(){
+  const v = D().prefs.view;
+  $('dlContent').innerHTML = v === 'timeline' ? timelineView() : v === 'calendar' ? calendarView() : listView();
+}
+
+function listView(){
+  const g = {}; items().forEach(i => (g[bucket(i)] = g[bucket(i)] || []).push(i));
+  const order = F.bucket === 'active' ? ['over','today','tomorrow','week','later'] : [F.bucket];
+  const html = order.filter(k => g[k]).map(k => `<div class="dl-group"><h3 class="${k}">${BK[k]} <span>${g[k].length}</span></h3>${g[k].map(card).join('')}</div>`).join('');
+  return html || `<div class="dl-empty">${D().items.length ? 'No deadlines match these filters.' : 'No deadlines yet. Use <b>Quick Add</b> or <b>+ Add Deadline</b> to create your first one.'}</div>`;
+}
+
+function timelineView(){
+  const now = Date.now(), end = +sod(new Date()) + (+D().prefs.period + 1) * DAY, start = +sod(new Date());
+  const its = items().filter(i => i.completedAt ? (F.showDone && +due(i) >= start && +due(i) < end) : +due(i) < end).sort((a,b) => due(a)-due(b));
+  const nowRow = `<div class="tl-now">NOW · ${fmtDate(new Date())} ${fmtTime(new Date())}</div>`;
+  let html = '', last = null, nowDone = false;
+  its.forEach(it => {
+    const d = due(it), t = +d;
+    if (!nowDone && t > now){ html += nowRow; nowDone = true; last = null; }
+    const key = dstr(d);
+    if (key !== last){
+      if (last && t > now){ const gap = Math.round((sod(d) - sod(new Date(last + 'T00:00'))) / DAY) - 1; if (gap > 0) html += `<div class="tl-gap">${gap} free day${gap > 1 ? 's' : ''}</div>`; }
+      const n = dayDiff(d);
+      html += `<div class="tl-day ${t < now && !it.completedAt ? 'over' : ''}">${n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : ''} ${d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'})}${t < now && !it.completedAt ? ' · overdue' : ''}</div>`;
+      last = key;
+    }
+    const c = course(it.courseId);
+    html += `<div class="tl-item ${it.completedAt ? 'done' : ''}" data-id="${it.id}" style="--cc:${c ? c.color : 'var(--text-dim)'}">
+      <div class="dl-course">${c ? esc(c.code) : 'No course'} · ${esc(it.type)} · ${fmtTime(d)}</div>
+      <div class="dl-title" style="margin:2px 0">${esc(it.title)}</div>
+      <div class="dl-time">${cdHtml(it)} · ${it.completedAt ? 100 : prog(it)}% done</div></div>`;
+  });
+  if (!nowDone) html += nowRow;
+  return `<div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:8px">Overdue items appear above the NOW marker; upcoming ones below.</div><div class="tl">${html}</div>`;
+}
+
+function calendarView(){
+  const y = calMonth.getFullYear(), m = calMonth.getMonth(), off = new Date(y, m, 1).getDay(), dim = new Date(y, m + 1, 0).getDate();
+  const by = {}; items().filter(i => F.showDone || !i.completedAt).forEach(i => (by[dstr(due(i))] = by[dstr(due(i))] || []).push(i));
+  const todayKey = dstr(new Date()); let cells = '';
+  for (let i = 0; i < Math.ceil((off + dim) / 7) * 7; i++){
+    const day = i - off + 1;
+    if (day < 1 || day > dim){ cells += '<div class="cal-cell blank"></div>'; continue; }
+    const key = `${y}-${pad(m+1)}-${pad(day)}`, list = by[key] || [];
+    cells += `<div class="cal-cell ${key === todayKey ? 'today' : ''} ${key === calSel ? 'sel' : ''}" data-day="${key}"><div class="cal-num">${day}</div>` +
+      list.slice(0,3).map(it => { const c = course(it.courseId); return `<button class="cal-chip ${it.completedAt ? 'done' : +due(it) < Date.now() ? 'over' : ''}" data-id="${it.id}" style="--cc:${c ? c.color : 'var(--text-dim)'}">${esc(c ? c.code + ' ' : '')}${esc(it.title)}</button>`; }).join('') +
+      (list.length > 3 ? `<div class="cal-more">+${list.length - 3} more</div>` : '') + '</div>';
+  }
+  const sel = calSel && (by[calSel] || []);
+  return `<div class="cal-head"><button class="btn small ghost" data-cm="-1">‹</button><b>${calMonth.toLocaleDateString('en-US', {month:'long', year:'numeric'})}</b>
+      <span><button class="btn small ghost" data-cm="0">Today</button> <button class="btn small ghost" data-cm="1">›</button></span></div>
+    <div class="cal-grid">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="cal-wd">${d}</div>`).join('')}${cells}</div>
+    ${calSel ? `<div class="dl-group"><h3>${new Date(calSel + 'T00:00').toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'})}
+      <button class="btn small" data-addday="${calSel}">+ Add here</button></h3>${sel.length ? sel.map(card).join('') : '<div class="dl-empty" style="padding:14px">Nothing due this day.</div>'}</div>` : '<div class="hint" style="margin-top:10px">Click a day to see its deadlines, or a deadline to open its details.</div>'}`;
+}
+
+/* ---------- modal helpers ---------- */
+function openModal(html){ const b = $('dlMbody'); b.innerHTML = html; b.onclick = b.onchange = b.oninput = b.onkeydown = null; $('dlModal').classList.add('open'); document.body.style.overflow = 'hidden'; return b; }
+function closeModal(){ $('dlModal').classList.remove('open'); $('dlMbody').innerHTML = ''; document.body.style.overflow = ''; }
+function armed(b, label){
+  if (b.dataset.arm) return true;
+  b.dataset.arm = 1; const old = b.textContent; b.textContent = label || 'Confirm?'; b.classList.add('armed');
+  setTimeout(() => { delete b.dataset.arm; b.textContent = old; b.classList.remove('armed'); }, 3000);
+  return false;
+}
+function remWidget(id, list, onChange){
+  const el = $(id);
+  const paint = () => {
+    const custom = list.filter(m => !PRESETS.includes(m)).sort((a,b) => b-a);
+    el.innerHTML = PRESETS.map(m => `<button type="button" class="dl-chip ${list.includes(m) ? 'on' : ''}" data-rm="${m}">${remLabel(m)} before</button>`).join('') +
+      custom.map(m => `<button type="button" class="dl-chip on" data-rx="${m}">${remLabel(m)} before ✕</button>`).join('') +
+      `<div style="display:flex;gap:6px;margin-top:4px;align-items:center"><input type="number" min="1" value="2" data-rn style="width:70px"><select data-ru style="width:auto"><option value="60">hours</option><option value="1">minutes</option><option value="1440">days</option></select><button type="button" class="btn small ghost" data-radd>+ Custom</button></div>`;
+  };
+  el.onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.rm){ const m = +b.dataset.rm, i = list.indexOf(m); i < 0 ? list.push(m) : list.splice(i, 1); }
+    else if (b.dataset.rx){ list.splice(list.indexOf(+b.dataset.rx), 1); }
+    else if (b.dataset.radd){ const v = Math.round(+el.querySelector('[data-rn]').value * +el.querySelector('[data-ru]').value); if (v > 0 && !list.includes(v)) list.push(v); }
+    else return;
+    paint(); if (onChange) onChange();
+  };
+  paint();
+}
+function norm(it){ const t = +due(it), now = Date.now(); it.fired = {}; (it.reminders || []).forEach(m => { if (t - m*6e4 <= now) it.fired[m] = 1; }); }
+
+/* ---------- add / edit form ---------- */
+function openForm(it, pre){
+  pre = pre || {}; const x = it || {};
+  const d0 = x.due ? new Date(x.due) : null;
+  const v = { title: x.title != null ? x.title : (pre.title || ''), courseId: x.courseId || pre.courseId || '', type: x.type || pre.type || 'Assignment',
+    date: d0 ? dstr(d0) : (pre.date || ''), time: d0 ? tstr(d0) : (pre.time || '23:59'), prio: x.priority || pre.priority || 'medium', notes: x.notes || '', prog: x.progress || 0 };
+  const subs = (x.subtasks || []).map(s => Object.assign({}, s));
+  const rem = (x.reminders || D().prefs.defRem).slice();
+  const nc = pre.newCourse;
+  const b = openModal(`${pre.note ? `<div class="dl-note">${pre.note}</div>` : ''}<h2>${it ? 'Edit deadline' : 'Add deadline'}</h2>
+    <div class="field"><label>Title</label><input type="text" id="f_title" value="${esc(v.title)}" placeholder="e.g. Assignment 2"></div>
+    <div class="field-row"><div class="field"><label>Course</label><select id="f_course"><option value="">No course</option>${D().courses.map(c => `<option value="${c.id}" ${v.courseId === c.id ? 'selected' : ''}>${esc(c.code)}${c.name ? ' — ' + esc(c.name) : ''}</option>`).join('')}<option value="__new" ${nc ? 'selected' : ''}>+ New course…</option></select></div>
+      <div class="field"><label>Type</label><select id="f_type">${types().map(t => `<option ${v.type === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}<option value="__new">+ New type…</option></select></div></div>
+    <div class="field-row" id="f_newc" style="display:${nc ? 'flex' : 'none'}"><div class="field"><label>New course code</label><input type="text" id="f_ccode" value="${esc(nc ? nc.code : '')}" placeholder="CSE422"></div><div class="field"><label>Course name</label><input type="text" id="f_cname" value="${esc(nc ? nc.name : '')}" placeholder="Artificial Intelligence"></div></div>
+    <div class="field" id="f_newt" style="display:none"><label>New type name</label><input type="text" id="f_tnew" placeholder="e.g. Lab report"></div>
+    <div class="field-row"><div class="field"><label>Due date</label><input type="date" id="f_date" value="${v.date}"></div><div class="field"><label>Due time</label><input type="time" id="f_time" value="${v.time}"></div>
+      <div class="field"><label>Priority</label><select id="f_prio">${Object.keys(PRIO).map(k => `<option value="${k}" ${v.prio === k ? 'selected' : ''}>${PRIO[k].l}</option>`).join('')}</select></div></div>
+    <div class="field"><label>Progress: <span id="f_pv">${v.prog}%</span></label><input type="range" id="f_prog" min="0" max="100" step="5" value="${v.prog}"><div class="hint" id="f_ph"></div></div>
+    <div class="field"><label>Subtasks</label><div id="f_subs"></div><div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="f_subin" placeholder="Add a subtask…"><button class="btn small" id="f_subadd" type="button">Add</button></div></div>
+    <div class="field"><label>Reminders</label><div id="f_rem"></div><div class="hint">Reminders are delivered while this page is open in a browser tab.</div></div>
+    <div class="field"><label>Notes</label><textarea id="f_notes" placeholder="Optional notes">${esc(v.notes)}</textarea></div>
+    ${it ? (it.seriesId ? `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_series"> Apply title, course, type, priority, time, notes &amp; reminders to later items in this series</label>` : '') :
+      `<div class="field-row"><div class="field"><label>Repeat</label><select id="f_rep">${[['','Does not repeat'],['daily','Daily'],['weekly','Weekly'],['biweekly','Every 2 weeks'],['monthly','Monthly']].map(o => `<option value="${o[0]}" ${pre.rep === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
+      <div class="field"><label>Occurrences</label><input type="number" id="f_repn" min="1" max="60" value="8"></div></div>`}
+    <div class="row-actions" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" id="f_cancel" type="button">Cancel</button><button class="btn" id="f_save" type="button">Save</button></div>`);
+  const paintSubs = () => {
+    $('f_subs').innerHTML = subs.map((s, i) => `<div class="dl-sub ${s.done ? 'done' : ''}"><input type="checkbox" data-sub="${i}" ${s.done ? 'checked' : ''}><input type="text" data-st="${i}" value="${esc(s.text)}"><button class="icon-btn" data-sx="${i}" type="button">✕</button></div>`).join('');
+    $('f_prog').disabled = subs.length > 0;
+    $('f_ph').textContent = subs.length ? `Calculated from subtasks: ${Math.round(subs.filter(s => s.done).length / subs.length * 100)}%` : 'Drag to set progress, or add subtasks to calculate it automatically.';
+  };
+  const addSub = () => { const i = $('f_subin'), t = i.value.trim(); if (!t) return; subs.push({ id: uid(), text: t, done: false }); i.value = ''; paintSubs(); i.focus(); };
+  remWidget('f_rem', rem); paintSubs();
+  b.onchange = e => {
+    if (e.target.id === 'f_course') $('f_newc').style.display = e.target.value === '__new' ? 'flex' : 'none';
+    if (e.target.id === 'f_type') $('f_newt').style.display = e.target.value === '__new' ? 'block' : 'none';
+    if (e.target.dataset.sub !== undefined){ subs[+e.target.dataset.sub].done = e.target.checked; paintSubs(); }
+  };
+  b.oninput = e => {
+    if (e.target.id === 'f_prog') $('f_pv').textContent = e.target.value + '%';
+    if (e.target.dataset.st !== undefined) subs[+e.target.dataset.st].text = e.target.value;
+  };
+  b.onkeydown = e => { if (e.key === 'Enter' && e.target.id === 'f_subin'){ e.preventDefault(); addSub(); } };
+  b.onclick = e => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    if (btn.id === 'f_cancel') closeModal();
+    else if (btn.id === 'f_subadd') addSub();
+    else if (btn.dataset.sx !== undefined){ subs.splice(+btn.dataset.sx, 1); paintSubs(); }
+    else if (btn.id === 'f_save') save();
+  };
+  function save(){
+    const title = $('f_title').value.trim(), date = $('f_date').value, time = $('f_time').value || '23:59';
+    if (!title || !date){ showToast('Please enter a title and a due date'); return; }
+    let courseId = $('f_course').value;
+    if (courseId === '__new'){
+      const code = $('f_ccode').value.trim().toUpperCase(); if (!code){ showToast('Enter a course code'); return; }
+      let c = D().courses.find(c => c.code === code);
+      if (!c){ c = { id: uid(), code, name: $('f_cname').value.trim(), color: COLORS[D().courses.length % COLORS.length] }; D().courses.push(c); }
+      courseId = c.id;
+    }
+    let type = $('f_type').value;
+    if (type === '__new'){
+      type = $('f_tnew').value.trim(); if (!type){ showToast('Enter a type name'); return; }
+      const ex = types().find(t => t.toLowerCase() === type.toLowerCase());
+      if (ex) type = ex; else D().customTypes.push(type);
+    }
+    const dueStr = `${date}T${time}`;
+    const base = { title, courseId: courseId || null, type, priority: $('f_prio').value, notes: $('f_notes').value.trim(), reminders: rem.slice().sort((a,b) => b-a),
+      subtasks: subs.filter(s => s.text.trim()).map(s => ({ id: s.id || uid(), text: s.text.trim(), done: !!s.done })), progress: +$('f_prog').value };
+    if (it){
+      const changed = it.due !== dueStr || JSON.stringify(it.reminders) !== JSON.stringify(base.reminders);
+      Object.assign(it, base, { due: dueStr }); if (changed) norm(it);
+      if ($('f_series') && $('f_series').checked) D().items.forEach(o => {
+        if (o !== it && o.seriesId === it.seriesId && !o.completedAt && +due(o) > +due(it)){
+          Object.assign(o, { title, courseId: base.courseId, type, priority: base.priority, notes: base.notes, reminders: base.reminders.slice() });
+          o.due = dstr(due(o)) + 'T' + time; norm(o);
+        }
+      });
+    } else {
+      const rep = $('f_rep').value, n = Math.max(1, Math.min(60, +$('f_repn').value || 1)), d0 = new Date(dueStr), sid = rep ? uid() : null;
+      for (let k = 0; k < (rep ? n : 1); k++){
+        const d = new Date(d0);
+        if (k){ if (rep === 'daily') d.setDate(d0.getDate() + k); else if (rep === 'weekly') d.setDate(d0.getDate() + 7*k); else if (rep === 'biweekly') d.setDate(d0.getDate() + 14*k); else { d.setMonth(d0.getMonth() + k); if (d.getDate() !== d0.getDate()) d.setDate(0); } }
+        const o = Object.assign({}, base, { id: uid(), due: dstr(d) + 'T' + tstr(d), seriesId: sid, completedAt: null, createdAt: new Date().toISOString(),
+          reminders: base.reminders.slice(), subtasks: base.subtasks.map(s => ({ id: uid(), text: s.text, done: rep ? false : s.done })) });
+        norm(o); D().items.push(o);
+      }
+    }
+    commit(); closeModal(); showToast(it ? 'Deadline updated' : 'Deadline added');
+  }
+  setTimeout(() => $('f_title').focus(), 30);
+}
+
+/* ---------- details ---------- */
+function openDetails(id){
+  const it = find(id); if (!it) return closeModal();
+  const c = course(it.courseId), d = due(it), p = it.completedAt ? 100 : prog(it), pr = PRIO[it.priority], hasSub = it.subtasks.length;
+  const b = openModal(`<h2>${esc(it.title)}</h2>
+    <div class="dl-course" style="--cc:${c ? c.color : 'var(--text-dim)'}">${c ? esc(c.code) + (c.name ? ' — ' + esc(c.name) : '') : 'No course'}</div>
+    <div class="dl-meta" style="margin:10px 0"><span class="dl-tag">${esc(it.type)}</span><span class="dl-tag" style="color:${pr.c}">${pr.l} priority</span>${it.seriesId ? '<span class="dl-tag">🔁 repeating</span>' : ''}</div>
+    <div class="field-row"><div class="stat" style="flex:1"><div class="label">Due</div><div style="font-size:0.95rem">${fmtDate(d)} · ${fmtTime(d)}</div></div>
+      <div class="stat" style="flex:1"><div class="label">${it.completedAt ? 'Status' : 'Time remaining'}</div><div style="font-size:0.95rem">${cdHtml(it)}</div></div></div>
+    <div class="field" style="margin-top:16px"><div class="progress-caption" style="margin:0 0 6px"><span>Overall progress</span><span>${p}%</span></div>
+      <div class="progress-track" style="margin:0"><div class="progress-fill" style="width:${p}%"></div></div>
+      ${hasSub ? '' : `<input type="range" data-prog min="0" max="100" step="5" value="${it.progress || 0}" style="margin-top:10px" ${it.completedAt ? 'disabled' : ''}>`}</div>
+    <div class="field"><label>Subtasks ${hasSub ? `(${it.subtasks.filter(s => s.done).length}/${hasSub})` : ''}</label>
+      ${it.subtasks.map(s => `<div class="dl-sub ${s.done ? 'done' : ''}"><input type="checkbox" data-tg="${s.id}" ${s.done ? 'checked' : ''}><span class="t">${esc(s.text)}</span><button class="icon-btn" data-rs="${s.id}">✕</button></div>`).join('') || '<div class="hint">No subtasks yet — break this deadline into smaller steps to track progress automatically.</div>'}
+      <div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="d_sub" placeholder="Add a subtask…"><button class="btn small" data-addsub>Add</button></div></div>
+    ${it.notes ? `<div class="field"><label>Notes</label><div style="white-space:pre-wrap;font-size:0.88rem">${esc(it.notes)}</div></div>` : ''}
+    ${it.reminders.length ? `<div class="hint">Reminders: ${it.reminders.map(remLabel).join(', ')} before</div>` : ''}
+    <div class="row-actions" style="justify-content:flex-end;margin-top:16px;flex-wrap:wrap">
+      <button class="btn small ghost" data-edit>Edit</button>
+      <button class="btn small ghost" data-del>Delete</button>
+      ${it.seriesId ? '<button class="btn small ghost" data-delall>Delete this &amp; future</button>' : ''}
+      <button class="btn small ${it.completedAt ? 'ghost' : ''}" data-fin>${it.completedAt ? 'Reopen' : '✓ Mark complete'}</button></div>`);
+  const again = (focus) => { commit(); openDetails(id); if (focus) $('d_sub').focus(); };
+  const addSub = () => { const t = $('d_sub').value.trim(); if (!t) return; it.subtasks.push({ id: uid(), text: t, done: false }); again(true); };
+  b.onchange = e => { if (e.target.dataset.tg){ const s = it.subtasks.find(s => s.id === e.target.dataset.tg); s.done = e.target.checked; again(); } };
+  b.oninput = e => { if (e.target.dataset.prog !== undefined){ it.progress = +e.target.value; saveState(); renderSummary(); renderContent(); b.querySelector('.progress-fill').style.width = it.progress + '%'; b.querySelector('.progress-caption span:last-child').textContent = it.progress + '%'; } };
+  b.onkeydown = e => { if (e.key === 'Enter' && e.target.id === 'd_sub'){ e.preventDefault(); addSub(); } };
+  b.onclick = e => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.rs){ it.subtasks = it.subtasks.filter(s => s.id !== t.dataset.rs); again(); }
+    else if (t.dataset.addsub !== undefined) addSub();
+    else if (t.dataset.edit !== undefined) openForm(it);
+    else if (t.dataset.fin !== undefined){ toggleDone(id); openDetails(id); }
+    else if (t.dataset.del !== undefined){ if (!armed(t)) return; D().items = D().items.filter(o => o.id !== id); commit(); closeModal(); showToast('Deadline deleted'); }
+    else if (t.dataset.delall !== undefined){ if (!armed(t)) return; D().items = D().items.filter(o => o.id !== id && !(o.seriesId === it.seriesId && +due(o) > +due(it))); commit(); closeModal(); showToast('Deleted this and future occurrences'); }
+  };
+}
+function toggleDone(id){
+  const it = find(id); if (!it) return;
+  it.completedAt = it.completedAt ? null : new Date().toISOString();
+  commit(); showToast(it.completedAt ? 'Marked complete' : 'Reopened');
+}
+
+/* ---------- courses / types / preferences ---------- */
+function openSettings(){
+  const P = D().prefs, cs = D().courses;
+  const b = openModal(`<h2>Courses &amp; settings</h2>
+    <div class="field" style="margin-top:14px"><label>Your courses</label>
+      ${cs.map(c => `<div class="dl-sub"><span style="width:12px;height:12px;border-radius:50%;background:${c.color};flex-shrink:0"></span><input type="text" data-cc="${c.id}" value="${esc(c.code)}" style="width:110px"><input type="text" data-cn="${c.id}" value="${esc(c.name)}" placeholder="Course name"><button class="icon-btn danger" data-dc="${c.id}" title="Delete course">✕</button></div>`).join('') || '<div class="hint">No courses yet.</div>'}
+      <div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="s_code" placeholder="Code" style="width:110px"><input type="text" id="s_name" placeholder="Course name"><button class="btn small" data-addc>Add</button></div>
+      <button class="btn small ghost" data-imp style="margin-top:8px">Import courses from my Course Planner</button></div>
+    <div class="field"><label>Deadline types</label>
+      ${BASE.map(t => `<span class="dl-chip">${esc(t)}</span>`).join('')}${D().customTypes.map((t, i) => `<button class="dl-chip on" data-dt="${i}" title="Delete type">${esc(t)} ✕</button>`).join('')}
+      <div style="display:flex;gap:8px;margin-top:4px"><input type="text" id="s_type" placeholder="New type, e.g. Lab report"><button class="btn small" data-addt>Add</button></div></div>
+    <div class="field"><label>Default reminders for new deadlines</label><div id="s_rem"></div></div>
+    <div class="field-row"><div class="field"><label>“Urgent” means due within</label><select id="s_urg">${[24,48,72].map(h => `<option value="${h}" ${P.urgentH === h ? 'selected' : ''}>${h} hours</option>`).join('')}</select></div>
+      <div class="field"><label>Browser notifications</label><button class="btn small ${P.notif ? '' : 'ghost'}" data-notif>${P.notif ? 'On — click to turn off' : 'Turn on'}</button></div></div>
+    <div class="hint">Reminders fire while this page is open in a browser tab (or a background tab). They can't be delivered when the page is closed.</div>`);
+  remWidget('s_rem', P.defRem, saveState);
+  b.onchange = e => {
+    const t = e.target;
+    if (t.dataset.cc){ const c = course(t.dataset.cc); c.code = t.value.trim().toUpperCase() || c.code; commit(); }
+    else if (t.dataset.cn){ course(t.dataset.cn).name = t.value.trim(); commit(); }
+    else if (t.id === 's_urg'){ P.urgentH = +t.value; commit(); }
+  };
+  b.onclick = e => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.addc !== undefined){
+      const code = $('s_code').value.trim().toUpperCase(); if (!code) return;
+      if (!cs.some(c => c.code === code)) cs.push({ id: uid(), code, name: $('s_name').value.trim(), color: COLORS[cs.length % COLORS.length] });
+      commit(); openSettings();
+    } else if (t.dataset.dc){
+      if (!armed(t)) return;
+      D().items.forEach(i => { if (i.courseId === t.dataset.dc) i.courseId = null; });
+      D().courses = cs.filter(c => c.id !== t.dataset.dc); commit(); openSettings();
+    } else if (t.dataset.imp !== undefined){
+      let n = 0;
+      state.planner.semesters.forEach(s => s.codes.forEach(k => {
+        const info = (typeof COURSE_DB !== 'undefined' && COURSE_DB[k]) || (state.customCourses || {})[k]; if (!info) return;
+        const code = (info.code || k).toUpperCase();
+        if (!cs.some(c => c.code === code)){ cs.push({ id: uid(), code, name: info.name || '', color: COLORS[cs.length % COLORS.length] }); n++; }
+      }));
+      commit(); openSettings(); showToast(n ? `Imported ${n} course${n > 1 ? 's' : ''}` : 'No new courses to import');
+    } else if (t.dataset.addt !== undefined){
+      const v = $('s_type').value.trim(); if (v && !types().some(x => x.toLowerCase() === v.toLowerCase())) D().customTypes.push(v);
+      commit(); openSettings();
+    } else if (t.dataset.dt !== undefined){
+      const name = D().customTypes[+t.dataset.dt]; D().items.forEach(i => { if (i.type === name) i.type = 'Other'; });
+      D().customTypes.splice(+t.dataset.dt, 1); commit(); openSettings();
+    } else if (t.dataset.notif !== undefined){
+      if (P.notif){ P.notif = false; commit(); openSettings(); }
+      else if (!('Notification' in window)) showToast('This browser does not support notifications');
+      else Notification.requestPermission().then(r => { P.notif = r === 'granted'; if (!P.notif) showToast('Notifications are blocked in your browser settings'); commit(); openSettings(); });
+    }
+  };
+}
+
+/* ---------- quick add parser ---------- */
+function parseQuick(txt){
+  let s = ' ' + txt + ' ', m; const r = { priority: 'medium' }, now = new Date();
+  const cut = re => { const x = s.match(re); if (x) s = s.replace(re, ' '); return x; };
+  if ((m = cut(/\b([A-Za-z]{3})\s?-?(\d{3})\b/))) r.code = (m[1] + m[2]).toUpperCase();
+  if ((m = cut(/\b(?:every|each)\s+(sun|mon|tue|wed|thu|fri|sat)[a-z]*\b/i))){ r.rep = 'weekly'; r.wd = WD.indexOf(m[1].toLowerCase()); }
+  else if ((m = cut(/\b(weekly|every week|daily|every day|monthly|every month|biweekly|every (?:other|2) weeks?)\b/i))){ const w = m[1].toLowerCase(); r.rep = /day/.test(w) ? 'daily' : /month/.test(w) ? 'monthly' : /other|2|bi/.test(w) ? 'biweekly' : 'weekly'; }
+  if (cut(/\b(urgent|high priority|important|asap)\b/i)) r.priority = 'high'; else if (cut(/\blow priority\b/i)) r.priority = 'low';
+  let h = null, mi = 0;
+  if ((m = cut(/\b(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?(?![a-z])/i))){ h = (+m[1] % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0); mi = +(m[2] || 0); }
+  else if ((m = cut(/\b(?:at\s+)?([01]?\d|2[0-3]):([0-5]\d)\b/))){ h = +m[1]; mi = +m[2]; }
+  else if (cut(/\bnoon\b/i)) h = 12;
+  else if (cut(/\b(?:midnight|end of (?:the )?day|eod)\b/i)){ h = 23; mi = 59; }
+  const mk = (d, mo, y) => { let yr = y ? (+y < 100 ? 2000 + +y : +y) : now.getFullYear(), dt = new Date(yr, mo, d); if (!y && dt < sod(now)) dt = new Date(yr + 1, mo, d); return dt; };
+  const MR = '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?';
+  let dt = null, wdIdx = r.wd !== undefined ? r.wd : null, nextMod = false;
+  if ((m = cut(/\b(\d{4})-(\d{2})-(\d{2})\b/))) dt = new Date(+m[1], +m[2] - 1, +m[3]);
+  else if ((m = cut(new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+' + MR + '(?:,?\\s+(\\d{4}))?\\b', 'i')))) dt = mk(+m[1], MON.indexOf(m[2].toLowerCase()), m[3]);
+  else if ((m = cut(new RegExp('\\b' + MR + '\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{4}))?\\b', 'i')))) dt = mk(+m[2], MON.indexOf(m[1].toLowerCase()), m[3]);
+  else if ((m = cut(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/))){ let a = +m[1], c = +m[2]; if (c > 12){ const t = a; a = c; c = t; } dt = mk(a, c - 1, m[3]); }
+  else if (cut(/\b(today|tonight)\b/i)) dt = sod(now);
+  else if (cut(/\btomorrow\b/i)){ dt = sod(now); dt.setDate(dt.getDate() + 1); }
+  else if ((m = cut(/\bin\s+(\d+)\s+(day|week)s?\b/i))){ dt = sod(now); dt.setDate(dt.getDate() + +m[1] * (m[2].toLowerCase() === 'week' ? 7 : 1)); }
+  else if (wdIdx === null && (m = cut(/\b(?:(next|this)\s+)?(sun|mon|tue|wed|thu|fri|sat)(?:day|s|sday|nesday|rsday|urday)?\b/i))){ wdIdx = WD.indexOf(m[2].toLowerCase()); nextMod = /next/i.test(m[1] || ''); }
+  if (!dt && wdIdx !== null){
+    dt = sod(now); let diff = (wdIdx - now.getDay() + 7) % 7;
+    if (diff === 0 && (nextMod || r.rep)) diff = r.rep && !nextMod ? 0 : 7;
+    dt.setDate(dt.getDate() + diff);
+    if (diff === 0){ const t = new Date(dt); t.setHours(h === null ? 23 : h, h === null ? 59 : mi); if (t < now) dt.setDate(dt.getDate() + 7); }
+  }
+  r.assumed = [];
+  if (h === null){ h = 23; mi = 59; if (dt) r.assumed.push('no time given — assumed 11:59 PM'); }
+  r.time = `${pad(h)}:${pad(mi)}`; r.date = dt;
+  const low = s.toLowerCase();
+  r.type = types().find(t => t !== 'Other' && new RegExp('\\b' + t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + 's?\\b').test(low));
+  if (!r.type) [['Presentation',/\b(presentation|pres|slides?)\b/],['Project',/\b(project|proj)\b/],['Quiz',/\bquiz(?:zes)?\b/],['Exam',/\b(exam|midterm|mid|final|test)\b/],['Assignment',/\b(assignment|asg|assign|homework|hw|lab)\b/]].some(x => x[1].test(low) && (r.type = x[0]));
+  if (!r.type){ r.type = 'Assignment'; r.assumed.push('no type recognised — assumed Assignment'); }
+  let title = s.replace(/\b(due|by|on|at|deadline)\b/gi, ' ').replace(/[,;]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!title || title.toLowerCase().replace(/s$/, '') === r.type.toLowerCase()) title = r.type;
+  r.title = title.charAt(0).toUpperCase() + title.slice(1);
+  if (!dt) r.assumed.push('no date found — please pick one');
+  return r;
+}
+function quickAdd(){
+  const txt = $('dlQuick').value.trim(); if (!txt) return;
+  const r = parseQuick(txt), pre = { title: r.title, type: r.type, priority: r.priority, time: r.time, rep: r.rep || '', date: r.date ? dstr(r.date) : '' };
+  const c = r.code && D().courses.find(c => c.code === r.code);
+  if (c) pre.courseId = c.id;
+  else if (r.code) pre.newCourse = { code: r.code, name: (typeof COURSE_DB !== 'undefined' && COURSE_DB[r.code] ? COURSE_DB[r.code].name : '') };
+  const seen = [r.code ? 'course <b>' + esc(r.code) + '</b>' : '', 'type <b>' + esc(r.type) + '</b>', r.date ? 'due <b>' + esc(fmtDate(r.date)) + ' ' + esc(fmtTime(new Date(dstr(r.date) + 'T' + r.time))) + '</b>' : '', r.rep ? 'repeats <b>' + r.rep + '</b>' : ''].filter(Boolean);
+  pre.note = `Quick add understood: ${seen.join(' · ')}.${r.assumed.length ? '<br>Check: ' + r.assumed.map(esc).join('; ') + '.' : ''}<br>Review the details, then press Save to confirm.`;
+  $('dlQuick').value = ''; openForm(null, pre);
+}
+
+/* ---------- reminders ---------- */
+function banner(text){
+  const el = document.createElement('div'); el.className = 'dl-banner';
+  el.innerHTML = `<span>🔔 ${esc(text)}</span><button class="icon-btn" style="flex-shrink:0">✕</button>`;
+  el.querySelector('button').onclick = () => el.remove(); $('dlBanners').appendChild(el); setTimeout(() => el.remove(), 20000);
+}
+function checkRem(){
+  const now = Date.now(); let dirty = false;
+  D().items.forEach(it => {
+    if (it.completedAt || +due(it) <= now) return;
+    it.fired = it.fired || {};
+    const ready = (it.reminders || []).filter(m => !it.fired[m] && +due(it) - m*6e4 <= now);
+    if (!ready.length) return;
+    ready.forEach(m => it.fired[m] = 1); dirty = true;
+    const c = course(it.courseId), msg = `${c ? c.code + ' · ' : ''}${it.title} — due in ${cd(+due(it) - now).replace(' remaining', '')}`;
+    banner(msg);
+    if (D().prefs.notif && 'Notification' in window && Notification.permission === 'granted') try { new Notification('Deadline reminder', { body: msg }); } catch (e) {}
+  });
+  if (dirty) saveState();
+}
+
+/* ---------- wiring ---------- */
+function init(){
+  document.body.insertAdjacentHTML('beforeend', '<div class="dl-modal" id="dlModal"><div class="dl-mbox"><button class="icon-btn dl-x" id="dlClose">✕</button><div id="dlMbody"></div></div></div><div class="dl-banners" id="dlBanners"></div>');
+  $('dlClose').onclick = closeModal;
+  $('dlModal').addEventListener('mousedown', e => { if (e.target === $('dlModal')) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('dlModal').classList.contains('open')) closeModal(); });
+  $('dlAddBtn').onclick = () => openForm(null, {});
+  $('dlSetBtn').onclick = openSettings;
+  $('dlQuickBtn').onclick = quickAdd;
+  $('dlQuick').addEventListener('keydown', e => { if (e.key === 'Enter') quickAdd(); });
+  $('dlSummary').onclick = e => { const n = e.target.closest('[data-id]'); if (n) openDetails(n.dataset.id); };
+  $('dlToolbar').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.v){ D().prefs.view = b.dataset.v; saveState(); render(); }
+    else if (b.dataset.b){ F.bucket = b.dataset.b; if (F.status === 'done' && b.dataset.b !== 'done') F.status = ''; render(); }
+  };
+  $('dlToolbar').onchange = e => {
+    const t = e.target;
+    if (t.dataset.sd !== undefined) F.showDone = t.checked;
+    else if (t.dataset.f === 'period'){ D().prefs.period = +t.value; saveState(); }
+    else if (t.dataset.f){ F[t.dataset.f] = t.value; if (t.dataset.f === 'status') F.bucket = t.value === 'done' ? 'done' : (F.bucket === 'done' ? 'active' : F.bucket); }
+    render();
+  };
+  $('dlContent').onclick = e => {
+    const chk = e.target.closest('[data-done]'); if (chk){ e.stopPropagation(); toggleDone(chk.dataset.done); return; }
+    const cm = e.target.closest('[data-cm]');
+    if (cm){ const k = +cm.dataset.cm; if (k) calMonth.setMonth(calMonth.getMonth() + k); else { calMonth = new Date(); calMonth.setDate(1); } renderContent(); return; }
+    const ad = e.target.closest('[data-addday]'); if (ad){ openForm(null, { date: ad.dataset.addday }); return; }
+    const it = e.target.closest('[data-id]'); if (it){ openDetails(it.dataset.id); return; }
+    const day = e.target.closest('[data-day]'); if (day){ calSel = day.dataset.day; renderContent(); }
+  };
+  document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', () => { if (t.dataset.page === 'page-deadlines') render(); }));
+  let tk = 0;
+  setInterval(() => {
+    if (!state.deadlines || typeof currentUser === 'undefined' || !currentUser || !stateLoaded){ if ($('dlModal').classList.contains('open')) closeModal(); return; }
+    tk++;
+    document.querySelectorAll('.cd[data-due]').forEach(el => {
+      const ms = +el.dataset.due - Date.now();
+      el.textContent = cd(ms); el.classList.toggle('over', ms < 0); el.classList.toggle('soon', ms >= 0 && ms < D().prefs.urgentH * 36e5);
+    });
+    if (tk % 15 === 0) checkRem();
+    if (tk % 60 === 0 && $('page-deadlines').classList.contains('active') && !$('dlModal').classList.contains('open')){ renderSummary(); renderContent(); }
+  }, 1000);
+}
+window.dlEnsure = ensure; window.dlRender = render;
+init();
+})();
 </script>
 </body>
 </html>
