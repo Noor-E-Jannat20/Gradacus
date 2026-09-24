@@ -93,10 +93,19 @@
   .grid > div:first-child{
     position:sticky;
     top:20px;
+    /* taller than the screen? the sidebar scrolls on its own while the table stays put */
+    max-height:calc(100vh - 40px);
+    overflow-y:auto;
+    padding-right:6px;
+    scrollbar-width:thin;
+    scrollbar-color:var(--line) transparent;
   }
+  .grid > div:first-child::-webkit-scrollbar{width:6px;}
+  .grid > div:first-child::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+  .grid > div:first-child::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
   @media (max-width:920px){
     .grid{grid-template-columns:1fr;}
-    .grid > div:first-child{position:static;}
+    .grid > div:first-child{position:static; max-height:none; overflow:visible; padding-right:0;}
   }
 
   .panel{
@@ -235,6 +244,17 @@
   .auth-error{
     color:var(--red); font-size:0.8rem; margin-top:10px; min-height:1em;
   }
+  .auth-error.ok{color:var(--green);}
+  .auth-forgot{margin-top:14px; text-align:center;}
+  .auth-forgot button{
+    background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.78rem;
+    text-decoration:underline; text-underline-offset:3px; padding:0; font-family:inherit;
+  }
+  .load-banner{
+    display:none; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    border:1px solid var(--amber); background:rgba(255,184,77,0.08); color:var(--amber);
+    border-radius:8px; padding:10px 14px; font-size:0.85rem; margin-bottom:20px;
+  }
   .auth-switch{
     margin-top:18px; text-align:center; font-size:0.82rem; color:var(--text-dim);
   }
@@ -299,7 +319,9 @@
   .semester-card{
     background:var(--bg-1); border:1px solid var(--line); border-radius:8px; padding:16px; min-height:120px;
   }
-  .semester-card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .semester-card-head{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .semester-card-head .head-right{display:flex; align-items:center; gap:10px;}
+  .icon-btn.danger.armed{border-color:var(--red); color:var(--red); background:rgba(255,77,109,0.12);}
   .semester-card-head .credit-total{font-family:'JetBrains Mono',monospace; font-size:0.85rem; font-weight:700;}
   .credit-total.ok{color:var(--green);}
   .credit-total.warn{color:var(--amber);}
@@ -346,7 +368,7 @@
     <p class="sub" id="authSub">Log in to load your saved data.</p>
     <div class="field">
       <label for="authEmail">Email</label>
-      <input type="text" id="authEmail" autocomplete="email" placeholder="you@example.com">
+      <input type="text" id="authEmail" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com">
     </div>
     <div class="field">
       <label for="authPassword">Password</label>
@@ -354,6 +376,7 @@
     </div>
     <button class="btn full" id="authSubmit">Log in</button>
     <div class="auth-error" id="authError"></div>
+    <div class="auth-forgot" id="authForgot"><button id="authForgotBtn" type="button">Forgot password?</button></div>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
       <button id="authSwitchBtn">Sign up</button>
@@ -381,6 +404,11 @@
 </svg>
 
 <div class="wrap" id="appRoot">
+
+  <div class="load-banner" id="loadBanner">
+    <span>Couldn't load your saved data, so changes are <b>not being saved</b> right now (your existing data is untouched).</span>
+    <button class="btn small" id="retryLoadBtn">Retry</button>
+  </div>
 
   <header class="hero">
     <div class="titleblock">
@@ -466,7 +494,7 @@
             <button class="btn full" id="addCourseBtn">+ Add course</button>
             <button class="btn full ghost" id="loadDefaultCoursesBtn" title="Add any of this degree's default courses that aren't on the table yet">Load default courses</button>
           </div>
-          <div class="hint" style="margin-top:8px;">Switching degree above fills in that program's default courses automatically when the table is empty — add or remove any of them freely afterward.</div>
+          <div class="hint" style="margin-top:8px;">Switching degree swaps the default courses: untouched ones that aren't in the new degree are removed and missing ones are added. Rows with a grade, retakes, and courses you added yourself are always kept.</div>
 
           <button class="scale-toggle" id="scaleToggle">show grading scale</button>
           <div class="scale-table" id="scaleTable">
@@ -572,11 +600,22 @@ const firebaseConfig = {
   messagingSenderId: "160033318436",
   appId: "1:160033318436:web:2bdcd1bd7e33b5e0245ab1"
 };
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+let auth = null, db = null;
+try {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  auth = firebase.auth();
+  db = firebase.firestore();
+} catch (err) {
+  console.error('Firebase failed to initialise:', err);
+  document.getElementById('authError').textContent =
+    'Could not load the sign-in service. Check your internet connection and reload the page.';
 }
-const auth = firebase.auth();
-const db = firebase.firestore();
+if (location.protocol === 'file:') {
+  document.getElementById('authError').textContent =
+    'Sign-in does not work when this page is opened as a local file. Open it through http(s), e.g. localhost or your hosting URL.';
+}
 let currentUser = null;
 </script>
 
@@ -776,7 +815,9 @@ function onRowAction(e){
   }
 }
 
-function computeAndDisplay(){
+// Single source of truth for CGPA + credits, used by BOTH tabs so they can never disagree.
+// Only included, graded courses count; a grade of F earns no credits.
+function computeStats(){
   const priorCgpa = parseFloat(state.priorCgpa);
   const priorCredits = parseFloat(state.priorCredits);
   const hasPrior = !isNaN(priorCgpa) && !isNaN(priorCredits) && priorCredits > 0;
@@ -785,22 +826,25 @@ function computeAndDisplay(){
   let attemptedCredits = hasPrior ? priorCredits : 0;
   let earnedCredits = hasPrior ? priorCredits : 0;
   let tableActiveCredits = 0;
-  let activeCount = 0;
 
   state.courses.forEach(c => {
-    if (!c.included) return;
+    if (!c.included || c.replaced) return;
     const credits = parseFloat(c.credits);
     if (isNaN(credits) || credits <= 0) return;
     const grade = gradeFromLetter(c.grade);
-    if (!grade) { tableActiveCredits += 0; return; }
+    if (!grade) return;
     qualityPoints += grade.point * credits;
     attemptedCredits += credits;
     tableActiveCredits += credits;
-    activeCount++;
     if (grade.point > 0) earnedCredits += credits;
   });
 
   const cgpa = attemptedCredits > 0 ? (qualityPoints / attemptedCredits) : null;
+  return { cgpa, earnedCredits, tableActiveCredits };
+}
+
+function computeAndDisplay(){
+  const { cgpa, earnedCredits, tableActiveCredits } = computeStats();
 
   const cgpaEl = document.getElementById('cgpaValue');
   const mirrorEl = document.getElementById('statCgpaMirror');
@@ -825,6 +869,9 @@ function computeAndDisplay(){
   document.getElementById('gradPct').textContent = pct + '%';
   document.getElementById('gradRemainText').textContent = `${round1(remaining)} credits left`;
   document.getElementById('coursesLeft').textContent = remaining <= 0 ? '0 🎓' : Math.ceil(remaining / 3);
+
+  // keep the planner tab in sync on every edit, not only on full re-renders
+  renderPlannerSummary();
 }
 
 function round1(n){ return Math.round(n*10)/10; }
@@ -982,25 +1029,47 @@ function getPoolForProgram(program){
 }
 
 
-let saveTimer = null;
-async function saveState(){
-  if (!currentUser) return;
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    try{
-      await db.collection('users').doc(currentUser.uid).set(
-        { data: JSON.stringify(state) },
-        { merge: true }
-      );
-    } catch(err){
-      console.error('Save failed:', err);
-      showToast('Could not save — check your connection');
-    }
-  }, 500);
+function freshState(){
+  return { program:'136', priorCgpa:'', priorCredits:'', courses:[], planner: defaultPlanner(), customCourses: {} };
 }
 
+// Saving is blocked until the user's data has loaded successfully, so a failed
+// load can never overwrite their cloud data with an empty/default state.
+let stateLoaded = false;
+let saveTimer = null;
+let pendingSaveUid = null;
+
+function saveState(){
+  if (!currentUser || !stateLoaded) return;
+  clearTimeout(saveTimer);
+  pendingSaveUid = currentUser.uid;
+  saveTimer = setTimeout(flushSave, 500);
+}
+
+async function flushSave(){
+  clearTimeout(saveTimer);
+  if (!pendingSaveUid || !db) return;
+  const uid = pendingSaveUid;
+  pendingSaveUid = null;
+  try{
+    await db.collection('users').doc(uid).set(
+      { data: JSON.stringify(state) },
+      { merge: true }
+    );
+  } catch(err){
+    console.error('Save failed:', err);
+    showToast('Could not save — check your connection');
+  }
+}
+
+// Don't lose the last few edits when the tab is closed or hidden.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushSave();
+});
+
+// Returns true if the user's data was loaded (or they are a genuinely new account).
 async function loadState(){
-  if (!currentUser) return;
+  if (!currentUser) return false;
   try{
     const doc = await db.collection('users').doc(currentUser.uid).get();
     if (doc.exists && doc.data().data){
@@ -1009,7 +1078,6 @@ async function loadState(){
         if (!parsed.planner || !Array.isArray(parsed.planner.semesters)){
           parsed.planner = defaultPlanner();
         }
-        
         if (!parsed.customCourses) {
           parsed.customCourses = {};
         } else {
@@ -1022,15 +1090,19 @@ async function loadState(){
              }
           });
         }
-        
         state = parsed;
-        return;
+        return true;
       }
     }
-  } catch(err){ console.error('Load failed:', err); }
-  // Brand-new account: start the table off with the default degree's courses.
-  state = { program:'136', priorCgpa:'', priorCredits:'', courses:[], planner: defaultPlanner(), customCourses: {} };
-  loadDefaultCoursesForProgram(state.program);
+    // No saved document: brand-new account. Start with the default degree's courses.
+    state = freshState();
+    loadDefaultCoursesForProgram(state.program);
+    return true;
+  } catch(err){
+    console.error('Load failed:', err);
+    state = freshState();
+    return false;
+  }
 }
 
 // ---- semester planner ----
@@ -1089,6 +1161,20 @@ function renderSemesterTabs(){
   wrap.appendChild(addBtn);
 }
 
+function removeSemester(id){
+  const sems = state.planner.semesters;
+  const idx = sems.findIndex(s => s.id === id);
+  if (idx === -1) return;
+  const [removed] = sems.splice(idx, 1);
+  if (state.planner.activeSemesterId === id){
+    const next = sems[idx] || sems[idx - 1] || null;
+    state.planner.activeSemesterId = next ? next.id : null;
+  }
+  renderPlanner();
+  saveState();
+  showToast(`Removed “${removed.label || 'semester'}”`);
+}
+
 function renderSemesterCard(){
   const sem = activeSemester();
   const card = document.getElementById('semesterCard');
@@ -1145,10 +1231,33 @@ function renderSemesterCard(){
   card.innerHTML = `
     <div class="semester-card-head">
       <input class="rename-input" id="semLabelInput" value="${sem.label}" title="Rename this semester">
-      <span class="credit-total ${totalClass}">${total} credits</span>
+      <div class="head-right">
+        <span class="credit-total ${totalClass}">${total} credits</span>
+        <button class="icon-btn text-btn danger" id="removeSemBtn" title="Delete this semester (courses go back to the list)">Remove semester</button>
+      </div>
     </div>
     ${rows}
   `;
+
+  // Two-step remove: first click arms it, second click (within 3s) confirms.
+  // Empty semesters are removed immediately.
+  const removeBtn = document.getElementById('removeSemBtn');
+  let armed = false, armTimer = null;
+  removeBtn.addEventListener('click', () => {
+    if (sem.codes.length > 0 && !armed){
+      armed = true;
+      removeBtn.textContent = 'Click again to confirm';
+      removeBtn.classList.add('armed');
+      armTimer = setTimeout(() => {
+        armed = false;
+        removeBtn.textContent = 'Remove semester';
+        removeBtn.classList.remove('armed');
+      }, 3000);
+      return;
+    }
+    clearTimeout(armTimer);
+    removeSemester(sem.id);
+  });
 
   document.getElementById('semLabelInput').addEventListener('input', e => {
     sem.label = e.target.value;
@@ -1298,13 +1407,7 @@ document.getElementById('addCustomCourseBtn').addEventListener('click', () => {
 });
 
 function renderPlannerSummary(){
-  const priorCredits = parseFloat(state.priorCredits) || 0;
-  const tableActive = state.courses.reduce((sum, c) => {
-    if (!c.included) return sum;
-    const credits = parseFloat(c.credits);
-    return isNaN(credits) ? sum : sum + credits;
-  }, 0);
-  const completed = priorCredits + tableActive;
+  const completed = computeStats().earnedCredits;
 
   const planned = state.planner.semesters.reduce((sum, sem) =>
     sum + sem.codes.reduce((s2, c) => {
@@ -1315,7 +1418,9 @@ function renderPlannerSummary(){
   const required = state.planner.program === 'CSE' ? 136 : 124;
   const remaining = Math.max(required - completed - planned, 0);
 
-  document.getElementById('plannerCompleted').textContent = round1(completed);
+  const completedEl = document.getElementById('plannerCompleted');
+  if (!completedEl) return;
+  completedEl.textContent = round1(completed);
   document.getElementById('plannerPlanned').textContent = round1(planned);
   document.getElementById('plannerRemaining').textContent = `${round1(remaining)} / ${required}`;
 }
@@ -1330,15 +1435,31 @@ document.getElementById('poolCategory').addEventListener('change', renderPool);
 document.getElementById('poolSort').addEventListener('change', renderPool);
 
 
+// Swap default courses when the degree changes. Only rows that are clearly
+// untouched defaults of the OLD degree (no grade, still included, not part of a
+// repeat) and absent from the NEW degree are removed. Everything else stays.
+function syncCoursesToProgram(oldValue, newValue){
+  const oldCodes = new Set(defaultCourseCodesForProgram(oldValue));
+  const newCodes = new Set(defaultCourseCodesForProgram(newValue));
+  const before = state.courses.length;
+  state.courses = state.courses.filter(c => {
+    const untouched = !c.grade && c.included && !c.replaced && !c.repeatOf;
+    return !(untouched && oldCodes.has(c.code) && !newCodes.has(c.code));
+  });
+  const removed = before - state.courses.length;
+  const added = loadDefaultCoursesForProgram(newValue);
+  return { added, removed };
+}
+
 document.getElementById('program').addEventListener('change', e => {
+  const oldProgram = state.program;
   state.program = e.target.value;
-  // If the table is empty, load that degree's default courses right away.
-  if (state.courses.length === 0){
-    const added = loadDefaultCoursesForProgram(state.program);
-    if (added) showToast(`Loaded ${added} default courses for this degree`);
-  }
+  const { added, removed } = syncCoursesToProgram(oldProgram, state.program);
   render();
-  saveState();
+  const parts = [];
+  if (added) parts.push(`${added} added`);
+  if (removed) parts.push(`${removed} removed`);
+  showToast(parts.length ? `Degree switched — ${parts.join(', ')}` : 'Degree switched');
 });
 
 document.getElementById('loadDefaultCoursesBtn').addEventListener('click', () => {
@@ -1369,12 +1490,23 @@ document.addEventListener('input', (e) => {
     const course = state.courses.find(c => c.id === id);
     if (course && (course.credits === 3 || course.credits === '3') && /400/.test(e.target.value)){
       course.credits = 4;
-      render();
+      // Update just the credits box in place (no full re-render), so the
+      // code field keeps focus and the cursor position while typing.
+      const creditBox = document.querySelector(`#courseBody [data-field="credits"][data-id="${id}"]`);
+      if (creditBox) creditBox.value = 4;
+      computeAndDisplay();
+      saveState();
     }
   }
 });
 
-let authMode = 'login'; 
+let authMode = 'login';
+
+function setAuthMessage(msg, ok){
+  const el = document.getElementById('authError');
+  el.textContent = msg || '';
+  el.classList.toggle('ok', !!ok);
+}
 
 function setAuthMode(mode){
   authMode = mode;
@@ -1386,24 +1518,35 @@ function setAuthMode(mode){
     ? "Don't have an account?"
     : 'Already have an account?';
   document.getElementById('authSwitchBtn').textContent = mode === 'login' ? 'Sign up' : 'Log in';
-  document.getElementById('authError').textContent = '';
+  document.getElementById('authPassword').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
+  document.getElementById('authForgot').style.display = mode === 'login' ? 'block' : 'none';
+  setAuthMessage('');
 }
 
 document.getElementById('authSwitchBtn').addEventListener('click', () => {
   setAuthMode(authMode === 'login' ? 'signup' : 'login');
 });
 
-document.getElementById('authSubmit').addEventListener('click', async () => {
+async function submitAuth(){
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
-  const errorEl = document.getElementById('authError');
-  errorEl.textContent = '';
+  const submitBtn = document.getElementById('authSubmit');
+  setAuthMessage('');
 
+  if (!auth){
+    setAuthMessage('The sign-in service failed to load. Check your connection and reload the page.');
+    return;
+  }
   if (!email || !password){
-    errorEl.textContent = 'Enter both an email and a password.';
+    setAuthMessage('Enter both an email and a password.');
+    return;
+  }
+  if (authMode === 'signup' && password.length < 6){
+    setAuthMessage('Password should be at least 6 characters.');
     return;
   }
 
+  submitBtn.disabled = true;
   try{
     if (authMode === 'login'){
       await auth.signInWithEmailAndPassword(email, password);
@@ -1411,49 +1554,101 @@ document.getElementById('authSubmit').addEventListener('click', async () => {
       await auth.createUserWithEmailAndPassword(email, password);
     }
   } catch(err){
-    errorEl.textContent = friendlyAuthError(err);
+    console.error('Auth error:', err);
+    setAuthMessage(friendlyAuthError(err));
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+document.getElementById('authSubmit').addEventListener('click', submitAuth);
+['authEmail','authPassword'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter'){ e.preventDefault(); submitAuth(); }
+  });
+});
+
+document.getElementById('authForgotBtn').addEventListener('click', async () => {
+  const email = document.getElementById('authEmail').value.trim();
+  if (!auth){ setAuthMessage('The sign-in service failed to load. Reload the page.'); return; }
+  if (!email){ setAuthMessage('Enter your email above first, then click "Forgot password?".'); return; }
+  try{
+    await auth.sendPasswordResetEmail(email);
+    setAuthMessage('Password reset email sent — check your inbox (and spam).', true);
+  } catch(err){
+    console.error('Reset error:', err);
+    setAuthMessage(friendlyAuthError(err));
   }
 });
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await flushSave();          // don't drop edits made in the last half-second
   await auth.signOut();
 });
+
+document.getElementById('retryLoadBtn').addEventListener('click', () => { if (auth && auth.currentUser) enterApp(auth.currentUser); });
 
 function friendlyAuthError(err){
   const map = {
     'auth/invalid-email': 'That email address looks invalid.',
+    'auth/missing-email': 'Enter your email address.',
+    'auth/missing-password': 'Enter your password.',
     'auth/user-not-found': 'No account found with that email.',
     'auth/wrong-password': 'Incorrect password.',
     'auth/invalid-credential': 'Incorrect email or password.',
     'auth/email-already-in-use': 'An account with that email already exists — try logging in instead.',
     'auth/weak-password': 'Password should be at least 6 characters.',
+    'auth/user-disabled': 'This account has been disabled.',
+    'auth/too-many-requests': 'Too many attempts. Wait a few minutes and try again.',
+    'auth/network-request-failed': "Can't reach the sign-in service. Check your internet connection.",
+    'auth/operation-not-allowed': 'Email/password sign-in is not enabled for this Firebase project.',
+    'auth/unauthorized-domain': "This site's domain isn't in Firebase's authorised domains list.",
+    'auth/invalid-api-key': 'The Firebase API key is invalid.',
+    'auth/operation-not-supported-in-this-environment': 'Sign-in needs the page to be served over http(s) with browser storage enabled — it will not work from a local file.',
   };
-  return map[err.code] || 'Something went wrong. Please try again.';
+  return map[err && err.code] || `Something went wrong (${(err && err.code) || 'unknown error'}). Please try again.`;
 }
 
 buildScaleTable();
 
-auth.onAuthStateChanged(async (user) => {
-  const overlay = document.getElementById('authOverlay');
-  const appRoot = document.getElementById('appRoot');
+let authSeq = 0;
 
-  if (user){
-    currentUser = user;
-    overlay.style.display = 'none';
-    appRoot.style.display = 'block';
-    document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('authError').textContent = '';
-    document.getElementById('authEmail').value = '';
-    document.getElementById('authPassword').value = '';
-    await loadState();
-    render();
-    renderPlanner();
-  } else {
-    currentUser = null;
-    overlay.style.display = 'flex';
-    appRoot.style.display = 'none';
-  }
-});
+// Load the user's data first, and only then reveal the app, so one account's
+// data is never briefly shown to (or saved under) another.
+async function enterApp(user){
+  const seq = ++authSeq;
+  currentUser = user;
+  stateLoaded = false;
+  const ok = await loadState();
+  if (seq !== authSeq || currentUser !== user) return;   // user changed while loading
+  stateLoaded = ok;
+
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('loadBanner').style.display = ok ? 'none' : 'flex';
+  setAuthMessage('');
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+  render();
+  renderPlanner();
+}
+
+if (auth){
+  auth.onAuthStateChanged(user => {
+    if (user){
+      enterApp(user);
+    } else {
+      authSeq++;
+      currentUser = null;
+      stateLoaded = false;
+      state = freshState();
+      document.getElementById('loadBanner').style.display = 'none';
+      document.getElementById('authOverlay').style.display = 'flex';
+      document.getElementById('appRoot').style.display = 'none';
+    }
+  });
+}
 </script>
 </body>
 </html>
