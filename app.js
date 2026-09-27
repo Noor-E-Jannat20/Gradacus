@@ -32,6 +32,12 @@ if (location.protocol === 'file:') {
     'Sign-in does not work when this page is opened as a local file. Open it through http(s), e.g. localhost or your hosting URL.';
 }
 let currentUser = null;
+// One-time migration for users who were remembered under the old "stay logged
+// in forever" persistence, from before session-only persistence existed. Once
+// a user has been through this (or has explicitly logged in since), we never
+// force a sign-out again.
+let sessionMigrationDone = !!localStorage.getItem('authSessionMigrationDone');
+let justSignedIn = false; // true only while an explicit login/signup click is in flight
 
 // Tab Switching Logic
 document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -1084,6 +1090,10 @@ async function submitAuth(){
   }
 
   submitBtn.disabled = true;
+  // Any auth-state change from here on is the direct result of this click, not
+  // a session Firebase silently restored on page load — so it should never
+  // trigger the old-session migration sign-out below.
+  justSignedIn = true;
   try{
     if (authMode === 'login'){
       await auth.signInWithEmailAndPassword(email, password);
@@ -1091,6 +1101,7 @@ async function submitAuth(){
       await auth.createUserWithEmailAndPassword(email, password);
     }
   } catch(err){
+    justSignedIn = false;
     console.error('Auth error:', err);
     setAuthMessage(friendlyAuthError(err));
   } finally {
@@ -1177,6 +1188,19 @@ async function enterApp(user){
 if (auth){
   auth.onAuthStateChanged(user => {
     if (user){
+      if (!sessionMigrationDone && !justSignedIn){
+        // This user wasn't just typed in — Firebase restored them from a
+        // session saved under the old "remember forever" persistence. Sign
+        // them out once so they land on the login screen like everyone else;
+        // once they log back in it's stored session-only from then on.
+        sessionMigrationDone = true;
+        localStorage.setItem('authSessionMigrationDone', '1');
+        auth.signOut();
+        return; // the resulting sign-out will re-fire this listener with user=null
+      }
+      sessionMigrationDone = true;
+      localStorage.setItem('authSessionMigrationDone', '1');
+      justSignedIn = false;
       enterApp(user);
     } else {
       authSeq++;
