@@ -15,6 +15,12 @@ try {
     firebase.initializeApp(firebaseConfig);
   }
   auth = firebase.auth();
+  // Only remember the signed-in session for as long as this browser tab/window
+  // stays open. Closing it (or reopening the app later) requires logging in
+  // again, rather than staying signed in indefinitely.
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(err => {
+    console.error('Could not set session persistence:', err);
+  });
   db = firebase.firestore();
 } catch (err) {
   console.error('Firebase failed to initialise:', err);
