@@ -315,6 +315,11 @@ function buildScaleTable(){
 }
 
 // ---- BRAC University course data ----
+// `lab: true` marks courses that are commonly run with an accompanying lab/practical
+// component; `project: true` marks courses centered on a capstone or term project.
+// This is a general guide compiled from public course records, not an official
+// curriculum document — always confirm the current requirement against BRACU's
+// own course pages before registering.
 const COURSE_DB = {
   // Foundation / General Education
   ENG101:{name:'English Fundamentals', credits:3},
@@ -323,62 +328,62 @@ const COURSE_DB = {
   MAT120:{name:'Mathematics II', credits:3},
   MAT215:{name:'Mathematics III', credits:3},
   MAT216:{name:'Mathematics IV', credits:3},
-  PHY111:{name:'Principles of Physics I', credits:3},
-  PHY112:{name:'Principles of Physics II', credits:3},
+  PHY111:{name:'Principles of Physics I', credits:3, lab:true},
+  PHY112:{name:'Principles of Physics II', credits:3, lab:true},
   STA201:{name:'Elements of Statistics and Probability', credits:3},
   DEV101:{name:'Bangladesh Studies', credits:3},
   HUM103:{name:'Ethics and Culture', credits:3},
   // CSE department courses
   CSE101:{name:'Introduction to Computer Science', credits:3},
-  CSE110:{name:'Programming Language I', credits:3},
-  CSE111:{name:'Programming Language II', credits:3},
-  CSE220:{name:'Data Structures', credits:3},
-  CSE221:{name:'Algorithms', credits:3},
+  CSE110:{name:'Programming Language I', credits:3, lab:true},
+  CSE111:{name:'Programming Language II', credits:3, lab:true},
+  CSE220:{name:'Data Structures', credits:3, lab:true},
+  CSE221:{name:'Algorithms', credits:3, lab:true},
   CSE230:{name:'Discrete Mathematics', credits:3},
-  CSE250:{name:'Circuits and Electronics', credits:3},
-  CSE251:{name:'Electronic Devices and Circuits', credits:3},
-  CSE260:{name:'Digital Logic Design', credits:3},
-  CSE310:{name:'Object-Oriented Programming', credits:3},
-  CSE320:{name:'Data Communications', credits:3},
-  CSE321:{name:'Operating Systems', credits:3},
-  CSE330:{name:'Numerical Methods', credits:3},
+  CSE250:{name:'Circuits and Electronics', credits:3, lab:true},
+  CSE251:{name:'Electronic Devices and Circuits', credits:3, lab:true},
+  CSE260:{name:'Digital Logic Design', credits:3, lab:true},
+  CSE310:{name:'Object-Oriented Programming', credits:3, lab:true},
+  CSE320:{name:'Data Communications', credits:3, lab:true},
+  CSE321:{name:'Operating Systems', credits:3, lab:true},
+  CSE330:{name:'Numerical Methods', credits:3, lab:true},
   CSE331:{name:'Automata and Computability', credits:3},
-  CSE340:{name:'Computer Architecture', credits:3},
-  CSE341:{name:'Microprocessors', credits:3},
+  CSE340:{name:'Computer Architecture', credits:3, lab:true},
+  CSE341:{name:'Microprocessors', credits:3, lab:true},
   CSE342:{name:'Computer Systems Engineering', credits:3},
-  CSE350:{name:'Digital Electronics and Pulse Techniques', credits:3},
-  CSE360:{name:'Computer Interfacing', credits:3},
-  CSE370:{name:'Database Systems', credits:3},
+  CSE350:{name:'Digital Electronics and Pulse Techniques', credits:3, lab:true},
+  CSE360:{name:'Computer Interfacing', credits:3, lab:true},
+  CSE370:{name:'Database Systems', credits:3, lab:true},
   CSE371:{name:'Management Information Systems', credits:3},
   CSE390:{name:'Technical Communication', credits:3},
-  CSE391:{name:'Programming for the Internet', credits:3},
+  CSE391:{name:'Programming for the Internet', credits:3, lab:true},
   CSE392:{name:'Signals and Systems', credits:3},
-  CSE400:{name:'Final Year Design Project', credits:4},
-  CSE410:{name:'Advanced Programming in UNIX', credits:3},
-  CSE419:{name:'Programming Languages & Competitive Programming', credits:3},
-  CSE420:{name:'Compiler Design', credits:3},
-  CSE421:{name:'Computer Networks', credits:3},
-  CSE422:{name:'Artificial Intelligence', credits:3},
-  CSE423:{name:'Computer Graphics', credits:3},
+  CSE400:{name:'Final Year Design Project', credits:4, project:true},
+  CSE410:{name:'Advanced Programming in UNIX', credits:3, lab:true},
+  CSE419:{name:'Programming Languages & Competitive Programming', credits:3, lab:true},
+  CSE420:{name:'Compiler Design', credits:3, lab:true},
+  CSE421:{name:'Computer Networks', credits:3, lab:true},
+  CSE422:{name:'Artificial Intelligence', credits:3, lab:true},
+  CSE423:{name:'Computer Graphics', credits:3, lab:true},
   CSE424:{name:'Pattern Recognition', credits:3},
   CSE425:{name:'Neural Networks', credits:3},
   CSE426:{name:'Advanced Algorithms', credits:3},
-  CSE427:{name:'Machine Learning', credits:3},
-  CSE428:{name:'Image Processing', credits:3},
+  CSE427:{name:'Machine Learning', credits:3, lab:true},
+  CSE428:{name:'Image Processing', credits:3, lab:true},
   CSE429:{name:'Basic Multimedia Theory', credits:3},
-  CSE430:{name:'Digital Signal Processing', credits:3},
+  CSE430:{name:'Digital Signal Processing', credits:3, lab:true},
   CSE431:{name:'Natural Language Processing', credits:3},
   CSE432:{name:'Speech Recognition and Synthesis', credits:3},
-  CSE460:{name:'VLSI Design', credits:3},
-  CSE461:{name:'Introduction to Robotics', credits:3},
+  CSE460:{name:'VLSI Design', credits:3, lab:true},
+  CSE461:{name:'Introduction to Robotics', credits:3, lab:true},
   CSE462:{name:'Fault-Tolerant Systems', credits:3},
-  CSE470:{name:'Software Engineering', credits:3},
-  CSE471:{name:'Systems Analysis and Design', credits:3},
-  CSE472:{name:'Human-Computer Interface', credits:3},
+  CSE470:{name:'Software Engineering', credits:3, project:true},
+  CSE471:{name:'Systems Analysis and Design', credits:3, project:true},
+  CSE472:{name:'Human-Computer Interface', credits:3, project:true},
   CSE473:{name:'Financial Engineering & Technology', credits:3},
-  CSE474:{name:'Simulation and Modeling', credits:3},
-  CSE490:{name:'Special Topics', credits:3},
-  CSE491:{name:'Independent Study', credits:3},
+  CSE474:{name:'Simulation and Modeling', credits:3, lab:true},
+  CSE490:{name:'Special Topics', credits:3, project:true},
+  CSE491:{name:'Independent Study', credits:3, project:true},
 };
 
 const FOUNDATION_CODES = ['ENG101','ENG102','MAT110','MAT120','MAT215','MAT216','PHY111','PHY112','STA201','HUM103'];
@@ -425,7 +430,7 @@ function getCourseInfo(code) {
     return state.customCourses[code];
   }
   if (COURSE_DB[code]) {
-    return { code: code, name: COURSE_DB[code].name, credits: COURSE_DB[code].credits, tag: 'course' };
+    return { code: code, name: COURSE_DB[code].name, credits: COURSE_DB[code].credits, tag: 'course', lab: !!COURSE_DB[code].lab, project: !!COURSE_DB[code].project };
   }
   return null;
 }
@@ -644,11 +649,13 @@ function renderSemesterCard(){
             </div>
           </div>`;
       } else {
+        const compBadges = c ? `${c.lab ? '<span class="tag lab" title="Runs with a lab component">lab</span>' : ''}${c.project ? '<span class="tag project" title="Project-centered course">project</span>' : ''}` : '';
         return `
           <div class="sem-course-row">
             <div>
               <span class="code">${c ? c.code : codeId}</span>
               <span class="name">${c ? c.name : 'Unknown course'}</span>
+              ${compBadges}
             </div>
             <div class="sem-course-actions">
               <button class="icon-btn" data-planner-action="up" data-code="${codeId}" ${idx===0?'disabled':''} title="Move up">↑</button>
@@ -780,11 +787,13 @@ function renderPool(){
     const info = getCourseInfo(i.code) || { name:'Unknown', credits:3, code: i.code };
     const displayCode = info.code || i.code;
     const isPlaced = placed.has(i.code);
+    const compBadges = `${info.lab ? '<span class="tag lab" title="Runs with a lab component">lab</span>' : ''}${info.project ? '<span class="tag project" title="Project-centered course">project</span>' : ''}`;
     return `
       <div class="pool-item ${isPlaced ? 'placed' : ''}">
         <div class="info">
           <span class="code">${displayCode}</span>
           <span class="tag ${i.tag}">${i.tag}</span>
+          ${compBadges}
           <span class="credit-badge">${info.credits}cr</span>
           <div class="name">${info.name}</div>
         </div>
@@ -1038,12 +1047,16 @@ function setAuthMode(mode){
   document.getElementById('authSwitchBtn').textContent = mode === 'login' ? 'Sign up' : 'Log in';
   document.getElementById('authPassword').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
   document.getElementById('authForgot').style.display = mode === 'login' ? 'block' : 'none';
+  const nudge = document.getElementById('signupNudge');
+  if (nudge) nudge.style.display = mode === 'login' ? 'block' : 'none';
   setAuthMessage('');
 }
 
 document.getElementById('authSwitchBtn').addEventListener('click', () => {
   setAuthMode(authMode === 'login' ? 'signup' : 'login');
 });
+const signupNudgeBtn = document.getElementById('signupNudgeBtn');
+if (signupNudgeBtn) signupNudgeBtn.addEventListener('click', () => setAuthMode('signup'));
 
 async function submitAuth(){
   const email = document.getElementById('authEmail').value.trim();

@@ -12,23 +12,49 @@
 <body>
 
 <div id="authOverlay">
-  <div class="auth-card">
-    <h1>Academic Console</h1>
-    <p class="sub" id="authSub">Log in to load your saved data.</p>
-    <div class="field">
-      <label for="authEmail">Email</label>
-      <input type="text" id="authEmail" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com">
+  <div class="landing-wrap">
+    <div class="landing-intro">
+      <h1>Academic Console</h1>
+      <p class="landing-tagline">Your all-in-one dashboard for CGPA planning, course mapping, and deadlines — built for BRAC University CSE &amp; CS students.</p>
+
+      <div class="feature-grid">
+        <div class="feature-panel">
+          <div class="feature-icon" style="color:var(--cyan); box-shadow:0 0 10px var(--cyan);">Σ</div>
+          <h3>CGPA Calculator</h3>
+          <p>Track every course and grade, model retakes, and watch your cumulative CGPA and graduation progress update instantly.</p>
+        </div>
+        <div class="feature-panel">
+          <div class="feature-icon" style="color:var(--violet); box-shadow:0 0 10px var(--violet);">☰</div>
+          <h3>Course Planner</h3>
+          <p>Map out core, elective, and foundation courses across semesters, with lab and project indicators so you know what each course involves.</p>
+        </div>
+        <div class="feature-panel">
+          <div class="feature-icon" style="color:var(--magenta); box-shadow:0 0 10px var(--magenta);">◷</div>
+          <h3>Deadline Tracker</h3>
+          <p>Quick-add assignments, quizzes, and exams in plain English, then follow them on a calendar, timeline, or reminders.</p>
+        </div>
+      </div>
     </div>
-    <div class="field">
-      <label for="authPassword">Password</label>
-      <input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters" style="font-family:'JetBrains Mono',monospace;">
-    </div>
-    <button class="btn full" id="authSubmit">Log in</button>
-    <div class="auth-error" id="authError"></div>
-    <div class="auth-forgot" id="authForgot"><button id="authForgotBtn" type="button">Forgot password?</button></div>
-    <div class="auth-switch">
-      <span id="authSwitchText">Don't have an account?</span>
-      <button id="authSwitchBtn">Sign up</button>
+
+    <div class="auth-card">
+      <h1>Get started</h1>
+      <p class="sub" id="authSub">Log in to load your saved data.</p>
+      <div class="signup-nudge" id="signupNudge">New here? <button id="signupNudgeBtn" type="button">Create a free account</button> to save your data to the cloud and unlock the full experience.</div>
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input type="text" id="authEmail" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters" style="font-family:'JetBrains Mono',monospace;">
+      </div>
+      <button class="btn full" id="authSubmit">Log in</button>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-forgot" id="authForgot"><button id="authForgotBtn" type="button">Forgot password?</button></div>
+      <div class="auth-switch">
+        <span id="authSwitchText">Don't have an account?</span>
+        <button id="authSwitchBtn">Sign up</button>
+      </div>
     </div>
   </div>
 </div>
@@ -181,7 +207,7 @@
   <div id="page-planner" class="page-section">
     <div class="panel">
       <h2><span class="dot" style="background:var(--violet); box-shadow:0 0 8px var(--violet);"></span>Semester Planner</h2>
-      <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against the official pages below and your own advising sheet before registering.</p>
+      <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against the official pages below and your own advising sheet before registering. Courses tagged <span class="tag lab" style="pointer-events:none;">lab</span> commonly run with a lab/practical component, and <span class="tag project" style="pointer-events:none;">project</span> marks project-centered courses — this is a general guide, not an official listing.</p>
       <div class="source-links">
         <span>Official sources:</span>
         <a href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-engineering-cse" target="_blank" rel="noopener noreferrer">CSE program &amp; courses ↗</a>
