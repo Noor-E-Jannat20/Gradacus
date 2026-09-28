@@ -343,11 +343,19 @@
 </div><!-- /app-main -->
 </div><!-- /wrap -->
 
+<nav class="tabbar" id="tabbar"><button data-tab="page-home" class="on"><span>▦</span>Home</button><button data-tab="page-cgpa"><span>◎</span>CGPA</button><button data-tab="page-planner"><span>▤</span>Planner</button><button data-tab="page-deadlines"><span>◷</span>Deadlines</button></nav>
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="app.js"></script>
+<script>
+(function(){var tb=document.querySelectorAll('[data-tab]'),tl=document.querySelectorAll('.toplinks [data-page]');
+function sync(){var a=document.querySelector('.page-section.active');if(!a)return;
+tb.forEach(function(b){b.classList.toggle('on',b.dataset.tab===a.id)});tl.forEach(function(b){b.classList.toggle('on',b.dataset.page===a.id)})}
+tb.forEach(function(b){b.addEventListener('click',function(){document.querySelector('.nav-tab[data-page="'+b.dataset.tab+'"]').click();window.scrollTo(0,0)})});
+new MutationObserver(sync).observe(document.querySelector('.content'),{subtree:true,attributes:true,attributeFilter:['class']});sync()})();
+</script>
 </body>
 </html>

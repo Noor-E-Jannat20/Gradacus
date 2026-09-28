@@ -1231,7 +1231,7 @@ async function enterApp(user){
   if (window.dlEnsure) dlEnsure();
 
   document.getElementById('authOverlay').style.display = 'none';
-  document.getElementById('appRoot').style.display = 'block';
+  document.getElementById('appRoot').style.display = 'grid';
   document.getElementById('userEmail').textContent = user.email;
   document.getElementById('loadBanner').style.display = ok ? 'none' : 'flex';
   setSyncStatus(ok ? 'Saved ✓' : 'Not saved', ok ? 'saved' : 'error');
