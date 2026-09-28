@@ -17,22 +17,23 @@
       <div class="eyebrow">BRAC UNIVERSITY / ACADEMIC PLANNER</div><h1>Gradacus<span>.</span></h1>
       <p class="landing-tagline">A sharper way to plan your degree — grades, courses, and deadlines in one place.</p>
 
-      <div class="feature-grid">
-        <div class="feature-panel">
-          <div class="feature-icon" style="color:var(--cyan); box-shadow:0 0 10px var(--cyan);">Σ</div>
-          <h3>CGPA Calculator</h3>
-          <p>Track every course and grade, model retakes, and watch your cumulative CGPA and graduation progress update instantly.</p>
+      <div class="feature-stack" id="featureStack">
+        <div class="fs-card" data-role="prev" data-key="cgpa">
+          <div class="fs-top"><span class="fs-num">01</span><span class="fs-glyph">Σ</span></div>
+          <div class="fs-big">Σ</div>
+          <div class="fs-chip"><h3>CGPA Calculator</h3><p>Track every course and grade, model retakes, and watch your CGPA update instantly.</p></div>
         </div>
-        <div class="feature-panel">
-          <div class="feature-icon" style="color:var(--violet); box-shadow:0 0 10px var(--violet);">☰</div>
-          <h3>Course Planner</h3>
-          <p>Map out core, elective, and foundation courses across semesters, with lab and project indicators so you know what each course involves.</p>
+        <div class="fs-card" data-role="current" data-key="planner">
+          <div class="fs-top"><span class="fs-num">02</span><span class="fs-glyph">☰</span></div>
+          <div class="fs-big">☰</div>
+          <div class="fs-chip"><h3>Course Planner</h3><p>Map out core, elective, and foundation courses across every semester.</p></div>
         </div>
-        <div class="feature-panel">
-          <div class="feature-icon" style="color:var(--magenta); box-shadow:0 0 10px var(--magenta);">◷</div>
-          <h3>Deadline Tracker</h3>
-          <p>Quick-add assignments, quizzes, and exams in plain English, then follow them on a calendar, timeline, or reminders.</p>
+        <div class="fs-card" data-role="next" data-key="deadlines">
+          <div class="fs-top"><span class="fs-num">03</span><span class="fs-glyph">◷</span></div>
+          <div class="fs-big">◷</div>
+          <div class="fs-chip"><h3>Deadline Tracker</h3><p>Quick-add assignments and exams, then follow them on a calendar or timeline.</p></div>
         </div>
+        <div class="fs-dots"><button data-jump="cgpa" aria-label="CGPA Calculator"></button><button data-jump="planner" aria-label="Course Planner" class="on"></button><button data-jump="deadlines" aria-label="Deadline Tracker"></button></div>
       </div>
     </div>
 
