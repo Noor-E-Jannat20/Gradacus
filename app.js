@@ -49,6 +49,19 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
   });
 });
 
+function goToPage(pageId){
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.page === pageId));
+  document.querySelectorAll('.page-section').forEach(p => p.classList.toggle('active', p.id === pageId));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.querySelectorAll('.toplinks [data-page], [data-go]').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    goToPage(el.dataset.page || el.dataset.go);
+  });
+});
+
+
 const GRADE_SCALE = [
   {min:97, letter:'A+', point:4.0},
   {min:90, letter:'A',  point:4.0},
@@ -111,6 +124,48 @@ const PROGRAM_LINKS = {
   '136': { href: 'https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-engineering-cse', text: 'BRACU CSE program page ↗' },
   '124': { href: 'https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-cs', text: 'BRACU CS program page ↗' }
 };
+
+
+function refreshDashboard(){
+  const email = document.getElementById('userEmail')?.textContent || '';
+  const name = email ? email.split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Student';
+  const dashName = document.getElementById('dashName');
+  const dashboardEmail = document.getElementById('dashboardEmail');
+  if (dashName) dashName.textContent = name;
+  if (dashboardEmail) dashboardEmail.textContent = email || 'Signed in';
+  const userInitial = document.getElementById('userInitial');
+  if (userInitial) userInitial.textContent = name.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase() || 'ST';
+
+  const now = new Date();
+  const dateEl = document.getElementById('dashDate');
+  if (dateEl) dateEl.textContent = now.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+
+  const total = Number(document.getElementById('program')?.value || 136);
+  const earned = Number(document.getElementById('creditsEarned')?.textContent || 0);
+  const pct = total ? Math.min(100, Math.round(earned/total*100)) : 0;
+  const dp = document.getElementById('dashProgress');
+  const dc = document.getElementById('dashCredits');
+  const dpc = document.getElementById('dashPct');
+  if (dp) dp.style.width = pct + '%';
+  if (dc) dc.textContent = `${earned} credits earned`;
+  if (dpc) dpc.textContent = `${pct}%`;
+
+  let active = [];
+  try {
+    active = (typeof D === 'function' ? D() : state.deadlines || []).filter(x => !x.completedAt && new Date(x.due) >= now).sort((a,b)=>new Date(a.due)-new Date(b.due));
+  } catch(e) {}
+  const count = document.getElementById('dashDeadlineCount');
+  if (count) count.textContent = active.length;
+  const nextTitle = document.getElementById('dashNextTitle');
+  const nextDate = document.getElementById('dashNextDate');
+  const nextMeta = document.getElementById('dashNextMeta');
+  if (active[0]) {
+    const n=active[0], d=new Date(n.due);
+    if(nextTitle) nextTitle.textContent=n.title || n.name || 'Upcoming deadline';
+    if(nextDate) nextDate.textContent=d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    if(nextMeta) nextMeta.textContent=d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+  }
+}
 
 function render(){
   document.getElementById('program').value = state.program;
@@ -277,13 +332,16 @@ function computeAndDisplay(){
   const { cgpa, earnedCredits, tableActiveCredits } = computeStats();
 
   const cgpaEl = document.getElementById('cgpaValue');
+  const dashCgpa = document.getElementById('dashCgpa');
   const mirrorEl = document.getElementById('statCgpaMirror');
   if (cgpa === null){
     cgpaEl.textContent = '--';
     cgpaEl.classList.add('dim');
+    if (dashCgpa) dashCgpa.textContent = '--';
     mirrorEl.textContent = '--';
   } else {
     cgpaEl.textContent = cgpa.toFixed(2);
+    if (dashCgpa) dashCgpa.textContent = cgpa.toFixed(2);
     cgpaEl.classList.remove('dim');
     mirrorEl.textContent = cgpa.toFixed(2);
   }
@@ -1803,3 +1861,6 @@ init();
   paint();
   restart();
 })();
+
+
+setInterval(refreshDashboard, 1500);

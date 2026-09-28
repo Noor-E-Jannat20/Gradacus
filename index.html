@@ -81,38 +81,99 @@
 
 <div class="wrap" id="appRoot">
 
+  <span id="userEmail" hidden></span><span id="syncStatus" hidden></span><span id="cgpaValue" hidden></span>
+
+<div class="load-banner" id="loadBanner">
+    <span>Couldn't load your saved data, so changes are <b>not being saved</b> right now (your existing data is untouched).</span>
+    <button class="btn small" id="retryLoadBtn">Retry</button>
+  </div>
+
+  
+<div class="app-sidebar">
+  <div class="brand">Gradacus<span>.</span></div>
+  <div class="side-label">YOUR ACADEMIC JOURNEY</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="page-home">⌂ &nbsp; Dashboard</button>
+    <button class="nav-tab" data-page="page-cgpa">◎ &nbsp; CGPA Calculator</button>
+    <button class="nav-tab" data-page="page-planner">□ &nbsp; Course Planner</button>
+    <button class="nav-tab" data-page="page-deadlines">◷ &nbsp; Deadline Tracker</button>
+  </div>
+  <div class="side-note"><strong>Small steps.</strong> Every day you plan ahead, you make the next semester easier.</div>
+</div>
+
+<div class="app-main">
+  <div class="app-topbar">
+    <div class="topbrand">Gradacus<span>.</span></div>
+    <div class="toplinks">
+      <button class="secondary" data-page="page-home">Home</button>
+      <button class="secondary" data-page="page-cgpa">CGPA</button>
+      <button class="secondary" data-page="page-planner">Planner</button>
+      <button class="secondary" data-page="page-deadlines">Deadlines</button>
+      <button id="logoutBtn">Log out</button>
+      <span class="user-dot" id="userInitial">NJ</span>
+    </div>
+  </div>
+  <div class="content">
+
   <div class="load-banner" id="loadBanner">
     <span>Couldn't load your saved data, so changes are <b>not being saved</b> right now (your existing data is untouched).</span>
     <button class="btn small" id="retryLoadBtn">Retry</button>
   </div>
 
-  <header class="hero">
-    <div class="titleblock">
-      <div class="eyebrow">YOUR ACADEMIC CONTROL PANEL</div><h1>Gradacus<span>.</span></h1>
-      <p>Plan the degree you have. Build the degree you want.</p>
-      <div class="user-bar" style="margin-top:14px;">
-        <span>Signed in as</span>
-        <span class="email" id="userEmail"></span>
-        <span class="sync-status" id="syncStatus" aria-live="polite">Not synced</span>
-        <button class="btn ghost small" id="exportBtn" type="button">Export</button>
-        <button class="btn ghost small" id="importBtn" type="button">Import</button>
-        <input id="importFile" type="file" accept="application/json,.json" hidden>
-        <button class="btn ghost small" id="logoutBtn">Log out</button>
+  <div id="page-home" class="page-section active">
+    <div class="dashboard-heading">
+      <div>
+        <div class="kicker">YOUR ACADEMIC OVERVIEW</div>
+        <h1>Good morning,<br><span id="dashName">Student</span></h1>
+        <p>Keep your courses, grades, and deadlines moving in one place.</p>
+      </div>
+      <div class="date-block"><strong id="dashDate">Academic planner</strong><span>BRAC University</span></div>
+    </div>
+
+    <div class="dashboard-cards">
+      <div class="metric-card blue">
+        <div class="metric-label">Current CGPA</div>
+        <div class="metric-value" id="dashCgpa">--</div>
+        <div class="metric-meta">out of 4.00 · cumulative</div>
+        <a href="#" class="metric-link" data-go="page-cgpa">View details →</a>
+      </div>
+      <div class="metric-card red">
+        <div class="metric-label">Upcoming deadlines</div>
+        <div class="metric-value" id="dashDeadlineCount">—</div>
+        <div class="metric-meta">active items to keep in sight</div>
+        <a href="#" class="metric-link" data-go="page-deadlines">View all →</a>
       </div>
     </div>
-    <div class="cgpa-display">
-      <div class="label">cumulative CGPA</div>
-      <div class="value mono" id="cgpaValue">--</div>
-    </div>
-  </header>
 
-  <div class="nav-tabs">
-    <button class="nav-tab active" data-page="page-cgpa">CGPA Calculator</button>
-    <button class="nav-tab" data-page="page-planner">Course Planner</button>
-    <button class="nav-tab" data-page="page-deadlines">Deadline Tracker</button>
+    <div class="quick-heading">Quick Actions</div>
+    <div class="quick-actions">
+      <div class="quick-action" data-go="page-cgpa"><strong>Calculate CGPA</strong><p>Check your current result and see how new grades affect your progress.</p><span>↗</span></div>
+      <div class="quick-action" data-go="page-planner"><strong>Plan Courses</strong><p>Build your next semester and keep prerequisites in view.</p><span>↗</span></div>
+      <div class="quick-action" data-go="page-deadlines"><strong>View Deadlines</strong><p>Keep assignments, quizzes, projects, and exams together.</p><span>↗</span></div>
+    </div>
+
+    <div class="dashboard-lower">
+      <div class="info-card">
+        <h3>Progress toward graduation</h3>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:8px"><span id="dashCredits">0 credits earned</span><span id="dashPct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="dashProgress"></div></div>
+        <div style="margin-top:12px;font-size:11px;color:var(--muted)">Use the CGPA calculator to update your earned-credit progress.</div>
+      </div>
+      <div class="info-card">
+        <h3>Next deadline</h3>
+        <div class="next-deadline"><div class="date" id="dashNextDate">—</div><div><div class="title" id="dashNextTitle">No upcoming deadline</div><small id="dashNextMeta">You're all caught up.</small></div></div>
+      </div>
+    </div>
+
+    <div class="info-card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;gap:20px;align-items:center">
+        <div><div class="kicker">DATA & ACCOUNT</div><div style="font-weight:700;margin-top:5px" id="dashboardEmail">Not signed in</div></div>
+        <div style="display:flex;gap:7px"><button class="btn ghost small" id="exportBtn" type="button">Export data</button><button class="btn ghost small" id="importBtn" type="button">Import data</button><input id="importFile" type="file" accept="application/json,.json" hidden></div>
+      </div>
+    </div>
   </div>
 
-  <div id="page-cgpa" class="page-section active">
+<div id="page-cgpa" class="page-section active">
     <div class="grid">
       <!-- LEFT COLUMN -->
       <div>
@@ -285,11 +346,12 @@
     </div>
   </div>
 
-  <footer style="margin-top:44px; text-align:center; color:var(--text-dim); font-size:0.78rem; padding-bottom: 20px;">
-    Repeated courses replace the old grade in your CGPA — click <b>Undo Repeat</b> on the old attempt to undo it. Uncheck "Include" to preview dropping a course's GPA without losing it; check it again to restore.
-    <br>Always verify against the <a href="https://www.bracu.ac.bd/academics/schools-and-departments/school-data-computational-sciences/computer-science-and/degree" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);">official BRACU degree plans</a>.
+  <footer style="margin-top:44px;text-align:center;color:var(--muted);font-size:10px;padding-bottom:20px;">
+    Repeated courses replace the old grade in your CGPA. Always verify curriculum details against official BRAC University degree plans.
   </footer>
-</div>
+  </div><!-- /content -->
+</div><!-- /app-main -->
+</div><!-- /wrap -->
 
 <div class="toast" id="toast"></div>
 
