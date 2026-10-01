@@ -66,9 +66,9 @@ const GRADE_SCALE = [
 ];
 
 const GRADE_COLOR = {
-  'A+':'#41ffb0','A':'#41ffb0','A-':'#4deeea','B+':'#4deeea','B':'#4deeea',
-  'B-':'#9d7bff','C+':'#ffb84d','C':'#ffb84d','C-':'#ffb84d',
-  'D+':'#ff8a4d','D':'#ff8a4d','D-':'#ff8a4d','F':'#ff4d6d'
+  'A+':'#f4f0ff','A':'#f4f0ff','A-':'#ba9cff','B+':'#ba9cff','B':'#ba9cff',
+  'B-':'#9382ff','C+':'#a8a6b7','C':'#a8a6b7','C-':'#a8a6b7',
+  'D+':'#918ea0','D':'#918ea0','D-':'#918ea0','F':'#918ea0'
 };
 
 function gradeFromLetter(letter){
@@ -134,7 +134,7 @@ function render(){
     const grade = gradeFromLetter(c.grade);
     const pointHtml = grade
       ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
-      : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">—</span>`;
+      : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">—</span>`;
 
     const gradeOptions = ['<option value="">--</option>']
       .concat(GRADE_SCALE.map(g => `<option value="${g.letter}" ${c.grade===g.letter?'selected':''}>${g.letter} (${g.point.toFixed(1)})</option>`))
@@ -154,11 +154,11 @@ function render(){
     }
 
     tr.innerHTML = `
-      <td><input class="code-input mono code" type="text" data-field="code" data-id="${c.id}" value="${c.code}" placeholder="CSE101">${retakeTag}</td>
-      <td><input class="credit-input mono" type="number" step="0.5" min="0" data-field="credits" data-id="${c.id}" value="${c.credits}"></td>
-      <td><select class="grade-select mono" data-field="grade" data-id="${c.id}">${gradeOptions}</select></td>
-      <td>${pointHtml}</td>
-      <td>
+      <td data-label="Course"><input class="code-input mono code" type="text" data-field="code" data-id="${c.id}" value="${c.code}" placeholder="CSE101">${retakeTag}</td>
+      <td data-label="Credits"><input class="credit-input mono" type="number" step="0.5" min="0" data-field="credits" data-id="${c.id}" value="${c.credits}"></td>
+      <td data-label="Grade"><select class="grade-select mono" data-field="grade" data-id="${c.id}">${gradeOptions}</select></td>
+      <td data-label="Points">${pointHtml}</td>
+      <td data-label="Counts">
         <input type="checkbox" data-field="included" data-id="${c.id}" ${c.included?'checked':''} ${c.replaced?'disabled':''} title="Temporarily exclude this course's GPA from the calculation">
       </td>
       <td>
@@ -211,7 +211,7 @@ function renderGradePillOnly(id){
   const pillCell = row.children[3];
   pillCell.innerHTML = grade
     ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
-    : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">—</span>`;
+    : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">—</span>`;
 }
 
 function onRowAction(e){
@@ -481,7 +481,30 @@ function setSyncStatus(text, cls=''){
   el.className = 'sync-status' + (cls ? ' ' + cls : '');
 }
 
+// ---- guest mode: data lives only in this browser (localStorage) ----
+const GUEST_KEY = 'gradacus-guest-state';
+let isGuest = false;
+let cloudWasNew = false;
+function writeGuest(){
+  try { localStorage.setItem(GUEST_KEY, JSON.stringify(state)); setSyncStatus('Saved on this device', 'saved'); }
+  catch(err){ console.error('Guest save failed:', err); setSyncStatus('Not saved', 'error'); showToast('Could not save to this device — browser storage may be full or blocked'); }
+}
+function readGuest(){
+  try {
+    const raw = localStorage.getItem(GUEST_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && Array.isArray(parsed.courses) ? parsed : null;
+  } catch(err){ console.error('Guest load failed:', err); return null; }
+}
+function clearGuest(){ try { localStorage.removeItem(GUEST_KEY); } catch(_){} }
+function guestHasWork(g){
+  return !!g && ((g.courses||[]).length > 0 || (g.planner && (g.planner.semesters||[]).some(x => x.codes && x.codes.length))
+    || ((g.deadlines && g.deadlines.items) || []).length > 0 || String(g.priorCgpa||'') !== '' || String(g.priorCredits||'') !== '');
+}
+
 function saveState(){
+  if (isGuest && stateLoaded){ writeGuest(); return; }
   if (!currentUser || !stateLoaded) return;
   clearTimeout(saveTimer);
   pendingSaveUid = currentUser.uid;
@@ -517,6 +540,7 @@ document.addEventListener('visibilitychange', () => {
 // Returns true if the user's data was loaded (or they are a genuinely new account).
 async function loadState(){
   if (!currentUser) return false;
+  cloudWasNew = false;
   try{
     const doc = await db.collection('users').doc(currentUser.uid).get();
     if (doc.exists && doc.data().data){
@@ -544,6 +568,7 @@ async function loadState(){
       }
     }
     // No saved document: brand-new account. Start with the default degree's courses.
+    cloudWasNew = true;
     state = freshState();
     loadDefaultCoursesForProgram(state.program);
     return true;
@@ -1157,6 +1182,57 @@ function friendlyAuthError(err){
   return map[err && err.code] || `Something went wrong (${(err && err.code) || 'unknown error'}). Please try again.`;
 }
 
+function setUserBar(mode){
+  const guest = mode === 'guest';
+  document.getElementById('userBarLabel').textContent = guest ? 'Guest mode' : 'Signed in as';
+  document.getElementById('userEmail').style.display = guest ? 'none' : '';
+  document.getElementById('guestHint').style.display = guest ? '' : 'none';
+  document.getElementById('logoutBtn').style.display = guest ? 'none' : '';
+  document.getElementById('guestSignInBtn').style.display = guest ? '' : 'none';
+}
+
+function enterGuest(){
+  authSeq++;
+  currentUser = null;
+  isGuest = true;
+  const saved = readGuest();
+  if (saved){
+    state = saved;
+    state.schemaVersion = APP_SCHEMA_VERSION;
+    state.curriculumVersion = state.curriculumVersion || CURRICULUM_DATA_VERSION;
+    if (!state.planner || !Array.isArray(state.planner.semesters)) state.planner = defaultPlanner();
+    if (!state.customCourses) state.customCourses = {};
+  } else {
+    state = freshState();
+    loadDefaultCoursesForProgram(state.program);
+  }
+  stateLoaded = true;
+  if (window.dlEnsure) dlEnsure();
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+  document.getElementById('loadBanner').style.display = 'none';
+  setUserBar('guest');
+  setSyncStatus('Saved on this device', 'saved');
+  render();
+  renderPlanner();
+  if (window.dlRender) dlRender();
+  window.scrollTo(0, 0);
+}
+
+function leaveGuestForAuth(mode){
+  if (isGuest) writeGuest();    // keep their work so it can move into the account
+  isGuest = false;
+  stateLoaded = false;
+  state = freshState();
+  document.getElementById('appRoot').style.display = 'none';
+  document.getElementById('authOverlay').style.display = 'flex';
+  setAuthMode(mode);
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('guestBtn').addEventListener('click', enterGuest);
+document.getElementById('guestSignInBtn').addEventListener('click', () => leaveGuestForAuth('login'));
+
 buildScaleTable();
 
 let authSeq = 0;
@@ -1170,11 +1246,19 @@ async function enterApp(user){
   const ok = await loadState();
   if (seq !== authSeq || currentUser !== user) return;   // user changed while loading
   stateLoaded = ok;
+  isGuest = false;
+  let adopted = false;
+  if (ok && cloudWasNew){
+    const g = readGuest();
+    if (guestHasWork(g)){ state = g; adopted = true; }
+  }
   if (window.dlEnsure) dlEnsure();
 
   document.getElementById('authOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = 'block';
   document.getElementById('userEmail').textContent = user.email;
+  setUserBar('user');
+  if (adopted){ saveState(); clearGuest(); showToast('Your guest data was moved into your new account'); }
   document.getElementById('loadBanner').style.display = ok ? 'none' : 'flex';
   setSyncStatus(ok ? 'Saved ✓' : 'Not saved', ok ? 'saved' : 'error');
   setAuthMessage('');
@@ -1205,6 +1289,7 @@ if (auth){
     } else {
       authSeq++;
       currentUser = null;
+      if (isGuest) return;   // a guest session is running; don't tear it down
       stateLoaded = false;
       setSyncStatus('Not synced');
       state = freshState();
@@ -1219,8 +1304,8 @@ if (auth){
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const BASE = ['Assignment','Quiz','Exam','Project','Presentation','Other'];
-const PRIO = { low:{l:'Low',c:'var(--green)',w:0}, medium:{l:'Medium',c:'var(--amber)',w:1}, high:{l:'High',c:'var(--red)',w:2} };
-const COLORS = ['#4deeea','#ff3e9a','#9d7bff','#ffb84d','#41ffb0','#ff7a59','#5aa9ff','#e0e36a'];
+const PRIO = { low:{l:'Low',c:'var(--text-dim)',w:0}, medium:{l:'Medium',c:'var(--ash)',w:1}, high:{l:'High',c:'var(--text)',w:2} };
+const COLORS = ['#9382ff','#e59cff','#9cb2ff','#ba9cff','#cdccd0','#7d62ff','#c4b5fd','#a8a6b7'];
 const PRESETS = [10080,4320,1440,720,60];
 const WD = ['sun','mon','tue','wed','thu','fri','sat'];
 const MON = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
@@ -1740,7 +1825,7 @@ function init(){
   document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', () => { if (t.dataset.page === 'page-deadlines') render(); }));
   let tk = 0;
   setInterval(() => {
-    if (!state.deadlines || typeof currentUser === 'undefined' || !currentUser || !stateLoaded){ if ($('dlModal').classList.contains('open')) closeModal(); return; }
+    if (!state.deadlines || typeof currentUser === 'undefined' || !(currentUser || isGuest) || !stateLoaded){ if ($('dlModal').classList.contains('open')) closeModal(); return; }
     tk++;
     document.querySelectorAll('.cd[data-due]').forEach(el => {
       const ms = +el.dataset.due - Date.now();

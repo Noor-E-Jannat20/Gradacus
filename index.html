@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#030014">
 <title>Gradacus — Academic Planning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,22 +15,23 @@
 <div id="authOverlay">
   <div class="landing-wrap">
     <div class="landing-intro">
-      <div class="eyebrow">BRAC UNIVERSITY / ACADEMIC PLANNER</div><h1>Gradacus<span>.</span></h1>
+      <span class="badge">✦ BRAC University · Academic planner</span>
+      <h1>Gradacus</h1>
       <p class="landing-tagline">A sharper way to plan your degree — grades, courses, and deadlines in one place.</p>
 
       <div class="feature-grid">
         <div class="feature-panel">
-          <div class="feature-icon" style="color:var(--cyan); box-shadow:0 0 10px var(--cyan);">Σ</div>
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M18 5H6l6 7-6 7h12"/></svg></div>
           <h3>CGPA Calculator</h3>
           <p>Track every course and grade, model retakes, and watch your cumulative CGPA and graduation progress update instantly.</p>
         </div>
         <div class="feature-panel">
-          <div class="feature-icon" style="color:var(--violet); box-shadow:0 0 10px var(--violet);">☰</div>
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
           <h3>Course Planner</h3>
           <p>Map out core, elective, and foundation courses across semesters, with lab and project indicators so you know what each course involves.</p>
         </div>
         <div class="feature-panel">
-          <div class="feature-icon" style="color:var(--magenta); box-shadow:0 0 10px var(--magenta);">◷</div>
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></div>
           <h3>Deadline Tracker</h3>
           <p>Quick-add assignments, quizzes, and exams in plain English, then follow them on a calendar, timeline, or reminders.</p>
         </div>
@@ -37,7 +39,8 @@
     </div>
 
     <div class="auth-card">
-      <div class="auth-kicker">WELCOME TO GRADACUS</div><h1>Keep moving<br><em>forward.</em></h1>
+      <span class="badge">Welcome</span>
+      <h1>Keep moving forward.</h1>
       <p class="sub" id="authSub">Log in to load your saved data.</p>
       <div class="signup-nudge" id="signupNudge">New here? <button id="signupNudgeBtn" type="button">Create a free account</button> to save your data to the cloud and unlock the full experience.</div>
       <div class="field">
@@ -46,7 +49,7 @@
       </div>
       <div class="field">
         <label for="authPassword">Password</label>
-        <input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters" style="font-family:'JetBrains Mono',monospace;">
+        <input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters" style="">
       </div>
       <button class="btn full" id="authSubmit">Log in</button>
       <div class="auth-error" id="authError"></div>
@@ -55,28 +58,14 @@
         <span id="authSwitchText">Don't have an account?</span>
         <button id="authSwitchBtn">Sign up</button>
       </div>
+      <div class="auth-or"><span>or</span></div>
+      <button class="btn ghost full" id="guestBtn" type="button">Continue as guest</button>
+      <p class="guest-note">No account needed. Your data stays on this device, and you can create an account later to move it to the cloud.</p>
     </div>
   </div>
 </div>
 
-<svg class="skyline" viewBox="0 0 1200 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0b0e1c" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#0b0e1c" stop-opacity="1"/>
-    </linearGradient>
-  </defs>
-  <g fill="#141a33">
-    <rect x="0" y="120" width="60" height="100"/><rect x="70" y="90" width="45" height="130"/><rect x="125" y="140" width="70" height="80"/><rect x="205" y="60" width="40" height="160"/><rect x="255" y="110" width="55" height="110"/><rect x="320" y="150" width="90" height="70"/><rect x="420" y="40" width="35" height="180"/><rect x="465" y="100" width="60" height="120"/><rect x="535" y="70" width="45" height="150"/><rect x="590" y="130" width="80" height="90"/><rect x="680" y="30" width="40" height="190"/><rect x="730" y="95" width="55" height="125"/><rect x="795" y="140" width="70" height="80"/><rect x="875" y="60" width="45" height="160"/><rect x="930" y="110" width="60" height="110"/><rect x="1000" y="150" width="80" height="70"/><rect x="1090" y="80" width="40" height="140"/><rect x="1140" y="130" width="60" height="90"/>
-  </g>
-  <g fill="#4deeea" opacity="0.55">
-    <rect x="10" y="140" width="5" height="6"/><rect x="10" y="155" width="5" height="6"/><rect x="85" y="105" width="5" height="6"/><rect x="85" y="125" width="5" height="6"/><rect x="215" y="80" width="5" height="6"/><rect x="215" y="100" width="5" height="6"/><rect x="430" y="60" width="5" height="6"/><rect x="430" y="80" width="5" height="6"/><rect x="690" y="55" width="5" height="6"/><rect x="690" y="75" width="5" height="6"/><rect x="885" y="80" width="5" height="6"/><rect x="885" y="100" width="5" height="6"/>
-  </g>
-  <g fill="#ff3e9a" opacity="0.5">
-    <rect x="330" y="165" width="5" height="6"/><rect x="605" y="150" width="5" height="6"/><rect x="1010" y="165" width="5" height="6"/>
-  </g>
-  <rect x="0" y="0" width="1200" height="220" fill="url(#fade)"/>
-</svg>
+<div class="starfield" aria-hidden="true"></div>
 
 <div class="wrap" id="appRoot">
 
@@ -87,29 +76,34 @@
 
   <header class="hero">
     <div class="titleblock">
-      <div class="eyebrow">YOUR ACADEMIC CONTROL PANEL</div><h1>Gradacus<span>.</span></h1>
+      <span class="badge">✦ Your academic control panel</span>
+      <h1>Gradacus</h1>
       <p>Plan the degree you have. Build the degree you want.</p>
-      <div class="user-bar" style="margin-top:14px;">
-        <span>Signed in as</span>
+      <div class="user-bar">
+        <span id="userBarLabel">Signed in as</span>
         <span class="email" id="userEmail"></span>
+        <span class="guest-hint" id="guestHint" style="display:none">data stays on this device</span>
         <span class="sync-status" id="syncStatus" aria-live="polite">Not synced</span>
-        <button class="btn ghost small" id="exportBtn" type="button">Export</button>
-        <button class="btn ghost small" id="importBtn" type="button">Import</button>
-        <input id="importFile" type="file" accept="application/json,.json" hidden>
-        <button class="btn ghost small" id="logoutBtn">Log out</button>
+        <span class="user-actions">
+          <button class="btn ghost small" id="exportBtn" type="button">Export</button>
+          <button class="btn ghost small" id="importBtn" type="button">Import</button>
+          <input id="importFile" type="file" accept="application/json,.json" hidden>
+          <button class="btn ghost small" id="logoutBtn">Log out</button>
+          <button class="btn small" id="guestSignInBtn" type="button" style="display:none">Sign in / Sign up</button>
+        </span>
       </div>
     </div>
     <div class="cgpa-display">
       <div class="label">cumulative CGPA</div>
-      <div class="value mono" id="cgpaValue">--</div>
+      <div class="value" id="cgpaValue">--</div>
     </div>
   </header>
 
-  <div class="nav-tabs">
+  <nav class="nav-tabs" aria-label="Sections">
     <button class="nav-tab active" data-page="page-cgpa">CGPA Calculator</button>
     <button class="nav-tab" data-page="page-planner">Course Planner</button>
     <button class="nav-tab" data-page="page-deadlines">Deadline Tracker</button>
-  </div>
+  </nav>
 
   <div id="page-cgpa" class="page-section active">
     <div class="grid">
@@ -137,7 +131,7 @@
         </div>
 
         <div class="panel">
-          <h2><span class="dot" style="background:var(--green); box-shadow:0 0 8px var(--green);"></span>Path to graduation</h2>
+          <h2><span class="dot"></span>Path to graduation</h2>
           <div class="stat" style="margin-bottom:12px;">
             <div class="label">credits earned</div>
             <div class="val" id="creditsEarned">0</div>
@@ -148,7 +142,7 @@
             <span id="gradRemainText">-- credits left</span>
           </div>
           <div class="stat" style="margin-top:16px;">
-            <div class="label">≈ courses remaining <span class="mono" style="font-size:0.68rem;">(3 credits avg.)</span></div>
+            <div class="label">≈ courses remaining <span class="mono" style="font-size:0.7rem;">(3 credits avg.)</span></div>
             <div class="val warn" id="coursesLeft">--</div>
           </div>
         </div>
@@ -157,7 +151,7 @@
       <!-- RIGHT COLUMN -->
       <div>
         <div class="panel">
-          <h2><span class="dot" style="background:var(--magenta); box-shadow:0 0 8px var(--magenta);"></span>Courses</h2>
+          <h2><span class="dot"></span>Courses</h2>
           <table id="courseTable">
             <thead>
               <tr>
@@ -206,7 +200,7 @@
 
   <div id="page-planner" class="page-section">
     <div class="panel">
-      <h2><span class="dot" style="background:var(--violet); box-shadow:0 0 8px var(--violet);"></span>Semester Planner</h2>
+      <h2><span class="dot"></span>Semester Planner</h2>
       <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against the official pages below and your own advising sheet before registering. Courses tagged <span class="tag lab" style="pointer-events:none;">lab</span> commonly run with a lab/practical component, and <span class="tag project" style="pointer-events:none;">project</span> marks project-centered courses — this is a general guide, not an official listing.</p>
       <div class="source-links">
         <span>Official sources:</span>
