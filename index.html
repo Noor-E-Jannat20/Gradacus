@@ -6,7 +6,7 @@
 <title>Gradacus — Academic Planning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,27 +14,39 @@
 <div id="authOverlay">
   <div class="landing-wrap">
     <div class="landing-intro">
-      <div class="brandmark">Gradacus</div>
-      <div class="eyebrow">YOUR ACADEMIC<br>JOURNEY, SIMPLIFIED.</div>
-      <h1>Plan<br>Track<br><em>Achieve.</em></h1>
-      <p class="landing-tagline">Calculate your CGPA, plan your courses, and never miss a deadline — all in one place.</p>
-      <div class="land-foot">Better planning.<br>Brighter future.</div>
-      <div class="collage" aria-hidden="true"><i class="c-red"></i><i class="c-blue"></i><i class="c-dot"></i>
-        <svg viewBox="0 0 120 220" preserveAspectRatio="none"><defs><pattern id="w" width="12" height="14" patternUnits="userSpaceOnUse"><rect x="2" y="3" width="7" height="8" fill="#222"/></pattern></defs><rect width="120" height="220" fill="#b9b9b6"/><rect x="10" y="20" width="100" height="200" fill="#8d8d8b"/><rect x="10" y="20" width="100" height="200" fill="url(#w)"/><rect x="30" y="0" width="40" height="30" fill="#6f6f6d"/></svg></div>
-      <div class="feature-stack" id="featureStack" hidden></div>
+      <div class="eyebrow">BRAC UNIVERSITY / ACADEMIC PLANNER</div><h1>Gradacus<span>.</span></h1>
+      <p class="landing-tagline">A sharper way to plan your degree — grades, courses, and deadlines in one place.</p>
+
+      <div class="feature-grid">
+        <div class="feature-panel">
+          <div class="feature-icon" style="color:var(--cyan); box-shadow:0 0 10px var(--cyan);">Σ</div>
+          <h3>CGPA Calculator</h3>
+          <p>Track every course and grade, model retakes, and watch your cumulative CGPA and graduation progress update instantly.</p>
+        </div>
+        <div class="feature-panel">
+          <div class="feature-icon" style="color:var(--violet); box-shadow:0 0 10px var(--violet);">☰</div>
+          <h3>Course Planner</h3>
+          <p>Map out core, elective, and foundation courses across semesters, with lab and project indicators so you know what each course involves.</p>
+        </div>
+        <div class="feature-panel">
+          <div class="feature-icon" style="color:var(--magenta); box-shadow:0 0 10px var(--magenta);">◷</div>
+          <h3>Deadline Tracker</h3>
+          <p>Quick-add assignments, quizzes, and exams in plain English, then follow them on a calendar, timeline, or reminders.</p>
+        </div>
+      </div>
     </div>
 
     <div class="auth-card">
-      <h1 class="welcome">Welcome back</h1>
-      <p class="sub" id="authSub">Log in to continue your academic journey.</p>
+      <div class="auth-kicker">WELCOME TO GRADACUS</div><h1>Keep moving<br><em>forward.</em></h1>
+      <p class="sub" id="authSub">Log in to load your saved data.</p>
       <div class="signup-nudge" id="signupNudge">New here? <button id="signupNudgeBtn" type="button">Create a free account</button> to save your data to the cloud and unlock the full experience.</div>
       <div class="field">
-        <label for="authEmail">Email address</label>
+        <label for="authEmail">Email</label>
         <input type="text" id="authEmail" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com">
       </div>
       <div class="field">
         <label for="authPassword">Password</label>
-        <input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters">
+        <input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters" style="font-family:'JetBrains Mono',monospace;">
       </div>
       <button class="btn full" id="authSubmit">Log in</button>
       <div class="auth-error" id="authError"></div>
@@ -68,100 +80,38 @@
 
 <div class="wrap" id="appRoot">
 
-  <span id="userEmail" hidden></span><span id="syncStatus" hidden></span><span id="cgpaValue" hidden></span>
-
-<div class="load-banner" id="loadBanner">
-    <span>Couldn't load your saved data, so changes are <b>not being saved</b> right now (your existing data is untouched).</span>
-    <button class="btn small" id="retryLoadBtn">Retry</button>
-  </div>
-
-  
-<div class="app-sidebar">
-  <div class="brand">Gradacus<span>.</span></div>
-  <div class="side-label">YOUR ACADEMIC JOURNEY</div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" data-page="page-home">⌂ &nbsp; Dashboard</button>
-    <button class="nav-tab" data-page="page-cgpa">◎ &nbsp; CGPA Calculator</button>
-    <button class="nav-tab" data-page="page-planner">□ &nbsp; Course Planner</button>
-    <button class="nav-tab" data-page="page-deadlines">◷ &nbsp; Deadline Tracker</button>
-  </div>
-  <div class="side-note">Small steps<br>every day lead<br>to big results.</div>
-</div>
-
-<div class="app-main">
-  <div class="app-topbar">
-    <div class="topbrand">Gradacus<span>.</span></div>
-    <div class="toplinks">
-      <button class="secondary" data-page="page-home">Home</button>
-      <button class="secondary" data-page="page-cgpa">CGPA</button>
-      <button class="secondary" data-page="page-planner">Planner</button>
-      <button class="secondary" data-page="page-deadlines">Deadlines</button>
-      <button id="logoutBtn">Log out</button>
-      <span class="user-dot" id="userInitial">NJ</span>
-    </div>
-  </div>
-  <div class="content">
-
   <div class="load-banner" id="loadBanner">
     <span>Couldn't load your saved data, so changes are <b>not being saved</b> right now (your existing data is untouched).</span>
     <button class="btn small" id="retryLoadBtn">Retry</button>
   </div>
 
-  <div id="page-home" class="page-section active">
-    <div class="dashboard-heading">
-      <div>
-        <div class="kicker">YOUR ACADEMIC OVERVIEW</div>
-        <h1>Good morning,<br><span id="dashName">Student</span></h1>
-        <p>Keep your courses, grades, and deadlines moving in one place.</p>
+  <header class="hero">
+    <div class="titleblock">
+      <div class="eyebrow">YOUR ACADEMIC CONTROL PANEL</div><h1>Gradacus<span>.</span></h1>
+      <p>Plan the degree you have. Build the degree you want.</p>
+      <div class="user-bar" style="margin-top:14px;">
+        <span>Signed in as</span>
+        <span class="email" id="userEmail"></span>
+        <span class="sync-status" id="syncStatus" aria-live="polite">Not synced</span>
+        <button class="btn ghost small" id="exportBtn" type="button">Export</button>
+        <button class="btn ghost small" id="importBtn" type="button">Import</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+        <button class="btn ghost small" id="logoutBtn">Log out</button>
       </div>
-      <div class="date-block"><strong id="dashDate">Academic planner</strong><span>BRAC University</span></div>
     </div>
+    <div class="cgpa-display">
+      <div class="label">cumulative CGPA</div>
+      <div class="value mono" id="cgpaValue">--</div>
+    </div>
+  </header>
 
-    <div class="dashboard-cards">
-      <div class="metric-card blue">
-        <div class="metric-label">Current CGPA</div>
-        <div class="metric-value" id="dashCgpa">--</div>
-        <div class="metric-meta">out of 4.00 · cumulative</div>
-        <a href="#" class="metric-link" data-go="page-cgpa">View details →</a>
-      </div>
-      <div class="metric-card red">
-        <div class="metric-label">Upcoming deadlines</div>
-        <div class="metric-value" id="dashDeadlineCount">—</div>
-        <div class="metric-meta">active items to keep in sight</div>
-        <a href="#" class="metric-link" data-go="page-deadlines">View all →</a>
-      </div>
-    </div>
-
-    <div class="quick-heading">Quick Actions</div>
-    <div class="quick-actions">
-      <div class="quick-action" data-go="page-cgpa"><strong>Calculate CGPA</strong><p>Check your current result and see how new grades affect your progress.</p><span>↗</span></div>
-      <div class="quick-action" data-go="page-planner"><strong>Plan Courses</strong><p>Build your next semester and keep prerequisites in view.</p><span>↗</span></div>
-      <div class="quick-action" data-go="page-deadlines"><strong>View Deadlines</strong><p>Keep assignments, quizzes, projects, and exams together.</p><span>↗</span></div>
-    </div>
-
-    <div class="dashboard-lower">
-      <div class="info-card">
-        <h3>Progress toward graduation</h3>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:8px"><span id="dashCredits">0 credits earned</span><span id="dashPct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" id="dashProgress"></div></div>
-        <div style="margin-top:12px;font-size:11px;color:var(--muted)">Use the CGPA calculator to update your earned-credit progress.</div>
-      </div>
-      <div class="info-card">
-        <h3>Next deadline</h3>
-        <div class="next-deadline"><div class="date" id="dashNextDate">—</div><div><div class="title" id="dashNextTitle">No upcoming deadline</div><small id="dashNextMeta">You're all caught up.</small></div></div>
-      </div>
-    </div>
-
-    <div class="info-card" style="margin-top:12px">
-      <div style="display:flex;justify-content:space-between;gap:20px;align-items:center">
-        <div><div class="kicker">DATA & ACCOUNT</div><div style="font-weight:700;margin-top:5px" id="dashboardEmail">Not signed in</div></div>
-        <div style="display:flex;gap:7px"><button class="btn ghost small" id="exportBtn" type="button">Export data</button><button class="btn ghost small" id="importBtn" type="button">Import data</button><input id="importFile" type="file" accept="application/json,.json" hidden></div>
-      </div>
-    </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="page-cgpa">CGPA Calculator</button>
+    <button class="nav-tab" data-page="page-planner">Course Planner</button>
+    <button class="nav-tab" data-page="page-deadlines">Deadline Tracker</button>
   </div>
 
-<div id="page-cgpa" class="page-section">
-    <div class="page-head"><div class="kicker"></div><h1>CGPA Calculator</h1><p>Calculate your CGPA and track your academic progress.</p></div>
+  <div id="page-cgpa" class="page-section active">
     <div class="grid">
       <!-- LEFT COLUMN -->
       <div>
@@ -255,7 +205,6 @@
   </div>
 
   <div id="page-planner" class="page-section">
-    <div class="page-head"><div class="kicker">COURSE PLANNER</div><h1>Plan Your<br>Next Semester</h1><p>Select courses, check prerequisites and build your ideal schedule.</p></div>
     <div class="panel">
       <h2><span class="dot" style="background:var(--violet); box-shadow:0 0 8px var(--violet);"></span>Semester Planner</h2>
       <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against the official pages below and your own advising sheet before registering. Courses tagged <span class="tag lab" style="pointer-events:none;">lab</span> commonly run with a lab/practical component, and <span class="tag project" style="pointer-events:none;">project</span> marks project-centered courses — this is a general guide, not an official listing.</p>
@@ -321,7 +270,6 @@
   </div>
 
   <div id="page-deadlines" class="page-section">
-    <div class="page-head"><div class="kicker">DEADLINE TRACKER</div><h1>Stay on Top<br>of Your Deadlines</h1><p>Never miss an important date again.</p></div>
     <div class="dl-top">
       <div class="dl-quick">
         <input type="text" id="dlQuick" placeholder='Quick add: "CSE422 assignment due Friday at 11:59 PM"'>
@@ -336,26 +284,17 @@
     </div>
   </div>
 
-  <footer style="margin-top:44px;text-align:center;color:var(--muted);font-size:10px;padding-bottom:20px;">
-    Repeated courses replace the old grade in your CGPA. Always verify curriculum details against official BRAC University degree plans.
+  <footer style="margin-top:44px; text-align:center; color:var(--text-dim); font-size:0.78rem; padding-bottom: 20px;">
+    Repeated courses replace the old grade in your CGPA — click <b>Undo Repeat</b> on the old attempt to undo it. Uncheck "Include" to preview dropping a course's GPA without losing it; check it again to restore.
+    <br>Always verify against the <a href="https://www.bracu.ac.bd/academics/schools-and-departments/school-data-computational-sciences/computer-science-and/degree" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);">official BRACU degree plans</a>.
   </footer>
-  </div><!-- /content -->
-</div><!-- /app-main -->
-</div><!-- /wrap -->
+</div>
 
-<nav class="tabbar" id="tabbar"><button data-tab="page-home" class="on"><span>▦</span>Home</button><button data-tab="page-cgpa"><span>◎</span>CGPA</button><button data-tab="page-planner"><span>▤</span>Planner</button><button data-tab="page-deadlines"><span>◷</span>Deadlines</button></nav>
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="app.js"></script>
-<script>
-(function(){var tb=document.querySelectorAll('[data-tab]'),tl=document.querySelectorAll('.toplinks [data-page]');
-function sync(){var a=document.querySelector('.page-section.active');if(!a)return;
-tb.forEach(function(b){b.classList.toggle('on',b.dataset.tab===a.id)});tl.forEach(function(b){b.classList.toggle('on',b.dataset.page===a.id)})}
-tb.forEach(function(b){b.addEventListener('click',function(){document.querySelector('.nav-tab[data-page="'+b.dataset.tab+'"]').click();window.scrollTo(0,0)})});
-new MutationObserver(sync).observe(document.querySelector('.content'),{subtree:true,attributes:true,attributeFilter:['class']});sync()})();
-</script>
 </body>
 </html>
