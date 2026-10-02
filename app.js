@@ -1888,8 +1888,14 @@ function dbRender(){
     ? 'Add grades on the CGPA tab to see your CGPA.'
     : graded + ' graded course' + (graded === 1 ? '' : 's') + ' counted';
   el('dbCredits').textContent = round1(st.earnedCredits) + ' / ' + required + ' credits';
-  el('dbPct').textContent = pct + '%';
-  el('dbFill').style.width = pct + '%';
+  if (!window.dashDial && typeof window.CometDial === 'function'){
+    window.dashDial = window.CometDial(el('dbDial'), {
+      defaultValue: 0, min: 0, max: 100, step: 1, unit: '%', label: 'Degree completion',
+      caption: 'complete', readOnly: true, accent: '#ba9cff', ink: '#f4f0ff',
+      size: 240, sweep: 320, thickness: 5, speed: 30, tapBounce: 0.15, cometReach: 180, cometWidth: 12
+    });
+  }
+  if (window.dashDial) window.dashDial.setValue(pct);
   el('dbProgram').textContent = required === 136 ? 'CSE degree' : 'CS degree';
   el('dbLeft').textContent = round1(Math.max(required - st.earnedCredits, 0)) + ' credits left';
 
@@ -1940,7 +1946,7 @@ function dbRender(){
   ).join('') : '<div class="dl-empty">No grades entered yet.</div>';
 }
 document.body.dataset.page = 'page-dashboard';
-document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', () => { document.body.dataset.page = t.dataset.page; if (t.dataset.page === 'page-dashboard') dbRender(); }));
+document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', () => { document.body.dataset.page = t.dataset.page; if (t.dataset.page === 'page-dashboard'){ dbRender(); if (window.dashDial) window.dashDial.replay(); } }));
 
 window.dlEnsure = ensure; window.dbRender = dbRender; window.dlRender = function(){ render(); dbRender(); };
 init();

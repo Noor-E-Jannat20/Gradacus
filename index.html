@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=58592697">
+<link rel="stylesheet" href="styles.css?v=db8126ed">
 </head>
 <body>
 
@@ -109,14 +109,12 @@
 
   <div id="page-dashboard" class="page-section active">
     <div class="db-hero panel">
+      <div class="db-dial" id="dbDial"></div>
       <div class="db-hero-main">
         <div class="label">cumulative CGPA</div>
         <div class="db-cgpa" id="dbCgpa">--</div>
         <div class="db-sub" id="dbCgpaNote"></div>
-      </div>
-      <div class="db-hero-prog">
-        <div class="db-prog-top"><span id="dbCredits">0 / 0 credits</span><span id="dbPct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" id="dbFill" style="width:0%"></div></div>
+        <div class="db-prog-top"><span id="dbCredits">0 / 0 credits</span></div>
         <div class="progress-caption"><span id="dbProgram"></span><span id="dbLeft"></span></div>
       </div>
     </div>
@@ -353,7 +351,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="comet-dial.js?v=066576af"></script>
 <script src="stroke-text.js?v=7bd61e23"></script>
-<script src="app.js?v=09cf69ca"></script>
+<script src="app.js?v=7326f99b"></script>
 </body>
 </html>
