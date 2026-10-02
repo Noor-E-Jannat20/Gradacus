@@ -902,3 +902,53 @@ body[data-page="page-dashboard"] .cgpa-display{display:none}
   .nav-tabs{width:100%;justify-content:space-between}
   .nav-tab{flex:1 1 auto;padding-inline:6px;font-size:12px}
 }
+
+/* ---------- feature cards (flip card, from Uiverse.io by ElSombrero2, themed) ---------- */
+.feature-grid{gap:20px}
+.feature-card{
+  --fc-bg:#151515; --fc-a:var(--accent); --fc-b:#e59cff;
+  position:relative; overflow:visible; width:100%; height:254px; outline:none;
+  perspective:1000px;
+}
+.fc-content{
+  position:relative; width:100%; height:100%;
+  transform-style:preserve-3d; transition:transform 300ms;
+  box-shadow:0 0 10px 1px #000000ee; border-radius:5px;
+}
+.fc-front,.fc-back{
+  background-color:var(--fc-bg); position:absolute; width:100%; height:100%;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:5px; overflow:hidden;
+}
+.fc-back{display:flex; justify-content:center; align-items:center}
+.fc-back::before{
+  position:absolute; content:' '; display:block; width:160px; height:160%;
+  background:linear-gradient(90deg,transparent,var(--fc-a),var(--fc-b),var(--fc-a),var(--fc-a),transparent);
+  animation:fc-rotation 5000ms infinite linear;
+}
+.fc-back-content{
+  position:absolute; width:99%; height:99%; background-color:var(--fc-bg);
+  border-radius:5px; color:#fff; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; gap:30px;
+}
+.fc-back-content .feature-icon{margin:0; width:44px!important; height:44px!important}
+.fc-back-content .feature-icon svg{width:44px; height:44px; stroke-width:1.3}
+.fc-back-content h3{margin:0; font-size:1.05rem; color:#fff}
+.fc-front{transform:rotateY(180deg); color:#fff}
+.fc-front-content{
+  position:absolute; width:100%; height:100%; padding:10px;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.fc-front-content h3{margin:0 0 8px; font-size:1rem; color:#fff}
+.fc-front-content p{margin:0; font-size:.85rem; line-height:1.55; color:#ffffffbb}
+.fc-front-content{
+  padding:18px; background:radial-gradient(circle at 80% 0%,rgba(147,130,255,.28),transparent 60%);
+}
+.feature-card:hover .fc-content,
+.feature-card:focus .fc-content,
+.feature-card:focus-within .fc-content{transform:rotateY(180deg)}
+@keyframes fc-rotation{from{transform:rotateZ(0deg)}to{transform:rotateZ(360deg)}}
+@media (prefers-reduced-motion:reduce){.fc-back::before{animation:none}.fc-content{transition:none}}
+@media (max-width:760px){
+  .feature-card{height:210px; max-width:360px; margin-inline:auto}
+}
