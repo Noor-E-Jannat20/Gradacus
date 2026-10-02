@@ -804,3 +804,68 @@ footer{color:var(--fog)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 @media (max-height:520px) and (orientation:landscape){.grid>div:first-child{position:static;max-height:none}.nav-tabs{position:static}}
+
+/* =========================================================
+   Landing title (StrokeText), Dashboard page, Official Sites page
+   ========================================================= */
+/* StrokeText base (from React Bits) */
+.stroke-text{display:block;width:100%;line-height:0}
+.stroke-text--hover{cursor:pointer}
+.stroke-text__svg{display:block;width:100%;height:var(--stroke-text-height,160px)}
+.stroke-text__stroke,.stroke-text__fill{user-select:none;font-family:var(--font-head)}
+/* landing sizing: let the viewBox set the height so the wordmark fills its box */
+.landing-title{margin:0 0 14px;line-height:0;font-size:0}
+.landing-title #landingStroke{display:block;width:min(100%,clamp(260px,52vw,560px))}
+.landing-title .stroke-text__svg{height:auto;overflow:visible}
+.landing-title #landingStroke:empty{height:clamp(60px,10vw,110px)}
+.landing-title #landingStroke:empty::before{content:'Gradacus';font:500 clamp(2.8rem,10vw,5.5rem)/1.02 var(--font-head);letter-spacing:-.035em;color:var(--text)}
+
+/* Dashboard */
+.db-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(18px,4vw,48px);align-items:center;margin-bottom:clamp(12px,2.5vw,20px)}
+.db-cgpa{font:500 clamp(3rem,10vw,5rem)/1.05 var(--font-head);letter-spacing:-.03em;color:transparent;background:var(--cosmic);-webkit-background-clip:text;background-clip:text;width:fit-content}
+.db-cgpa.dim{background:none;color:var(--steel)}
+.db-sub{color:var(--fog);font-size:.82rem;margin-top:4px;max-width:30ch}
+.db-prog-top{display:flex;justify-content:space-between;gap:10px;font-size:.95rem;color:var(--text)}
+.db-prog-top span:last-child{color:var(--accent);font-weight:500}
+.db-hero-prog .progress-track{height:10px;margin-top:12px}
+.db-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,2vw,16px);margin-bottom:clamp(12px,2.5vw,20px)}
+.db-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,2.5vw,20px);align-items:start}
+.db-grid .panel+.panel{margin-top:0}
+.db-grid .panel>.btn{margin-top:14px}
+.db-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0 10px 12px;border-bottom:1px solid rgba(145,142,160,.14);border-left:2px solid var(--cc,transparent)}
+.db-row:last-of-type{border-bottom:0}
+.db-row-main{min-width:0}
+.db-row-title{font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.db-row-meta{font-size:.76rem;color:var(--fog);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.db-row-side{flex-shrink:0;font-size:.8rem;color:var(--ash);text-align:right}
+.db-sem-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.db-sem-head span{color:var(--accent);font-size:.85rem}
+.db-bar{display:grid;grid-template-columns:28px minmax(0,1fr) 24px;align-items:center;gap:10px;margin-bottom:8px;font-size:.8rem}
+.db-bar-l{color:var(--text)}
+.db-bar-n{color:var(--fog);text-align:right}
+.db-bar-t{height:8px;border-radius:32px;background:rgba(255,255,255,.06);overflow:hidden}
+.db-bar-t i{display:block;height:100%;border-radius:32px;background:var(--cosmic)}
+.db-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+/* Official sites page */
+.links-group{font:500 .78rem var(--font-body);letter-spacing:.04em;text-transform:uppercase;color:var(--fog);margin:22px 0 12px}
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:clamp(10px,2vw,16px)}
+.link-card{display:flex;flex-direction:column;gap:6px;padding:18px;background:var(--void);border:1px solid var(--rim);border-radius:16px;box-shadow:var(--glow);color:var(--text);transition:border-color .15s,background .15s}
+.link-card:hover{border-color:var(--accent);background:var(--indigo);color:var(--text)}
+.lc-title{font:500 1.02rem var(--font-head);color:var(--text)}
+.lc-desc{font-size:.84rem;color:var(--fog);font-weight:400;line-height:1.5}
+.lc-host{margin-top:auto;padding-top:6px;font-size:.78rem;color:var(--accent);font-weight:500}
+
+@media (max-width:960px){
+  .db-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .db-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:600px){
+  .db-hero{grid-template-columns:minmax(0,1fr)}
+  .db-sub{max-width:none}
+  .nav-tab{padding-inline:12px}
+}
+
+/* the dashboard has its own CGPA hero; don't repeat it in the header there */
+body[data-page="page-dashboard"] .cgpa-display{display:none}
+@media (max-width:600px){.nav-long{display:none}}

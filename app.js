@@ -49,6 +49,42 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
   });
 });
 
+// Jump to a page from any [data-goto] button/link (dashboard shortcuts, planner pointer).
+function gotoPage(page){
+  const tab = document.querySelector('.nav-tab[data-page="' + page + '"]');
+  if (tab) tab.click();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-goto]');
+  if (!g) return;
+  e.preventDefault();
+  gotoPage(g.dataset.goto);
+  if (g.dataset.quick === 'add') setTimeout(() => { const b = document.getElementById('dlAddBtn'); if (b) b.click(); }, 60);
+});
+
+// Landing-page title: React Bits <StrokeText /> (vanilla port in stroke-text.js).
+(function(){
+  const host = document.getElementById('landingStroke');
+  if (!host || typeof window.StrokeText !== 'function') return;
+  window.StrokeText(host, {
+    text: 'Gradacus',
+    strokeColor: '#9382ff',
+    fillColor: '#f4f0ff',
+    strokeWidth: 1.4,
+    drawDuration: 1.6,
+    fillDelay: 0.2,
+    stagger: 0.05,
+    ease: 'power2.out',
+    trigger: 'mount',
+    fillMode: 'wipe',
+    fontSize: 128,
+    fontWeight: 500,
+    letterSpacing: -4,
+    className: 'landing-stroke'
+  });
+})();
+
 const GRADE_SCALE = [
   {min:97, letter:'A+', point:4.0},
   {min:90, letter:'A',  point:4.0},
@@ -1835,6 +1871,77 @@ function init(){
     if (tk % 60 === 0 && $('page-deadlines').classList.contains('active') && !$('dlModal').classList.contains('open')){ renderSummary(); renderContent(); }
   }, 1000);
 }
-window.dlEnsure = ensure; window.dlRender = render;
+
+/* ---------- dashboard page ---------- */
+function dbRender(){
+  const el = id => document.getElementById(id);
+  if (!el('page-dashboard') || !state) return;
+  ensure();
+  const st = computeStats();
+  const required = parseFloat(state.program) || 136;
+  const pct = Math.min(100, Math.round((st.earnedCredits / required) * 100));
+
+  el('dbCgpa').textContent = st.cgpa === null ? '--' : st.cgpa.toFixed(2);
+  el('dbCgpa').classList.toggle('dim', st.cgpa === null);
+  const graded = state.courses.filter(c => c.included && !c.replaced && gradeFromLetter(c.grade)).length;
+  el('dbCgpaNote').textContent = st.cgpa === null
+    ? 'Add grades on the CGPA tab to see your CGPA.'
+    : graded + ' graded course' + (graded === 1 ? '' : 's') + ' counted';
+  el('dbCredits').textContent = round1(st.earnedCredits) + ' / ' + required + ' credits';
+  el('dbPct').textContent = pct + '%';
+  el('dbFill').style.width = pct + '%';
+  el('dbProgram').textContent = required === 136 ? 'CSE degree' : 'CS degree';
+  el('dbLeft').textContent = round1(Math.max(required - st.earnedCredits, 0)) + ' credits left';
+
+  // tiles
+  const now = Date.now();
+  const open = D().items.filter(i => !i.completedAt);
+  const overdue = open.filter(i => +due(i) < now).length;
+  const week = open.filter(i => +due(i) >= now && +due(i) < now + 7 * DAY).length;
+  const done = D().items.length - open.length;
+  el('dbTiles').innerHTML = [
+    [week, 'due in 7 days'], [overdue, 'overdue'], [done, 'completed'], [state.courses.length, 'courses on CGPA table']
+  ].map(t => `<div class="stat"><div class="label">${t[1]}</div><div class="val">${t[0]}</div></div>`).join('');
+
+  // upcoming deadlines
+  const next = open.slice().sort((a, b) => due(a) - due(b)).slice(0, 5);
+  el('dbDeadlines').innerHTML = next.length ? next.map(it => {
+    const c = course(it.courseId), d = due(it);
+    return `<div class="db-row" style="--cc:${c ? c.color : 'var(--text-dim)'}">
+      <div class="db-row-main"><div class="db-row-title">${esc(it.title)}</div>
+      <div class="db-row-meta">${c ? esc(c.code) + ' · ' : ''}${esc(it.type || '')} · ${fmtDate(d)}, ${fmtTime(d)}</div></div>
+      <div class="db-row-side">${cdHtml(it)}</div></div>`;
+  }).join('') : '<div class="dl-empty">Nothing pending. Add a deadline to see it here.</div>';
+
+  // current semester
+  const sems = state.planner.semesters || [];
+  const sem = sems.find(x => x.id === state.planner.activeSemesterId) || sems[0];
+  if (!sem){
+    el('dbSemester').innerHTML = '<div class="dl-empty">No semester planned yet.</div>';
+  } else {
+    let total = 0;
+    const rows = sem.codes.map(code => {
+      const info = getCourseInfo(code), cr = info ? info.credits : 0;
+      total += cr;
+      return `<div class="db-row"><div class="db-row-main"><div class="db-row-title">${esc(code)}</div>
+        <div class="db-row-meta">${esc(info ? info.name : '')}</div></div><div class="db-row-side">${cr} cr</div></div>`;
+    }).join('');
+    el('dbSemester').innerHTML = `<div class="db-sem-head"><b>${esc(sem.label)}</b><span>${round1(total)} credits</span></div>` +
+      (rows || '<div class="dl-empty">No courses added to this semester yet.</div>');
+  }
+
+  // grade snapshot
+  const counts = {};
+  state.courses.forEach(c => { if (c.included && !c.replaced && gradeFromLetter(c.grade)) counts[c.grade] = (counts[c.grade] || 0) + 1; });
+  const letters = GRADE_SCALE.map(g => g.letter).filter(l => counts[l]);
+  const max = Math.max(1, ...letters.map(l => counts[l]));
+  el('dbGrades').innerHTML = letters.length ? letters.map(l =>
+    `<div class="db-bar"><span class="db-bar-l">${l}</span><div class="db-bar-t"><i style="width:${Math.round(counts[l] / max * 100)}%"></i></div><span class="db-bar-n">${counts[l]}</span></div>`
+  ).join('') : '<div class="dl-empty">No grades entered yet.</div>';
+}
+document.body.dataset.page = 'page-dashboard';
+document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', () => { document.body.dataset.page = t.dataset.page; if (t.dataset.page === 'page-dashboard') dbRender(); }));
+
+window.dlEnsure = ensure; window.dbRender = dbRender; window.dlRender = function(){ render(); dbRender(); };
 init();
 })();

@@ -16,7 +16,7 @@
   <div class="landing-wrap">
     <div class="landing-intro">
       <span class="badge">✦ BRAC University · Academic planner</span>
-      <h1>Gradacus</h1>
+      <h1 class="landing-title"><span id="landingStroke">Gradacus</span></h1>
       <p class="landing-tagline">A sharper way to plan your degree — grades, courses, and deadlines in one place.</p>
 
       <div class="feature-grid">
@@ -100,12 +100,80 @@
   </header>
 
   <nav class="nav-tabs" aria-label="Sections">
-    <button class="nav-tab active" data-page="page-cgpa">CGPA Calculator</button>
-    <button class="nav-tab" data-page="page-planner">Course Planner</button>
-    <button class="nav-tab" data-page="page-deadlines">Deadline Tracker</button>
+    <button class="nav-tab active" data-page="page-dashboard">Dashboard</button>
+    <button class="nav-tab" data-page="page-cgpa">CGPA</button>
+    <button class="nav-tab" data-page="page-planner">Planner</button>
+    <button class="nav-tab" data-page="page-deadlines">Deadlines</button>
+    <button class="nav-tab" data-page="page-links"><span class="nav-long">Official </span>Sites</button>
   </nav>
 
-  <div id="page-cgpa" class="page-section active">
+  <div id="page-dashboard" class="page-section active">
+    <div class="db-hero panel">
+      <div class="db-hero-main">
+        <div class="label">cumulative CGPA</div>
+        <div class="db-cgpa" id="dbCgpa">--</div>
+        <div class="db-sub" id="dbCgpaNote"></div>
+      </div>
+      <div class="db-hero-prog">
+        <div class="db-prog-top"><span id="dbCredits">0 / 0 credits</span><span id="dbPct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="dbFill" style="width:0%"></div></div>
+        <div class="progress-caption"><span id="dbProgram"></span><span id="dbLeft"></span></div>
+      </div>
+    </div>
+
+    <div class="db-tiles" id="dbTiles"></div>
+
+    <div class="db-grid">
+      <div class="panel">
+        <h2><span class="dot"></span>Upcoming deadlines</h2>
+        <div id="dbDeadlines"></div>
+        <button class="btn ghost small" data-goto="page-deadlines" type="button">Open Deadline Tracker →</button>
+      </div>
+      <div class="panel">
+        <h2><span class="dot"></span>Current semester</h2>
+        <div id="dbSemester"></div>
+        <button class="btn ghost small" data-goto="page-planner" type="button">Open Planner →</button>
+      </div>
+      <div class="panel">
+        <h2><span class="dot"></span>Grade snapshot</h2>
+        <div id="dbGrades"></div>
+        <button class="btn ghost small" data-goto="page-cgpa" type="button">Open CGPA Calculator →</button>
+      </div>
+      <div class="panel">
+        <h2><span class="dot"></span>Quick links</h2>
+        <div class="db-actions">
+          <button class="btn" data-goto="page-deadlines" data-quick="add" type="button">+ Add deadline</button>
+          <button class="btn ghost" data-goto="page-planner" type="button">Plan courses</button>
+          <button class="btn ghost" data-goto="page-links" type="button">Official sites</button>
+        </div>
+        <p class="hint" style="margin-top:14px">Figures here are read from your CGPA table, planner and deadlines — nothing to enter on this page.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-links" class="page-section">
+    <div class="panel">
+      <h2><span class="dot"></span>Official websites</h2>
+      <p class="planner-note" style="margin-top:0">Curricula and course lists change from time to time. Check these official pages and your advising sheet before registering. Links open in a new tab.</p>
+
+      <h3 class="links-group">University</h3>
+      <div class="links-grid">
+        <a class="link-card" href="https://www.bracu.ac.bd" target="_blank" rel="noopener noreferrer"><span class="lc-title">BRAC University</span><span class="lc-desc">Main university website: news, notices, admissions and academics.</span><span class="lc-host">bracu.ac.bd ↗</span></a>
+        <a class="link-card" href="https://usis.bracu.ac.bd" target="_blank" rel="noopener noreferrer"><span class="lc-title">USIS</span><span class="lc-desc">Student portal for registration, grades and academic records.</span><span class="lc-host">usis.bracu.ac.bd ↗</span></a>
+        <a class="link-card" href="https://connect.bracu.ac.bd" target="_blank" rel="noopener noreferrer"><span class="lc-title">BRACU Connect</span><span class="lc-desc">Student connect portal for course and class information.</span><span class="lc-host">connect.bracu.ac.bd ↗</span></a>
+      </div>
+
+      <h3 class="links-group">Programs &amp; curriculum</h3>
+      <div class="links-grid">
+        <a class="link-card" href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-engineering-cse" target="_blank" rel="noopener noreferrer"><span class="lc-title">CSE program &amp; courses</span><span class="lc-desc">Official B.Sc. in Computer Science and Engineering program page (136 credits).</span><span class="lc-host">bracu.ac.bd ↗</span></a>
+        <a class="link-card" href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-cs" target="_blank" rel="noopener noreferrer"><span class="lc-title">CS program &amp; courses</span><span class="lc-desc">Official B.Sc. in Computer Science program page (124 credits).</span><span class="lc-host">bracu.ac.bd ↗</span></a>
+        <a class="link-card" href="https://www.bracu.ac.bd/academics/schools-and-departments/school-data-computational-sciences/computer-science-and/degree" target="_blank" rel="noopener noreferrer"><span class="lc-title">Degree plans &amp; course sequences</span><span class="lc-desc">Department degree plans and the recommended course order.</span><span class="lc-host">bracu.ac.bd ↗</span></a>
+        <a class="link-card" href="https://cse.sds.bracu.ac.bd/course/list" target="_blank" rel="noopener noreferrer"><span class="lc-title">CSE department course catalogue</span><span class="lc-desc">Searchable list of courses offered by the CSE department.</span><span class="lc-host">cse.sds.bracu.ac.bd ↗</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-cgpa" class="page-section">
     <div class="grid">
       <!-- LEFT COLUMN -->
       <div>
@@ -201,14 +269,8 @@
   <div id="page-planner" class="page-section">
     <div class="panel">
       <h2><span class="dot"></span>Semester Planner</h2>
-      <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against the official pages below and your own advising sheet before registering. Courses tagged <span class="tag lab" style="pointer-events:none;">lab</span> commonly run with a lab/practical component, and <span class="tag project" style="pointer-events:none;">project</span> marks project-centered courses — this is a general guide, not an official listing.</p>
-      <div class="source-links">
-        <span>Official sources:</span>
-        <a href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-engineering-cse" target="_blank" rel="noopener noreferrer">CSE program &amp; courses ↗</a>
-        <a href="https://www.bracu.ac.bd/avilable-program/bachelor-science-computer-science-cs" target="_blank" rel="noopener noreferrer">CS program &amp; courses ↗</a>
-        <a href="https://www.bracu.ac.bd/academics/schools-and-departments/school-data-computational-sciences/computer-science-and/degree" target="_blank" rel="noopener noreferrer">Degree plans &amp; course sequences ↗</a>
-        <a href="https://cse.sds.bracu.ac.bd/course/list" target="_blank" rel="noopener noreferrer">CSE department course catalogue ↗</a>
-      </div>
+      <p class="planner-note">Course lists sourced from BRAC University's CSE department. Curricula are occasionally revised — confirm against the official pages (Official Sites tab) and your own advising sheet before registering. Courses tagged <span class="tag lab" style="pointer-events:none;">lab</span> commonly run with a lab/practical component, and <span class="tag project" style="pointer-events:none;">project</span> marks project-centered courses — this is a general guide, not an official listing.</p>
+      <div class="source-links"><span>Official sources:</span> <a href="#" data-goto="page-links">see the Official Sites page ↗</a></div>
 
       <div class="planner-controls">
         <div class="field">
@@ -289,6 +351,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="stroke-text.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
