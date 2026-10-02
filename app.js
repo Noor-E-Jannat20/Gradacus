@@ -1417,7 +1417,68 @@ function items(){
 }
 
 /* ---------- rendering ---------- */
-function render(){ if (!state.deadlines) return; ensure(); renderSummary(); renderToolbar(); renderContent(); }
+function render(){ if (!state.deadlines) return; ensure(); renderViz(); renderSummary(); renderToolbar(); renderContent(); }
+
+/* ---------- visual insights ---------- */
+function renderViz(){
+  const el = $('dlViz'); if (!el) return;
+  const now = Date.now(), items = D().items, act = items.filter(i => !i.completedAt);
+  if (!items.length){ el.innerHTML = ''; return; }
+  const DAYS = 14, today = sod(new Date());
+
+  /* 1. next-14-days workload (stacked by course) */
+  const over = act.filter(i => +due(i) < now).length;
+  const cols = [];
+  for (let k = 0; k < DAYS; k++){
+    const d = new Date(+today + k*DAY), key = dstr(d);
+    const its = act.filter(i => +due(i) >= now && dstr(due(i)) === key);
+    cols.push({ d, key, its });
+  }
+  const mx = Math.max(3, over, ...cols.map(c => c.its.length));
+  const colorOf = i => { const c = course(i.courseId); return c ? c.color : 'var(--steel)'; };
+  const bar = (n, segs, label, title, extra) => `<button type="button" class="vz-col ${extra || ''}" ${title.key ? `data-vday="${title.key}"` : ''} title="${esc(title.t)}">
+      <span class="vz-n">${n || ''}</span>
+      <span class="vz-stack" style="height:${n / mx * 100}%">${segs}</span>
+      <span class="vz-lab">${label}</span></button>`;
+  const seg = c => `<i style="background:${c};flex:1"></i>`;
+  const bars = bar(over, Array(over).fill(seg('var(--ash)')).join(''), '<b>!</b><small>late</small>',
+      { t: `${over} overdue` }, over ? 'vz-over' : 'vz-zero') +
+    cols.map((c, k) => bar(c.its.length, c.its.map(i => seg(colorOf(i))).join(''),
+      `<b>${c.d.getDate()}</b><small>${k === 0 ? 'today' : WD[c.d.getDay()]}</small>`,
+      { key: c.key, t: `${c.d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}: ${c.its.length} due` + (c.its.length ? ' — ' + c.its.map(i => i.title).join(', ') : '') },
+      (k === 0 ? 'vz-today ' : '') + (c.its.length ? '' : 'vz-zero'))).join('');
+  const nextN = cols.reduce((s, c) => s + c.its.length, 0);
+
+  /* 2. by-course donut (incomplete) */
+  const by = {};
+  act.forEach(i => { const c = course(i.courseId), k = c ? c.id : '_'; (by[k] = by[k] || { code: c ? c.code : 'No course', color: c ? c.color : 'var(--steel)', n: 0 }).n++; });
+  const parts = Object.values(by).sort((a, b) => b.n - a.n), tot = act.length, R = 52, C = 2 * Math.PI * R;
+  let off = 0;
+  const arcs = parts.map(p => { const len = p.n / tot * C, s = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${p.color}" stroke-width="16" stroke-dasharray="${Math.max(len - (parts.length > 1 ? 2 : 0), 0.1)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"><title>${esc(p.code)}: ${p.n}</title></circle>`; off += len; return s; }).join('');
+  const donut = tot ? `<div class="vz-donut"><svg viewBox="0 0 140 140" role="img" aria-label="Incomplete deadlines by course">
+      <circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--rim)" stroke-width="16" opacity=".35"/>${arcs}
+      <text x="70" y="68" text-anchor="middle" class="vz-big">${tot}</text><text x="70" y="86" text-anchor="middle" class="vz-sm">incomplete</text></svg>
+      <div class="vz-legend">${parts.slice(0, 6).map(p => `<div><i style="background:${p.color}"></i><span>${esc(p.code)}</span><b>${p.n}</b></div>`).join('')}${parts.length > 6 ? `<div class="vz-more">+${parts.length - 6} more</div>` : ''}</div></div>`
+    : '<div class="dl-empty" style="padding:20px 6px">All caught up 🎉</div>';
+
+  /* 3. status breakdown */
+  const done = items.filter(i => i.completedAt);
+  const onTime = done.filter(i => +new Date(i.completedAt) <= +due(i)).length, late = done.length - onTime;
+  const started = act.filter(i => +due(i) >= now && prog(i) > 0).length;
+  const notStarted = act.filter(i => +due(i) >= now && prog(i) === 0).length;
+  const st = [['Done on time', onTime, '#9382ff'], ['Done late', late, '#e59cff'], ['In progress', started, '#9cb2ff'], ['Not started', notStarted, '#54525f'], ['Overdue', over, '#a8a6b7']].filter(s => s[1] > 0);
+  const all = st.reduce((s, x) => s + x[1], 0) || 1;
+  const pct = done.length ? Math.round(onTime / done.length * 100) : null;
+
+  el.innerHTML = `<div class="panel vz-wide"><h2><span class="dot"></span>Next ${DAYS} days</h2>
+      <div class="vz-sub">${nextN} due${over ? ` · <b>${over} overdue</b>` : ''} · click a day to open it in the calendar</div>
+      <div class="vz-bars">${bars}</div></div>
+    <div class="panel"><h2><span class="dot"></span>By course</h2>${donut}</div>
+    <div class="panel"><h2><span class="dot"></span>Status</h2>
+      <div class="vz-stat"><b>${pct === null ? '—' : pct + '%'}</b><span>completed on time</span></div>
+      <div class="vz-seg">${st.map(s => `<i style="flex:${s[1]};background:${s[2]}" title="${s[0]}: ${s[1]}"></i>`).join('')}</div>
+      <div class="vz-legend">${st.map(s => `<div><i style="background:${s[2]}"></i><span>${s[0]}</span><b>${s[1]}</b></div>`).join('')}</div></div>`;
+}
 
 function renderSummary(){
   const now = Date.now(), P = D().prefs;
@@ -1847,6 +1908,12 @@ function init(){
     else if (t.dataset.f === 'period'){ D().prefs.period = +t.value; saveState(); }
     else if (t.dataset.f){ F[t.dataset.f] = t.value; if (t.dataset.f === 'status') F.bucket = t.value === 'done' ? 'done' : (F.bucket === 'done' ? 'active' : F.bucket); }
     render();
+  };
+  $('dlViz').onclick = e => {
+    const c = e.target.closest('[data-vday]'); if (!c) return;
+    calSel = c.dataset.vday; calMonth = new Date(calSel + 'T00:00'); calMonth.setDate(1);
+    D().prefs.view = 'calendar'; saveState(); render();
+    $('dlContent').scrollIntoView({ behavior:'smooth', block:'start' });
   };
   $('dlContent').onclick = e => {
     const del = e.target.closest('[data-del]');
