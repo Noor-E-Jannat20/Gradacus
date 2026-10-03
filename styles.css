@@ -999,12 +999,12 @@ body[data-page="page-dashboard"] .cgpa-display{display:none}
    ========================================================= */
 .bg-grainient{
   position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-  background:radial-gradient(ellipse 90% 60% at 50% 0%,rgba(40,26,120,.9),transparent 70%),var(--void);
+  background:radial-gradient(ellipse 90% 60% at 50% 0%,rgba(84,30,140,.9),transparent 70%),var(--void);
 }
 .bg-grainient canvas{opacity:.85}
 /* soft fade to the void at the bottom so long pages stay calm and legible */
 .bg-grainient::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(3,0,20,.15) 0%,rgba(3,0,20,.55) 60%,rgba(3,0,20,.85) 100%)}
+  background:linear-gradient(180deg,rgba(8,0,18,.15) 0%,rgba(8,0,18,.55) 60%,rgba(8,0,18,.85) 100%)}
 .grainient-container{position:relative}
 .bg-grainient.grainient-container{position:fixed}
 /* page layers sit above the background; show it through the old opaque backdrops */

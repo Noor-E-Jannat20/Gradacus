@@ -92,7 +92,7 @@ document.addEventListener('click', e => {
   if (!host || typeof window.Grainient !== 'function') return;
   try {
     window.Grainient(host, {
-      color1: '#3a28a8', color2: '#1a0f58', color3: '#030014',
+      color1: '#7b2fbf', color2: '#3d0f6e', color3: '#0a0016',
       timeSpeed: 0.12, colorBalance: 0.0,
       warpStrength: 1.0, warpFrequency: 5.0, warpSpeed: 2.0, warpAmplitude: 50.0,
       blendAngle: 0.0, blendSoftness: 0.05, rotationAmount: 500.0, noiseScale: 2.0,
