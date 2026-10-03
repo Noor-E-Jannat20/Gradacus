@@ -85,6 +85,56 @@ document.addEventListener('click', e => {
   });
 })();
 
+// Animated page background: React Bits <Grainient /> (vanilla WebGL2 port in grainient.js).
+// The CSS gradient on .bg-grainient is the fallback if WebGL2 is unavailable.
+(function(){
+  const host = document.getElementById('bgGrainient');
+  if (!host || typeof window.Grainient !== 'function') return;
+  try {
+    window.Grainient(host, {
+      color1: '#3a28a8', color2: '#1a0f58', color3: '#030014',
+      timeSpeed: 0.12, colorBalance: 0.0,
+      warpStrength: 1.0, warpFrequency: 5.0, warpSpeed: 2.0, warpAmplitude: 50.0,
+      blendAngle: 0.0, blendSoftness: 0.05, rotationAmount: 500.0, noiseScale: 2.0,
+      grainAmount: 0.08, grainScale: 2.0, grainAnimated: false,
+      contrast: 1.2, gamma: 1.0, saturation: 1.0,
+      centerX: 0.0, centerY: 0.0, zoom: 0.9
+    });
+  } catch (err) { console.warn('Grainient background disabled:', err); }
+})();
+
+// Main navigation: React Bits <RubberSegment /> (vanilla port in rubber-segment.js).
+// The original .nav-tab buttons stay in the DOM (hidden) and keep driving page switching,
+// so every existing code path (gotoPage, dashboard shortcuts, tab listeners) still works.
+(function(){
+  const nav = document.querySelector('.nav-tabs');
+  const host = document.getElementById('navSegment');
+  if (!nav || !host || typeof window.RubberSegment !== 'function') return;   // falls back to the plain buttons
+  const tabs = Array.from(nav.querySelectorAll('.nav-tab'));
+  const items = tabs.map(t => ({ value: t.dataset.page, labelHtml: t.innerHTML }));
+  const activePage = () => (tabs.find(t => t.classList.contains('active')) || tabs[0]).dataset.page;
+  let seg = null, small = null;
+
+  function build(){
+    const isSmall = window.innerWidth <= 600;
+    if (seg && small === isSmall) return;
+    const value = seg ? seg.getValue() : activePage();
+    if (seg) seg.destroy();
+    small = isSmall;
+    seg = window.RubberSegment(host, {
+      items, defaultValue: value, ariaLabel: 'Sections',
+      size: isSmall ? 'sm' : 'md', equalSlots: false, radius: 999, inset: 4,
+      trackColor: '#0c0730', thumbColor: '#5046e4', textColor: '#f4f0ff', activeTextColor: '#ffffff',
+      stretch: 100, squash: 3, speed: 1, glide: 75, draggable: true,
+      onChange: page => { const t = tabs.find(x => x.dataset.page === page); if (t) t.click(); }
+    });
+    nav.classList.add('has-segment');
+  }
+  tabs.forEach(t => t.addEventListener('click', () => { if (seg) seg.setValue(t.dataset.page, true); }));
+  window.addEventListener('resize', build);
+  build();
+})();
+
 const GRADE_SCALE = [
   {min:97, letter:'A+', point:4.0},
   {min:90, letter:'A',  point:4.0},

@@ -991,3 +991,73 @@ body[data-page="page-dashboard"] .cgpa-display{display:none}
 @media (max-width:1020px){ .dl-viz{grid-template-columns:1fr 1fr} .vz-wide{grid-column:1/-1} }
 @media (max-width:560px){ .dl-viz{grid-template-columns:1fr} .vz-bars{height:150px; gap:2px} .vz-lab small{display:none} }
 @media (prefers-reduced-motion:reduce){ .vz-stack{transition:none} }
+
+
+/* =========================================================
+   Grainient animated background (React Bits)
+   Fixed behind everything; CSS gradient is the no-WebGL fallback.
+   ========================================================= */
+.bg-grainient{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(ellipse 90% 60% at 50% 0%,rgba(40,26,120,.9),transparent 70%),var(--void);
+}
+.bg-grainient canvas{opacity:.85}
+/* soft fade to the void at the bottom so long pages stay calm and legible */
+.bg-grainient::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,0,20,.15) 0%,rgba(3,0,20,.55) 60%,rgba(3,0,20,.85) 100%)}
+.grainient-container{position:relative}
+.bg-grainient.grainient-container{position:fixed}
+/* page layers sit above the background; show it through the old opaque backdrops */
+html,body{background:var(--void)}
+body{background:transparent}
+#authOverlay{background:transparent}
+.starfield{z-index:0}
+.wrap{position:relative;z-index:1}
+
+/* =========================================================
+   RubberSegment (React Bits) — main navigation
+   ========================================================= */
+.rubber-segment{
+  --rs-track:#27272a;--rs-thumb:#fafafa;--rs-ink:#fafafa;--rs-ink-active:#18181b;
+  --rs-radius:10px;--rs-inset:3px;--rs-thumb-radius:7px;--rs-h:36px;--rs-font:13px;--rs-pad:14px;--rs-min:44px;
+  --rs-idle:.7;--rs-hover:.9;--rs-ease-out:cubic-bezier(.23,1,.32,1);
+  position:relative;display:inline-grid;grid-auto-flow:column;grid-auto-columns:auto;vertical-align:middle;
+  padding:var(--rs-inset);border-radius:var(--rs-radius);background:var(--rs-track);font-family:inherit;
+  touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;
+}
+.rubber-segment[data-equal]{grid-auto-columns:minmax(0,1fr)}
+.rubber-segment[aria-disabled='true']{opacity:.5;pointer-events:none}
+.rubber-segment__item{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:calc(var(--rs-h) - var(--rs-inset) * 2);min-width:var(--rs-min);margin:0;padding:0 var(--rs-pad);
+  border:0;border-radius:var(--rs-thumb-radius);background:none;color:var(--rs-ink);opacity:var(--rs-idle);
+  font:inherit;font-size:var(--rs-font);font-weight:500;line-height:1;white-space:nowrap;cursor:pointer;outline:none;
+  transition:opacity .16s ease,transform .16s var(--rs-ease-out);
+}
+.rubber-segment__item[aria-checked='true']{cursor:default}
+.rubber-segment[data-draggable] .rubber-segment__item[aria-checked='true']{cursor:grab}
+.rubber-segment[data-held],.rubber-segment[data-held] .rubber-segment__item{cursor:grabbing}
+.rubber-segment__item[data-pressed]{transform:scale(.96)}
+.rubber-segment__item:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media (hover:hover) and (pointer:fine){.rubber-segment__item[aria-checked='false']:hover{opacity:var(--rs-hover)}}
+.rubber-segment__thumb{
+  position:absolute;inset:var(--rs-inset);display:grid;grid-auto-flow:column;grid-auto-columns:auto;
+  background:var(--rs-thumb);color:var(--rs-ink-active);pointer-events:none;
+}
+.rubber-segment[data-equal] .rubber-segment__thumb{grid-auto-columns:minmax(0,1fr)}
+.rubber-segment__copy{color:inherit;opacity:1;cursor:default}
+@media (prefers-reduced-motion:reduce){.rubber-segment__item{transition:opacity .16s ease}}
+
+/* nav: the segmented track IS the pill now; original buttons stay as hidden logic hooks */
+.nav-tabs.has-segment{
+  background:none;border:0;box-shadow:none;padding:0;border-radius:0;
+  overflow-x:auto;overflow-y:hidden;justify-content:flex-start;scrollbar-width:none;
+}
+.nav-tabs.has-segment::-webkit-scrollbar{display:none}
+.nav-tabs.has-segment>.nav-tab{display:none}
+.nav-tabs .rubber-segment{
+  flex:0 0 auto;margin:0 auto;
+  --rs-h:42px!important;                       /* comfortable tap height */
+  box-shadow:inset 0 0 0 1px rgba(165,150,230,.30),inset 0 0 24px rgba(255,255,255,.04);
+}
+.nav-tabs .rubber-segment__item{letter-spacing:0}
