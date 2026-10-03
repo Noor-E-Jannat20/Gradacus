@@ -747,7 +747,7 @@ header.hero{
 .guest-note{margin:10px 0 0;color:var(--fog);font-size:.78rem;text-align:center;line-height:1.5}
 
 footer{color:var(--fog)}
-.wrap:after,header.hero:after,.cgpa-display:after,.panel:nth-child(2n):after{content:none!important}
+.wrap:after,header.hero:after,.cgpa-display:after{content:none!important}
 
 /* ================= responsive fit ================= */
 @media (max-width:960px){
@@ -1061,3 +1061,37 @@ body{background:transparent}
   box-shadow:inset 0 0 0 1px rgba(165,150,230,.30),inset 0 0 24px rgba(255,255,255,.04);
 }
 .nav-tabs .rubber-segment__item{letter-spacing:0}
+
+
+/* =========================================================
+   GLOW-FRAME PANELS (from Uiverse.io by alexruix, re-themed)
+   Gradient frame + soft blurred halo behind the panel; the halo
+   fades out on hover. Applies to .panel everywhere except the
+   landing page (feature cards / auth card keep their own style).
+   ========================================================= */
+:root{
+  --panel-frame:linear-gradient(to left,#e59cff 0%,#9382ff 55%,#5046e4 100%);
+  --panel-frame-w:4px;
+}
+.panel{
+  position:relative;                      /* no z-index: the halo (z:-1) must sit behind siblings, not inside this panel */
+  border:var(--panel-frame-w) solid transparent;
+  border-radius:1rem;
+  background:
+    linear-gradient(var(--midnight),var(--midnight)) padding-box,
+    var(--panel-frame) border-box;
+  box-shadow:var(--glow);
+}
+.panel::after{
+  content:"";position:absolute;top:30px;left:0;right:0;z-index:-1;
+  height:100%;width:100%;
+  transform:scale(.8);filter:blur(25px);
+  background:var(--panel-frame);
+  opacity:.55;pointer-events:none;
+  transition:opacity .5s;
+}
+.panel:hover::after{opacity:0}
+/* the sticky sidebar scrolls on its own and would clip the halo — give it room */
+.grid>div:first-child{padding-bottom:40px}
+@media (max-width:960px){.grid>div:first-child{padding-bottom:0}}
+@media (prefers-reduced-motion:reduce){.panel::after{transition:none}}
