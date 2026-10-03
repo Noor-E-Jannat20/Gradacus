@@ -1122,3 +1122,133 @@ body{background:transparent}
 .vz-xl small{font-size:.58rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em}
 .vz-xl .vz-today{background:rgba(147,130,255,.18)}
 @media (max-width:560px){ .vz-line{height:150px} }
+
+/* =========================================================
+   GRADACUS v15 — refined cosmic surfaces
+   Scoped to #appRoot so the landing/auth experience stays intact.
+   Solid structural panels, selective dashboard glass, and
+   interaction-led glow instead of permanent neon frames.
+   ========================================================= */
+#appRoot .panel{
+  border:1px solid rgba(145,142,160,.20);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(12,9,34,.98),rgba(6,3,23,.98));
+  box-shadow:0 12px 30px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.025);
+  transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;
+}
+#appRoot .panel::after{display:none}
+#appRoot .panel h2{letter-spacing:-.015em}
+
+/* The dashboard CGPA hero is the primary glass surface. */
+#appRoot #page-dashboard .db-hero{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  border-color:rgba(147,130,255,.34);
+  background:
+    radial-gradient(ellipse at 88% 8%,rgba(147,130,255,.14),transparent 46%),
+    linear-gradient(125deg,rgba(22,15,57,.78),rgba(7,4,27,.90));
+  box-shadow:0 18px 42px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+#appRoot #page-dashboard .db-hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.035),transparent 42%,rgba(147,130,255,.035));
+}
+
+/* Dashboard metric tiles are subtly lifted, not individually neon-framed. */
+#appRoot #page-dashboard .db-tiles .stat{
+  background:linear-gradient(145deg,rgba(16,12,42,.96),rgba(7,5,25,.98));
+  border:1px solid rgba(145,142,160,.18);
+  border-radius:15px;
+  box-shadow:0 8px 20px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.025);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+#appRoot #page-dashboard .db-tiles .stat:nth-child(1){border-top-color:rgba(147,130,255,.42)}
+#appRoot #page-dashboard .db-tiles .stat:nth-child(2){border-top-color:rgba(229,156,255,.34)}
+
+/* Inner surfaces: separate layers with surface tone and fine borders. */
+#appRoot .stat,
+#appRoot .semester-card,
+#appRoot .pool-list,
+#appRoot .dl-tile,
+#appRoot .tl-item,
+#appRoot .cal-cell,
+#appRoot .dl-card{
+  background-color:#09061f;
+  border-color:rgba(145,142,160,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+}
+#appRoot .stat{border-radius:14px}
+#appRoot .semester-card{background:linear-gradient(145deg,#0c0927,#08051d);border-radius:16px}
+#appRoot .pool-list{background:#07051a;border-radius:14px}
+#appRoot .dl-tile{border-radius:14px}
+#appRoot .tl-item{background:rgba(10,7,29,.88);border-radius:13px}
+#appRoot .dl-card{background:rgba(10,7,29,.92);border-radius:14px;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
+#appRoot .cal-cell{background:rgba(9,6,29,.92);transition:border-color .16s ease,background .16s ease,box-shadow .16s ease}
+#appRoot .cal-cell.blank{background:transparent;box-shadow:none}
+#appRoot .cal-cell.sel{background:rgba(147,130,255,.11);box-shadow:inset 0 0 0 1px var(--accent),0 0 0 2px rgba(147,130,255,.10)}
+
+/* Interaction-led accent: glow is feedback, not a permanent decoration. */
+#appRoot .link-card,
+#appRoot .semester-card,
+#appRoot .dl-card,
+#appRoot .tl-item,
+#appRoot .cal-cell:not(.blank),
+#appRoot .btn,
+#appRoot .icon-btn,
+#appRoot .sem-tab,
+#appRoot .nav-tab{
+  transition:border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+#appRoot .link-card:hover,
+#appRoot .semester-card:hover,
+#appRoot .dl-card:hover,
+#appRoot .tl-item:hover,
+#appRoot .cal-cell:not(.blank):hover{
+  border-color:rgba(147,130,255,.52);
+  box-shadow:0 0 0 1px rgba(147,130,255,.06),0 8px 22px rgba(0,0,0,.20),0 0 18px rgba(147,130,255,.07);
+}
+#appRoot .link-card:hover{background:linear-gradient(145deg,#100b30,#0a0723);transform:translateY(-1px)}
+#appRoot .btn:hover,
+#appRoot .icon-btn:hover,
+#appRoot .sem-tab:hover,
+#appRoot .nav-tab:hover{box-shadow:0 0 0 1px rgba(147,130,255,.08),0 0 16px rgba(147,130,255,.10)}
+#appRoot .nav-tab.active,
+#appRoot .sem-tab.active,
+#appRoot .dl-chip.on,
+#appRoot .dl-views .btn.on,
+#appRoot .dl-tabs .btn.on{box-shadow:inset 0 -6px 12px rgba(164,143,255,.09),0 0 14px rgba(147,130,255,.08)}
+
+/* Keyboard focus remains visible without relying on hover or color alone. */
+#appRoot :is(button,a,input,select,textarea,[tabindex]):focus-visible{
+  outline:2px solid rgba(186,156,255,.92);
+  outline-offset:3px;
+}
+#appRoot .cal-cell:focus-visible,
+#appRoot .semester-card:focus-visible,
+#appRoot .link-card:focus-visible{border-color:var(--accent);box-shadow:0 0 0 3px rgba(147,130,255,.16)}
+
+@media (max-width:600px){
+  #appRoot #page-dashboard .db-hero{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  #appRoot .panel{border-radius:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  #appRoot .panel,
+  #appRoot .db-tiles .stat,
+  #appRoot .link-card,
+  #appRoot .semester-card,
+  #appRoot .dl-card,
+  #appRoot .tl-item,
+  #appRoot .cal-cell,
+  #appRoot .btn,
+  #appRoot .icon-btn,
+  #appRoot .sem-tab,
+  #appRoot .nav-tab{transition:none!important}
+  #appRoot .link-card:hover{transform:none}
+}
