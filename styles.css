@@ -1095,3 +1095,17 @@ body{background:transparent}
 .grid>div:first-child{padding-bottom:40px}
 @media (max-width:960px){.grid>div:first-child{padding-bottom:0}}
 @media (prefers-reduced-motion:reduce){.panel::after{transition:none}}
+
+/* ---------- completion streak panel ---------- */
+.vz-streak{display:flex; flex-direction:column; gap:14px}
+.vz-streak-top{display:flex; align-items:center; gap:8px; margin-top:6px}
+.vz-streak-top b{font:500 2.4rem/1 var(--font-head); color:var(--text)}
+.vz-streak-top span{font-size:.75rem; color:var(--text-dim); align-self:flex-end; padding-bottom:4px}
+.vz-flame{width:28px; height:28px; color:var(--steel); flex:none}
+.vz-flame.on{color:#e59cff; filter:drop-shadow(0 0 8px rgba(229,156,255,.55))}
+.vz-week{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px}
+.vz-week>div{display:flex; flex-direction:column; align-items:center; gap:5px}
+.vz-week i{display:block; width:100%; max-width:26px; aspect-ratio:1; border-radius:50%; border:1px solid var(--rim); background:rgba(255,255,255,.03)}
+.vz-week .on i{border-color:transparent; background:var(--cosmic); box-shadow:0 0 10px rgba(147,130,255,.45)}
+.vz-week .now i{outline:1px solid var(--accent); outline-offset:2px}
+.vz-week small{font-size:.58rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em}

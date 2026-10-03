@@ -1499,17 +1499,26 @@ function renderViz(){
       (k === 0 ? 'vz-today ' : '') + (c.its.length ? '' : 'vz-zero'))).join('');
   const nextN = cols.reduce((s, c) => s + c.its.length, 0);
 
-  /* 2. by-course donut (incomplete) */
-  const by = {};
-  act.forEach(i => { const c = course(i.courseId), k = c ? c.id : '_'; (by[k] = by[k] || { code: c ? c.code : 'No course', color: c ? c.color : 'var(--steel)', n: 0 }).n++; });
-  const parts = Object.values(by).sort((a, b) => b.n - a.n), tot = act.length, R = 52, C = 2 * Math.PI * R;
-  let off = 0;
-  const arcs = parts.map(p => { const len = p.n / tot * C, s = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${p.color}" stroke-width="16" stroke-dasharray="${Math.max(len - (parts.length > 1 ? 2 : 0), 0.1)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"><title>${esc(p.code)}: ${p.n}</title></circle>`; off += len; return s; }).join('');
-  const donut = tot ? `<div class="vz-donut"><svg viewBox="0 0 140 140" role="img" aria-label="Incomplete deadlines by course">
-      <circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--rim)" stroke-width="16" opacity=".35"/>${arcs}
-      <text x="70" y="68" text-anchor="middle" class="vz-big">${tot}</text><text x="70" y="86" text-anchor="middle" class="vz-sm">incomplete</text></svg>
-      <div class="vz-legend">${parts.slice(0, 6).map(p => `<div><i style="background:${p.color}"></i><span>${esc(p.code)}</span><b>${p.n}</b></div>`).join('')}${parts.length > 6 ? `<div class="vz-more">+${parts.length - 6} more</div>` : ''}</div></div>`
-    : '<div class="dl-empty" style="padding:20px 6px">All caught up 🎉</div>';
+  /* 2. completion streak (consecutive days with at least one deadline completed) */
+  const dn = d => Math.round(+sod(d) / DAY);               // day number, DST-safe
+  const doneDays = new Set(items.filter(i => i.completedAt).map(i => dn(new Date(i.completedAt))));
+  const t0 = dn(today), doneToday = doneDays.has(t0);
+  let streak = 0;
+  for (let k = doneToday ? t0 : t0 - 1; doneDays.has(k); k--) streak++;   // today not done yet? the streak is still alive until midnight
+  let best = 0, run = 0, prev = null;
+  [...doneDays].sort((x, y) => x - y).forEach(k => { run = prev !== null && k === prev + 1 ? run + 1 : 1; prev = k; if (run > best) best = run; });
+  const week = [];
+  for (let k = 6; k >= 0; k--){ const d = new Date(+today - k*DAY); week.push({ on: doneDays.has(dn(d)), now: k === 0, l: WD[d.getDay()].slice(0, 2) }); }
+  const weekN = week.filter(w => w.on).length;
+  const streakMsg = streak === 0 ? 'Complete a deadline today to start a streak.'
+    : doneToday ? 'Done for today - see you tomorrow.' : 'Complete one today to keep it going.';
+  const flame = `<svg class="vz-flame ${streak ? 'on' : ''}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 3.2 4.5 5.4 4.5 10a4.5 4.5 0 0 1-9 0c0-1.6.6-2.7 1.4-3.6.2 1.1.8 1.8 1.6 2C10.2 7.6 10.6 4.6 12 2z" fill="currentColor"/></svg>`;
+  const streakHtml = `<div class="vz-streak">
+      <div class="vz-streak-top">${flame}<b>${streak}</b><span>day${streak === 1 ? '' : 's'} streak</span></div>
+      <div class="vz-week" role="img" aria-label="Completions over the last 7 days: ${weekN} of 7 days">${week.map(w => `<div class="${w.on ? 'on' : ''} ${w.now ? 'now' : ''}"><i></i><small>${w.l}</small></div>`).join('')}</div>
+      <div class="vz-legend"><div><i style="background:var(--accent)"></i><span>Best streak</span><b>${best} day${best === 1 ? '' : 's'}</b></div>
+        <div><i style="background:#e59cff"></i><span>Active days this week</span><b>${weekN}/7</b></div></div>
+      <div class="vz-sub" style="margin:12px 0 0">${streakMsg}</div></div>`;
 
   /* 3. status breakdown */
   const done = items.filter(i => i.completedAt);
@@ -1523,7 +1532,7 @@ function renderViz(){
   el.innerHTML = `<div class="panel vz-wide"><h2><span class="dot"></span>Next ${DAYS} days</h2>
       <div class="vz-sub">${nextN} due${over ? ` · <b>${over} overdue</b>` : ''} · click a day to open it in the calendar</div>
       <div class="vz-bars">${bars}</div></div>
-    <div class="panel"><h2><span class="dot"></span>By course</h2>${donut}</div>
+    <div class="panel"><h2><span class="dot"></span>Streak</h2>${streakHtml}</div>
     <div class="panel"><h2><span class="dot"></span>Status</h2>
       <div class="vz-stat"><b>${pct === null ? '-' : pct + '%'}</b><span>completed on time</span></div>
       <div class="vz-seg">${st.map(s => `<i style="flex:${s[1]};background:${s[2]}" title="${s[0]}: ${s[1]}"></i>`).join('')}</div>
