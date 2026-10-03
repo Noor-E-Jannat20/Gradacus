@@ -211,7 +211,7 @@ function render(){
   body.innerHTML = '';
 
   if (state.courses.length === 0){
-    body.innerHTML = '<tr class="empty-row"><td colspan="6">No courses yet — add one to start building your CGPA.</td></tr>';
+    body.innerHTML = '<tr class="empty-row"><td colspan="6">No courses yet - add one to start building your CGPA.</td></tr>';
   }
 
   state.courses.forEach(c => {
@@ -220,7 +220,7 @@ function render(){
     const grade = gradeFromLetter(c.grade);
     const pointHtml = grade
       ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
-      : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">—</span>`;
+      : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">-</span>`;
 
     const gradeOptions = ['<option value="">--</option>']
       .concat(GRADE_SCALE.map(g => `<option value="${g.letter}" ${c.grade===g.letter?'selected':''}>${g.letter} (${g.point.toFixed(1)})</option>`))
@@ -231,7 +231,7 @@ function render(){
 
     let actions = '';
     if (c.replaced){
-      actions = `<button class="icon-btn text-btn revert" data-action="revert" data-id="${c.id}" title="Undo repeat — restore this attempt">Undo Repeat</button>`;
+      actions = `<button class="icon-btn text-btn revert" data-action="revert" data-id="${c.id}" title="Undo repeat - restore this attempt">Undo Repeat</button>`;
     } else {
       actions = `
         <button class="icon-btn text-btn" data-action="repeat" data-id="${c.id}" title="Repeat this course">Repeat</button>
@@ -297,7 +297,7 @@ function renderGradePillOnly(id){
   const pillCell = row.children[3];
   pillCell.innerHTML = grade
     ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
-    : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">—</span>`;
+    : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">-</span>`;
 }
 
 function onRowAction(e){
@@ -321,13 +321,13 @@ function onRowAction(e){
     const retake = newCourse(course.code, course.credits, course.id);
     state.courses.splice(idx + 1, 0, retake);
     render();
-    showToast(`Retake row added for ${course.code || 'course'} — old attempt excluded`);
+    showToast(`Retake row added for ${course.code || 'course'} - old attempt excluded`);
   } else if (action === 'revert'){
     state.courses = state.courses.filter(c => c.repeatOf !== course.id);
     course.replaced = false;
     course.included = true;
     render();
-    showToast(`Repeat undone for ${course.code || 'course'} — original attempt restored`);
+    showToast(`Repeat undone for ${course.code || 'course'} - original attempt restored`);
   }
 }
 
@@ -403,10 +403,10 @@ function showToast(msg){
 function buildScaleTable(){
   const body = document.getElementById('scaleBody');
   const rows = [
-    ['97 – 100','A+','4.0'],['90 – <97','A','4.0'],['85 – <90','A-','3.7'],
-    ['80 – <85','B+','3.3'],['75 – <80','B','3.0'],['70 – <75','B-','2.7'],
-    ['65 – <70','C+','2.3'],['60 – <65','C','2.0'],['57 – <60','C-','1.7'],
-    ['55 – <57','D+','1.3'],['52 – <55','D','1.0'],['50 – <52','D-','0.7'],
+    ['97 - 100','A+','4.0'],['90 - <97','A','4.0'],['85 - <90','A-','3.7'],
+    ['80 - <85','B+','3.3'],['75 - <80','B','3.0'],['70 - <75','B-','2.7'],
+    ['65 - <70','C+','2.3'],['60 - <65','C','2.0'],['57 - <60','C-','1.7'],
+    ['55 - <57','D+','1.3'],['52 - <55','D','1.0'],['50 - <52','D-','0.7'],
     ['< 50','F','0.0'],
   ];
   body.innerHTML = rows.map(r => `<tr><td class="mono">${r[0]}</td><td style="color:${GRADE_COLOR[r[1]]}">${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('');
@@ -416,7 +416,7 @@ function buildScaleTable(){
 // `lab: true` marks courses that are commonly run with an accompanying lab/practical
 // component; `project: true` marks courses centered on a capstone or term project.
 // This is a general guide compiled from public course records, not an official
-// curriculum document — always confirm the current requirement against BRACU's
+// curriculum document - always confirm the current requirement against BRACU's
 // own course pages before registering.
 const COURSE_DB = {
   // Foundation / General Education
@@ -500,7 +500,7 @@ const PROGRAM_POOLS = {
 // Maps the CGPA-table "Degree" select (136 / 124 credit programs) onto the
 // same course pools used by the planner, and adds any of that program's
 // foundation + core courses that aren't already on the table. Existing rows
-// (and any grades already entered) are left untouched — this only fills in
+// (and any grades already entered) are left untouched - this only fills in
 // what's missing, it never overwrites or removes anything.
 function defaultCourseCodesForProgram(programValue){
   const poolKey = programValue === '124' ? 'CS' : 'CSE';
@@ -573,7 +573,7 @@ let isGuest = false;
 let cloudWasNew = false;
 function writeGuest(){
   try { localStorage.setItem(GUEST_KEY, JSON.stringify(state)); setSyncStatus('Saved on this device', 'saved'); }
-  catch(err){ console.error('Guest save failed:', err); setSyncStatus('Not saved', 'error'); showToast('Could not save to this device — browser storage may be full or blocked'); }
+  catch(err){ console.error('Guest save failed:', err); setSyncStatus('Not saved', 'error'); showToast('Could not save to this device - browser storage may be full or blocked'); }
 }
 function readGuest(){
   try {
@@ -614,7 +614,7 @@ async function flushSave(){
   } catch(err){
     console.error('Save failed:', err);
     setSyncStatus('Not saved', 'error');
-    showToast('Could not save — check your connection');
+    showToast('Could not save - check your connection');
   }
 }
 
@@ -712,7 +712,7 @@ function renderSemesterTabs(){
     saveState();
 
     // Jump straight into the inline rename field so the user can type
-    // the real name immediately — no popup involved.
+    // the real name immediately - no popup involved.
     setTimeout(() => {
       const input = document.getElementById('semLabelInput');
       if (input){ input.focus(); input.select(); }
@@ -752,7 +752,7 @@ function renderSemesterCard(){
 
   let rows = '';
   if (sem.codes.length === 0){
-    rows = `<div class="semester-empty">No courses yet — add some from the list on the left.</div>`;
+    rows = `<div class="semester-empty">No courses yet - add some from the list on the left.</div>`;
   } else {
     rows = sem.codes.map((codeId, idx) => {
       const c = getCourseInfo(codeId);
@@ -1065,7 +1065,7 @@ document.getElementById('program').addEventListener('change', e => {
   const parts = [];
   if (added) parts.push(`${added} added`);
   if (removed) parts.push(`${removed} removed`);
-  showToast(parts.length ? `Degree switched — ${parts.join(', ')}` : 'Degree switched');
+  showToast(parts.length ? `Degree switched - ${parts.join(', ')}` : 'Degree switched');
 });
 
 document.getElementById('loadDefaultCoursesBtn').addEventListener('click', () => {
@@ -1147,7 +1147,7 @@ document.getElementById('importFile').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
   e.target.value = '';
   if (!file) return;
-  try { await importStateFile(file); } catch(err) { console.error(err); showToast('Import failed — invalid backup file'); }
+  try { await importStateFile(file); } catch(err) { console.error(err); showToast('Import failed - invalid backup file'); }
 });
 
 let authMode = 'login';
@@ -1202,7 +1202,7 @@ async function submitAuth(){
 
   submitBtn.disabled = true;
   // Any auth-state change from here on is the direct result of this click, not
-  // a session Firebase silently restored on page load — so it should never
+  // a session Firebase silently restored on page load - so it should never
   // trigger the old-session migration sign-out below.
   justSignedIn = true;
   try{
@@ -1233,7 +1233,7 @@ document.getElementById('authForgotBtn').addEventListener('click', async () => {
   if (!email){ setAuthMessage('Enter your email above first, then click "Forgot password?".'); return; }
   try{
     await auth.sendPasswordResetEmail(email);
-    setAuthMessage('Password reset email sent — check your inbox (and spam).', true);
+    setAuthMessage('Password reset email sent - check your inbox (and spam).', true);
   } catch(err){
     console.error('Reset error:', err);
     setAuthMessage(friendlyAuthError(err));
@@ -1255,7 +1255,7 @@ function friendlyAuthError(err){
     'auth/user-not-found': 'No account found with that email.',
     'auth/wrong-password': 'Incorrect password.',
     'auth/invalid-credential': 'Incorrect email or password.',
-    'auth/email-already-in-use': 'An account with that email already exists — try logging in instead.',
+    'auth/email-already-in-use': 'An account with that email already exists - try logging in instead.',
     'auth/weak-password': 'Password should be at least 6 characters.',
     'auth/user-disabled': 'This account has been disabled.',
     'auth/too-many-requests': 'Too many attempts. Wait a few minutes and try again.',
@@ -1263,7 +1263,7 @@ function friendlyAuthError(err){
     'auth/operation-not-allowed': 'Email/password sign-in is not enabled for this Firebase project.',
     'auth/unauthorized-domain': "This site's domain isn't in Firebase's authorised domains list.",
     'auth/invalid-api-key': 'The Firebase API key is invalid.',
-    'auth/operation-not-supported-in-this-environment': 'Sign-in needs the page to be served over http(s) with browser storage enabled — it will not work from a local file.',
+    'auth/operation-not-supported-in-this-environment': 'Sign-in needs the page to be served over http(s) with browser storage enabled - it will not work from a local file.',
   };
   return map[err && err.code] || `Something went wrong (${(err && err.code) || 'unknown error'}). Please try again.`;
 }
@@ -1359,7 +1359,7 @@ if (auth){
   auth.onAuthStateChanged(user => {
     if (user){
       if (!sessionMigrationDone && !justSignedIn){
-        // This user wasn't just typed in — Firebase restored them from a
+        // This user wasn't just typed in - Firebase restored them from a
         // session saved under the old "remember forever" persistence. Sign
         // them out once so they land on the login screen like everyone else;
         // once they log back in it's stored session-only from then on.
@@ -1495,7 +1495,7 @@ function renderViz(){
       { t: `${over} overdue` }, over ? 'vz-over' : 'vz-zero') +
     cols.map((c, k) => bar(c.its.length, c.its.map(i => seg(colorOf(i))).join(''),
       `<b>${c.d.getDate()}</b><small>${k === 0 ? 'today' : WD[c.d.getDay()]}</small>`,
-      { key: c.key, t: `${c.d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}: ${c.its.length} due` + (c.its.length ? ' — ' + c.its.map(i => i.title).join(', ') : '') },
+      { key: c.key, t: `${c.d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}: ${c.its.length} due` + (c.its.length ? ' - ' + c.its.map(i => i.title).join(', ') : '') },
       (k === 0 ? 'vz-today ' : '') + (c.its.length ? '' : 'vz-zero'))).join('');
   const nextN = cols.reduce((s, c) => s + c.its.length, 0);
 
@@ -1525,7 +1525,7 @@ function renderViz(){
       <div class="vz-bars">${bars}</div></div>
     <div class="panel"><h2><span class="dot"></span>By course</h2>${donut}</div>
     <div class="panel"><h2><span class="dot"></span>Status</h2>
-      <div class="vz-stat"><b>${pct === null ? '—' : pct + '%'}</b><span>completed on time</span></div>
+      <div class="vz-stat"><b>${pct === null ? '-' : pct + '%'}</b><span>completed on time</span></div>
       <div class="vz-seg">${st.map(s => `<i style="flex:${s[1]};background:${s[2]}" title="${s[0]}: ${s[1]}"></i>`).join('')}</div>
       <div class="vz-legend">${st.map(s => `<div><i style="background:${s[2]}"></i><span>${s[0]}</span><b>${s[1]}</b></div>`).join('')}</div></div>`;
 }
@@ -1583,7 +1583,7 @@ function card(it){
   return `<div class="dl-card ${it.completedAt ? 'done' : ''}" data-id="${it.id}" style="--cc:${c ? c.color : 'var(--text-dim)'}">
     <button class="dl-check" data-done="${it.id}" title="${it.completedAt ? 'Reopen' : 'Mark complete'}">${it.completedAt ? '✓' : ''}</button>
     <div class="dl-main">
-      <div class="dl-course">${c ? esc(c.code) + (c.name ? ' — ' + esc(c.name) : '') : 'No course'}</div>
+      <div class="dl-course">${c ? esc(c.code) + (c.name ? ' - ' + esc(c.name) : '') : 'No course'}</div>
       <div class="dl-title">${esc(it.title)}</div>
       <div class="dl-meta"><span class="dl-tag">${esc(it.type)}</span><span class="dl-tag" style="color:${pr.c}">${pr.l}</span>${it.seriesId ? '<span class="dl-tag">🔁 repeats</span>' : ''}</div>
       <div class="dl-time">${cdHtml(it)} · Due ${fmtDate(d)} · ${fmtTime(d)}</div>
@@ -1690,7 +1690,7 @@ function openForm(it, pre){
   const nc = pre.newCourse;
   const b = openModal(`${pre.note ? `<div class="dl-note">${pre.note}</div>` : ''}<h2>${it ? 'Edit deadline' : 'Add deadline'}</h2>
     <div class="field"><label>Title</label><input type="text" id="f_title" value="${esc(v.title)}" placeholder="e.g. Assignment 2"></div>
-    <div class="field-row"><div class="field"><label>Course</label><select id="f_course"><option value="">No course</option>${D().courses.map(c => `<option value="${c.id}" ${v.courseId === c.id ? 'selected' : ''}>${esc(c.code)}${c.name ? ' — ' + esc(c.name) : ''}</option>`).join('')}<option value="__new" ${nc ? 'selected' : ''}>+ New course…</option></select></div>
+    <div class="field-row"><div class="field"><label>Course</label><select id="f_course"><option value="">No course</option>${D().courses.map(c => `<option value="${c.id}" ${v.courseId === c.id ? 'selected' : ''}>${esc(c.code)}${c.name ? ' - ' + esc(c.name) : ''}</option>`).join('')}<option value="__new" ${nc ? 'selected' : ''}>+ New course…</option></select></div>
       <div class="field"><label>Type</label><select id="f_type">${types().map(t => `<option ${v.type === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}<option value="__new">+ New type…</option></select></div></div>
     <div class="field-row" id="f_newc" style="display:${nc ? 'flex' : 'none'}"><div class="field"><label>New course code</label><input type="text" id="f_ccode" value="${esc(nc ? nc.code : '')}" placeholder="CSE422"></div><div class="field"><label>Course name</label><input type="text" id="f_cname" value="${esc(nc ? nc.name : '')}" placeholder="Artificial Intelligence"></div></div>
     <div class="field" id="f_newt" style="display:none"><label>New type name</label><input type="text" id="f_tnew" placeholder="e.g. Lab report"></div>
@@ -1771,7 +1771,7 @@ function openDetails(id){
   const it = find(id); if (!it) return closeModal();
   const c = course(it.courseId), d = due(it), p = it.completedAt ? 100 : prog(it), pr = PRIO[it.priority], hasSub = it.subtasks.length;
   const b = openModal(`<h2>${esc(it.title)}</h2>
-    <div class="dl-course" style="--cc:${c ? c.color : 'var(--text-dim)'}">${c ? esc(c.code) + (c.name ? ' — ' + esc(c.name) : '') : 'No course'}</div>
+    <div class="dl-course" style="--cc:${c ? c.color : 'var(--text-dim)'}">${c ? esc(c.code) + (c.name ? ' - ' + esc(c.name) : '') : 'No course'}</div>
     <div class="dl-meta" style="margin:10px 0"><span class="dl-tag">${esc(it.type)}</span><span class="dl-tag" style="color:${pr.c}">${pr.l} priority</span>${it.seriesId ? '<span class="dl-tag">🔁 repeating</span>' : ''}</div>
     <div class="field-row"><div class="stat" style="flex:1"><div class="label">Due</div><div style="font-size:0.95rem">${fmtDate(d)} · ${fmtTime(d)}</div></div>
       <div class="stat" style="flex:1"><div class="label">${it.completedAt ? 'Status' : 'Time remaining'}</div><div style="font-size:0.95rem">${cdHtml(it)}</div></div></div>
@@ -1779,7 +1779,7 @@ function openDetails(id){
       <div class="progress-track" style="margin:0"><div class="progress-fill" style="width:${p}%"></div></div>
       ${hasSub ? '' : `<input type="range" data-prog min="0" max="100" step="5" value="${it.progress || 0}" style="margin-top:10px" ${it.completedAt ? 'disabled' : ''}>`}</div>
     <div class="field"><label>Subtasks ${hasSub ? `(${it.subtasks.filter(s => s.done).length}/${hasSub})` : ''}</label>
-      ${it.subtasks.map(s => `<div class="dl-sub ${s.done ? 'done' : ''}"><input type="checkbox" data-tg="${s.id}" ${s.done ? 'checked' : ''}><span class="t">${esc(s.text)}</span><button class="icon-btn" data-rs="${s.id}">✕</button></div>`).join('') || '<div class="hint">No subtasks yet — break this deadline into smaller steps to track progress automatically.</div>'}
+      ${it.subtasks.map(s => `<div class="dl-sub ${s.done ? 'done' : ''}"><input type="checkbox" data-tg="${s.id}" ${s.done ? 'checked' : ''}><span class="t">${esc(s.text)}</span><button class="icon-btn" data-rs="${s.id}">✕</button></div>`).join('') || '<div class="hint">No subtasks yet - break this deadline into smaller steps to track progress automatically.</div>'}
       <div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="d_sub" placeholder="Add a subtask…"><button class="btn small" data-addsub>Add</button></div></div>
     ${it.notes ? `<div class="field"><label>Notes</label><div style="white-space:pre-wrap;font-size:0.88rem">${esc(it.notes)}</div></div>` : ''}
     ${it.reminders.length ? `<div class="hint">Reminders: ${it.reminders.map(remLabel).join(', ')} before</div>` : ''}
@@ -1822,7 +1822,7 @@ function openSettings(){
       <div style="display:flex;gap:8px;margin-top:4px"><input type="text" id="s_type" placeholder="New type, e.g. Lab report"><button class="btn small" data-addt>Add</button></div></div>
     <div class="field"><label>Default reminders for new deadlines</label><div id="s_rem"></div></div>
     <div class="field-row"><div class="field"><label>“Urgent” means due within</label><select id="s_urg">${[24,48,72].map(h => `<option value="${h}" ${P.urgentH === h ? 'selected' : ''}>${h} hours</option>`).join('')}</select></div>
-      <div class="field"><label>Browser notifications</label><button class="btn small ${P.notif ? '' : 'ghost'}" data-notif>${P.notif ? 'On — click to turn off' : 'Turn on'}</button></div></div>
+      <div class="field"><label>Browser notifications</label><button class="btn small ${P.notif ? '' : 'ghost'}" data-notif>${P.notif ? 'On - click to turn off' : 'Turn on'}</button></div></div>
     <div class="hint">Reminders fire while this page is open in a browser tab (or a background tab). They can't be delivered when the page is closed.</div>`);
   remWidget('s_rem', P.defRem, saveState);
   b.onchange = e => {
@@ -1892,16 +1892,16 @@ function parseQuick(txt){
     if (diff === 0){ const t = new Date(dt); t.setHours(h === null ? 23 : h, h === null ? 59 : mi); if (t < now) dt.setDate(dt.getDate() + 7); }
   }
   r.assumed = [];
-  if (h === null){ h = 23; mi = 59; if (dt) r.assumed.push('no time given — assumed 11:59 PM'); }
+  if (h === null){ h = 23; mi = 59; if (dt) r.assumed.push('no time given - assumed 11:59 PM'); }
   r.time = `${pad(h)}:${pad(mi)}`; r.date = dt;
   const low = s.toLowerCase();
   r.type = types().find(t => t !== 'Other' && new RegExp('\\b' + t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + 's?\\b').test(low));
   if (!r.type) [['Presentation',/\b(presentation|pres|slides?)\b/],['Project',/\b(project|proj)\b/],['Quiz',/\bquiz(?:zes)?\b/],['Exam',/\b(exam|midterm|mid|final|test)\b/],['Assignment',/\b(assignment|asg|assign|homework|hw|lab)\b/]].some(x => x[1].test(low) && (r.type = x[0]));
-  if (!r.type){ r.type = 'Assignment'; r.assumed.push('no type recognised — assumed Assignment'); }
+  if (!r.type){ r.type = 'Assignment'; r.assumed.push('no type recognised - assumed Assignment'); }
   let title = s.replace(/\b(due|by|on|at|deadline)\b/gi, ' ').replace(/[,;]+/g, ' ').replace(/\s+/g, ' ').trim();
   if (!title || title.toLowerCase().replace(/s$/, '') === r.type.toLowerCase()) title = r.type;
   r.title = title.charAt(0).toUpperCase() + title.slice(1);
-  if (!dt) r.assumed.push('no date found — please pick one');
+  if (!dt) r.assumed.push('no date found - please pick one');
   return r;
 }
 function quickAdd(){
@@ -1929,7 +1929,7 @@ function checkRem(){
     const ready = (it.reminders || []).filter(m => !it.fired[m] && +due(it) - m*6e4 <= now);
     if (!ready.length) return;
     ready.forEach(m => it.fired[m] = 1); dirty = true;
-    const c = course(it.courseId), msg = `${c ? c.code + ' · ' : ''}${it.title} — due in ${cd(+due(it) - now).replace(' remaining', '')}`;
+    const c = course(it.courseId), msg = `${c ? c.code + ' · ' : ''}${it.title} - due in ${cd(+due(it) - now).replace(' remaining', '')}`;
     banner(msg);
     if (D().prefs.notif && 'Notification' in window && Notification.permission === 'granted') try { new Notification('Deadline reminder', { body: msg }); } catch (e) {}
   });

@@ -1,0 +1,5 @@
+ Inspired by the digital era, technology and neo-grotesque typefaces. Lulu is edgy, contemporary and elegant. It is designed for display and editorial purposes. It is free for download and any purposes. Feel free to send me an email of your creations with Lulu.
+
+Free for personal & commercial use
+
+https://www.behance.net/Stelios-ips
