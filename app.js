@@ -1805,9 +1805,9 @@ function renderViz(){
   const el = $('dlViz'); if (!el) return;
   const now = Date.now(), items = D().items, act = items.filter(i => !i.completedAt);
   if (!items.length){ el.innerHTML = ''; return; }
-  const DAYS = 14, today = sod(new Date());
+  const DAYS = 7, today = sod(new Date());
 
-  /* 1. next-14-days workload (stacked by course) */
+  /* 1. next-7-days workload (line chart: deadlines due per day) */
   const over = act.filter(i => +due(i) < now).length;
   const cols = [];
   for (let k = 0; k < DAYS; k++){
@@ -1815,32 +1815,41 @@ function renderViz(){
     const its = act.filter(i => +due(i) >= now && dstr(due(i)) === key);
     cols.push({ d, key, its });
   }
-  const mx = Math.max(3, over, ...cols.map(c => c.its.length));
-  const colorOf = i => { const c = course(i.courseId); return c ? c.color : 'var(--steel)'; };
-  const bar = (n, segs, label, title, extra) => `<button type="button" class="vz-col ${extra || ''}" ${title.key ? `data-vday="${title.key}"` : ''} title="${esc(title.t)}">
-      <span class="vz-n">${n || ''}</span>
-      <span class="vz-stack" style="height:${n / mx * 100}%">${segs}</span>
-      <span class="vz-lab">${label}</span></button>`;
-  const seg = c => `<i style="background:${c};flex:1"></i>`;
-  const bars = bar(over, Array(over).fill(seg('var(--ash)')).join(''), '<b>!</b><small>late</small>',
-      { t: `${over} overdue` }, over ? 'vz-over' : 'vz-zero') +
-    cols.map((c, k) => bar(c.its.length, c.its.map(i => seg(colorOf(i))).join(''),
-      `<b>${c.d.getDate()}</b><small>${k === 0 ? 'today' : WD[c.d.getDay()]}</small>`,
-      { key: c.key, t: `${c.d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}: ${c.its.length} due` + (c.its.length ? ' — ' + c.its.map(i => i.title).join(', ') : '') },
-      (k === 0 ? 'vz-today ' : '') + (c.its.length ? '' : 'vz-zero'))).join('');
+  const mx = Math.max(3, ...cols.map(c => c.its.length));
   const nextN = cols.reduce((s, c) => s + c.its.length, 0);
+  const px = k => (k + .5) / DAYS * 100, py = n => 8 + (1 - n / mx) * 84;       /* shared % mapping for svg + html layers */
+  const P = cols.map((c, k) => [px(k) * 7, py(c.its.length)]);                    /* svg is 700 x 100 */
+  let path = `M${P[0][0]} ${P[0][1]}`;
+  for (let k = 1; k < P.length; k++){ const mxp = (P[k-1][0] + P[k][0]) / 2; path += ` C${mxp} ${P[k-1][1]} ${mxp} ${P[k][1]} ${P[k][0]} ${P[k][1]}`; }
+  const area = `${path} L${P[P.length-1][0]} 100 L${P[0][0]} 100 Z`;
+  const grid = [0, 1, 2, 3].map(g => `<line x1="0" x2="700" y1="${py(mx * g / 3)}" y2="${py(mx * g / 3)}"/>`).join('');
+  const tip = c => `${c.d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}: ${c.its.length} due` + (c.its.length ? ' - ' + c.its.map(i => i.title).join(', ') : '');
+  const lineChart = `<div class="vz-line">
+      <svg viewBox="0 0 700 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="vzArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9382ff" stop-opacity=".35"/><stop offset="1" stop-color="#9382ff" stop-opacity="0"/></linearGradient>
+          <linearGradient id="vzStroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9cb2ff"/><stop offset=".5" stop-color="#ba9cff"/><stop offset="1" stop-color="#e59cff"/></linearGradient></defs>
+        <g class="vz-grid">${grid}</g><path d="${area}" fill="url(#vzArea)"/><path d="${path}" class="vz-ln" stroke="url(#vzStroke)"/></svg>
+      ${cols.map((c, k) => `<button type="button" class="vz-pt ${k === 0 ? 'vz-today' : ''}" data-vday="${c.key}" title="${esc(tip(c))}" style="left:${px(k)}%;top:${py(c.its.length)}%"><span>${c.its.length}</span></button>`).join('')}
+    </div>
+    <div class="vz-xl">${cols.map((c, k) => `<div class="${k === 0 ? 'vz-today' : ''}"><b>${c.d.getDate()}</b><small>${k === 0 ? 'today' : WD[c.d.getDay()]}</small></div>`).join('')}</div>`;
 
-  /* 2. by-course donut (incomplete) */
-  const by = {};
-  act.forEach(i => { const c = course(i.courseId), k = c ? c.id : '_'; (by[k] = by[k] || { code: c ? c.code : 'No course', color: c ? c.color : 'var(--steel)', n: 0 }).n++; });
-  const parts = Object.values(by).sort((a, b) => b.n - a.n), tot = act.length, R = 52, C = 2 * Math.PI * R;
-  let off = 0;
-  const arcs = parts.map(p => { const len = p.n / tot * C, s = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${p.color}" stroke-width="16" stroke-dasharray="${Math.max(len - (parts.length > 1 ? 2 : 0), 0.1)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"><title>${esc(p.code)}: ${p.n}</title></circle>`; off += len; return s; }).join('');
-  const donut = tot ? `<div class="vz-donut"><svg viewBox="0 0 140 140" role="img" aria-label="Incomplete deadlines by course">
-      <circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--rim)" stroke-width="16" opacity=".35"/>${arcs}
-      <text x="70" y="68" text-anchor="middle" class="vz-big">${tot}</text><text x="70" y="86" text-anchor="middle" class="vz-sm">incomplete</text></svg>
-      <div class="vz-legend">${parts.slice(0, 6).map(p => `<div><i style="background:${p.color}"></i><span>${esc(p.code)}</span><b>${p.n}</b></div>`).join('')}${parts.length > 6 ? `<div class="vz-more">+${parts.length - 6} more</div>` : ''}</div></div>`
-    : '<div class="dl-empty" style="padding:20px 6px">All caught up 🎉</div>';
+  /* 2. completion streak (consecutive days with at least one deadline completed) */
+  const dn = d => Math.round(+sod(d) / DAY);               // day number, DST-safe
+  const doneDays = new Set(items.filter(i => i.completedAt).map(i => dn(new Date(i.completedAt))));
+  const t0 = dn(today), doneToday = doneDays.has(t0);
+  let streak = 0;
+  for (let k = doneToday ? t0 : t0 - 1; doneDays.has(k); k--) streak++;   // today not done yet? the streak is still alive until midnight
+  let best = 0, run = 0, prev = null;
+  [...doneDays].sort((x, y) => x - y).forEach(k => { run = prev !== null && k === prev + 1 ? run + 1 : 1; prev = k; if (run > best) best = run; });
+  const nd = String(streak).length;
+  const flame = `<svg class="vz-fire ${streak ? 'on' : ''}" viewBox="0 0 100 120" role="img" aria-label="${streak} day streak">
+      <defs><linearGradient id="vzFire" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5046e4"/><stop offset=".55" stop-color="#9382ff"/><stop offset="1" stop-color="#e59cff"/></linearGradient></defs>
+      <path class="vz-fire-o" d="M50 3C54 22 79 37 85 66C91 95 73 117 50 117C27 117 9 95 15 66C18 52 27 44 31 33C35 46 40 51 45 50C42 34 44 18 50 3Z" fill="url(#vzFire)"/>
+      <path class="vz-fire-i" d="M50 22C53 36 71 47 75 67C79 88 66 105 50 105C34 105 21 88 25 67C27 58 33 52 36 46C39 54 43 57 47 56C45 44 46 33 50 22Z" fill="var(--midnight)"/>
+      <text x="50" y="${nd > 2 ? 83 : 86}" text-anchor="middle" class="vz-fire-n" style="font-size:${nd > 2 ? 30 : nd > 1 ? 38 : 46}px">${streak}</text></svg>`;
+  const streakHtml = `<div class="vz-streak">${flame}
+      <div class="vz-streak-lbl">day streak</div>
+      <div class="vz-best">Best streak <b>${best} day${best === 1 ? '' : 's'}</b></div></div>`;
 
   /* 3. status breakdown */
   const done = items.filter(i => i.completedAt);
@@ -1853,8 +1862,8 @@ function renderViz(){
 
   el.innerHTML = `<div class="panel vz-wide"><h2><span class="dot"></span>Next ${DAYS} days</h2>
       <div class="vz-sub">${nextN} due${over ? ` · <b>${over} overdue</b>` : ''} · click a day to open it in the calendar</div>
-      <div class="vz-bars">${bars}</div></div>
-    <div class="panel"><h2><span class="dot"></span>By course</h2>${donut}</div>
+      ${lineChart}</div>
+    <div class="panel"><h2><span class="dot"></span>Streak</h2>${streakHtml}</div>
     <div class="panel"><h2><span class="dot"></span>Status</h2>
       <div class="vz-stat"><b>${pct === null ? '—' : pct + '%'}</b><span>completed on time</span></div>
       <div class="vz-seg">${st.map(s => `<i style="flex:${s[1]};background:${s[2]}" title="${s[0]}: ${s[1]}"></i>`).join('')}</div>

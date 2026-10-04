@@ -1202,3 +1202,30 @@ body.rm-modal-open{overflow:hidden}
 input[type=search]{background-color:rgba(3,0,20,.55);border:1px solid rgba(165,150,230,.3);border-radius:5px;color:var(--text);font-family:var(--font-body);font-size:max(14px,.92rem);padding:10px 12px;min-height:40px;-webkit-appearance:none;appearance:none}
 input[type=search]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(147,130,255,.18);outline:none}
 input[type=search]::-webkit-search-cancel-button{filter:invert(1);opacity:.6}
+
+/* ---------- completion streak panel ---------- */
+.vz-streak{display:flex; flex-direction:column; align-items:center; gap:6px; padding-top:4px}
+.vz-fire{width:132px; height:158px; color:var(--steel)}
+.vz-fire:not(.on) .vz-fire-o{fill:var(--rim)}
+.vz-fire.on{filter:drop-shadow(0 0 14px rgba(229,156,255,.45))}
+.vz-fire-n{font-family:var(--font-head); font-weight:500; fill:var(--text); letter-spacing:-.02em}
+.vz-fire:not(.on) .vz-fire-n{fill:var(--fog)}
+.vz-streak-lbl{font-size:.78rem; color:var(--text-dim)}
+.vz-best{margin-top:8px; font-size:.78rem; color:var(--text-dim)}
+.vz-best b{font-weight:500; color:var(--text); margin-left:4px}
+
+/* ---------- 7-day workload line chart ---------- */
+.vz-line{position:relative; height:170px; margin-top:6px}
+.vz-line svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+.vz-grid line{stroke:var(--rim); stroke-width:1; stroke-dasharray:3 4; opacity:.45; vector-effect:non-scaling-stroke}
+.vz-ln{fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke}
+.vz-pt{position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; padding:0; border-radius:50%; border:2px solid var(--accent); background:var(--midnight); cursor:pointer; transition:transform .15s, box-shadow .15s}
+.vz-pt span{position:absolute; bottom:calc(100% + 4px); left:50%; transform:translateX(-50%); font-size:.68rem; color:var(--text-dim); line-height:1}
+.vz-pt:hover,.vz-pt:focus-visible{transform:scale(1.35); box-shadow:0 0 0 4px rgba(147,130,255,.2); outline:none}
+.vz-pt.vz-today{background:var(--accent)}
+.vz-xl{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); margin-top:10px}
+.vz-xl>div{display:flex; flex-direction:column; align-items:center; line-height:1.15; padding:4px 0 2px; border-radius:6px}
+.vz-xl b{font-weight:500; font-size:.74rem}
+.vz-xl small{font-size:.58rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em}
+.vz-xl .vz-today{background:rgba(147,130,255,.18)}
+@media (max-width:560px){ .vz-line{height:150px} }
