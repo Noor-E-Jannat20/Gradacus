@@ -8,8 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "bust": "node scripts/cache-bust.mjs",
-    "prebuild": "node scripts/cache-bust.mjs"
+    "bust": "npm run data && node scripts/cache-bust.mjs",
+    "prebuild": "npm run bust",
+    "data": "node scripts/build-curriculum.mjs",
+    "test:functions": "cd functions && npm test"
   },
   "dependencies": {
     "firebase": "^10.13.0"

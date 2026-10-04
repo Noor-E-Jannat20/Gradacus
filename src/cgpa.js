@@ -41,7 +41,7 @@ function renderGradePillOnly(id) {
   const pillCell = row.children[3];
   pillCell.innerHTML = grade
     ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point == null ? grade.letter : grade.point.toFixed(1)}</span>`
-    : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">-</span>`;
+    : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">—</span>`;
 }
 
 function onRowAction(e) {
@@ -66,13 +66,13 @@ function onRowAction(e) {
     const retake = newCourse(course.code, course.credits, course.id);
     state.courses.splice(idx + 1, 0, retake);
     renderCgpa();
-    showToast(`Retake row added for ${course.code || 'course'} - old attempt excluded`);
+    showToast(`Retake row added for ${course.code || 'course'} — old attempt excluded`);
   } else if (action === 'revert') {
     state.courses = state.courses.filter(c => c.repeatOf !== course.id);
     course.replaced = false;
     course.included = true;
     renderCgpa();
-    showToast(`Repeat undone for ${course.code || 'course'} - original attempt restored`);
+    showToast(`Repeat undone for ${course.code || 'course'} — original attempt restored`);
   }
 }
 
@@ -120,12 +120,12 @@ function updateTargetResult(stats) {
   }
   if (!out.possible) {
     el.textContent = out.needOnNew > 4
-      ? `You would need a ${out.needOnNew.toFixed(2)} average on those credits - above 4.00, so this target is not reachable with that load.`
-      : `You would need a ${out.needOnNew.toFixed(2)} average (below 0) - the target is below your current CGPA even with zeros.`;
+      ? `You would need a ${out.needOnNew.toFixed(2)} average on those credits — above 4.00, so this target is not reachable with that load.`
+      : `You would need a ${out.needOnNew.toFixed(2)} average (below 0) — the target is below your current CGPA even with zeros.`;
     el.className = 'hint warn-text';
     return;
   }
-  el.textContent = `You need about a ${out.needOnNew.toFixed(2)} average (GPA-hours only: A+-F) on those credits. P/I/W do not move CGPA.`;
+  el.textContent = `You need about a ${out.needOnNew.toFixed(2)} average (GPA-hours only: A+–F) on those credits. P/I/W do not move CGPA.`;
   el.className = 'hint';
 }
 
@@ -143,7 +143,7 @@ export function renderCgpa() {
   body.innerHTML = '';
 
   if (state.courses.length === 0) {
-    body.innerHTML = '<tr class="empty-row"><td colspan="6">No courses yet - add one to start building your CGPA.</td></tr>';
+    body.innerHTML = '<tr class="empty-row"><td colspan="6">No courses yet — add one to start building your CGPA.</td></tr>';
   }
 
   state.courses.forEach(c => {
@@ -152,7 +152,7 @@ export function renderCgpa() {
     const grade = gradeFromLetter(c.grade);
     const pointHtml = grade
       ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point == null ? esc(grade.letter) : grade.point.toFixed(1)}</span>`
-      : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">-</span>`;
+      : `<span class="grade-pill" style="color:#4a5178; border:1px solid var(--line);">—</span>`;
 
     const extra = [
       { letter: 'P', label: 'P (pass, credits only)' },
@@ -169,7 +169,7 @@ export function renderCgpa() {
 
     let actions = '';
     if (c.replaced) {
-      actions = `<button class="icon-btn text-btn revert" data-action="revert" data-id="${esc(c.id)}" title="Undo repeat - restore this attempt">Undo Repeat</button>`;
+      actions = `<button class="icon-btn text-btn revert" data-action="revert" data-id="${esc(c.id)}" title="Undo repeat — restore this attempt">Undo Repeat</button>`;
     } else {
       actions = `
         <button class="icon-btn text-btn" data-action="repeat" data-id="${esc(c.id)}" title="Repeat this course">Repeat</button>
@@ -200,22 +200,22 @@ export function renderCgpa() {
 function buildScaleTable() {
   const body = $('scaleBody');
   const rows = [
-    ['97 - 100', 'A+', '4.0 GPA hours'],
-    ['90 - <97', 'A', '4.0 GPA hours'],
-    ['85 - <90', 'A-', '3.7 GPA hours'],
-    ['80 - <85', 'B+', '3.3 GPA hours'],
-    ['75 - <80', 'B', '3.0 GPA hours'],
-    ['70 - <75', 'B-', '2.7 GPA hours'],
-    ['65 - <70', 'C+', '2.3 GPA hours'],
-    ['60 - <65', 'C', '2.0 GPA hours'],
-    ['57 - <60', 'C-', '1.7 GPA hours'],
-    ['55 - <57', 'D+', '1.3 GPA hours'],
-    ['52 - <55', 'D', '1.0 GPA hours'],
-    ['50 - <52', 'D-', '0.7 GPA hours'],
+    ['97 – 100', 'A+', '4.0 GPA hours'],
+    ['90 – <97', 'A', '4.0 GPA hours'],
+    ['85 – <90', 'A-', '3.7 GPA hours'],
+    ['80 – <85', 'B+', '3.3 GPA hours'],
+    ['75 – <80', 'B', '3.0 GPA hours'],
+    ['70 – <75', 'B-', '2.7 GPA hours'],
+    ['65 – <70', 'C+', '2.3 GPA hours'],
+    ['60 – <65', 'C', '2.0 GPA hours'],
+    ['57 – <60', 'C-', '1.7 GPA hours'],
+    ['55 – <57', 'D+', '1.3 GPA hours'],
+    ['52 – <55', 'D', '1.0 GPA hours'],
+    ['50 – <52', 'D-', '0.7 GPA hours'],
     ['< 50', 'F', '0.0 GPA hours, no earned credit'],
-    ['-', 'P', 'Earned credit, not in CGPA'],
-    ['-', 'I', 'Incomplete - ignored'],
-    ['-', 'W', 'Withdrawn - ignored']
+    ['—', 'P', 'Earned credit, not in CGPA'],
+    ['—', 'I', 'Incomplete — ignored'],
+    ['—', 'W', 'Withdrawn — ignored']
   ];
   body.innerHTML = rows.map(r => `<tr><td class="mono">${r[0]}</td><td style="color:${GRADE_COLOR[r[1]] || 'var(--text)'}">${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('');
 }
@@ -301,7 +301,7 @@ export function initCgpa() {
     const parts = [];
     if (added) parts.push(`${added} added`);
     if (removed) parts.push(`${removed} removed`);
-    showToast(parts.length ? `Degree switched - ${parts.join(', ')}` : 'Degree switched');
+    showToast(parts.length ? `Degree switched — ${parts.join(', ')}` : 'Degree switched');
   });
 
   $('loadDefaultCoursesBtn').addEventListener('click', () => {
@@ -351,7 +351,7 @@ export function initCgpa() {
     const file = e.target.files && e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    try { await importStateFile(file); } catch (err) { console.error(err); showToast('Import failed - invalid backup file'); }
+    try { await importStateFile(file); } catch (err) { console.error(err); showToast('Import failed — invalid backup file'); }
   });
   $('undoImportBtn')?.addEventListener('click', () => {
     if (restoreUndo()) {

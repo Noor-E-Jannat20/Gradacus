@@ -211,7 +211,7 @@ function render(){
   body.innerHTML = '';
 
   if (state.courses.length === 0){
-    body.innerHTML = '<tr class="empty-row"><td colspan="6">No courses yet - add one to start building your CGPA.</td></tr>';
+    body.innerHTML = '<tr class="empty-row"><td colspan="6">No courses yet — add one to start building your CGPA.</td></tr>';
   }
 
   state.courses.forEach(c => {
@@ -220,7 +220,7 @@ function render(){
     const grade = gradeFromLetter(c.grade);
     const pointHtml = grade
       ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
-      : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">-</span>`;
+      : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">—</span>`;
 
     const gradeOptions = ['<option value="">--</option>']
       .concat(GRADE_SCALE.map(g => `<option value="${g.letter}" ${c.grade===g.letter?'selected':''}>${g.letter} (${g.point.toFixed(1)})</option>`))
@@ -231,7 +231,7 @@ function render(){
 
     let actions = '';
     if (c.replaced){
-      actions = `<button class="icon-btn text-btn revert" data-action="revert" data-id="${c.id}" title="Undo repeat - restore this attempt">Undo Repeat</button>`;
+      actions = `<button class="icon-btn text-btn revert" data-action="revert" data-id="${c.id}" title="Undo repeat — restore this attempt">Undo Repeat</button>`;
     } else {
       actions = `
         <button class="icon-btn text-btn" data-action="repeat" data-id="${c.id}" title="Repeat this course">Repeat</button>
@@ -297,7 +297,7 @@ function renderGradePillOnly(id){
   const pillCell = row.children[3];
   pillCell.innerHTML = grade
     ? `<span class="grade-pill" style="color:${GRADE_COLOR[grade.letter]}; border:1px solid ${GRADE_COLOR[grade.letter]}66; background:${GRADE_COLOR[grade.letter]}14;">${grade.point.toFixed(1)}</span>`
-    : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">-</span>`;
+    : `<span class="grade-pill" style="color:var(--text-dim); border:1px solid var(--line);">—</span>`;
 }
 
 function onRowAction(e){
@@ -321,13 +321,13 @@ function onRowAction(e){
     const retake = newCourse(course.code, course.credits, course.id);
     state.courses.splice(idx + 1, 0, retake);
     render();
-    showToast(`Retake row added for ${course.code || 'course'} - old attempt excluded`);
+    showToast(`Retake row added for ${course.code || 'course'} — old attempt excluded`);
   } else if (action === 'revert'){
     state.courses = state.courses.filter(c => c.repeatOf !== course.id);
     course.replaced = false;
     course.included = true;
     render();
-    showToast(`Repeat undone for ${course.code || 'course'} - original attempt restored`);
+    showToast(`Repeat undone for ${course.code || 'course'} — original attempt restored`);
   }
 }
 
@@ -403,10 +403,10 @@ function showToast(msg){
 function buildScaleTable(){
   const body = document.getElementById('scaleBody');
   const rows = [
-    ['97 - 100','A+','4.0'],['90 - <97','A','4.0'],['85 - <90','A-','3.7'],
-    ['80 - <85','B+','3.3'],['75 - <80','B','3.0'],['70 - <75','B-','2.7'],
-    ['65 - <70','C+','2.3'],['60 - <65','C','2.0'],['57 - <60','C-','1.7'],
-    ['55 - <57','D+','1.3'],['52 - <55','D','1.0'],['50 - <52','D-','0.7'],
+    ['97 – 100','A+','4.0'],['90 – <97','A','4.0'],['85 – <90','A-','3.7'],
+    ['80 – <85','B+','3.3'],['75 – <80','B','3.0'],['70 – <75','B-','2.7'],
+    ['65 – <70','C+','2.3'],['60 – <65','C','2.0'],['57 – <60','C-','1.7'],
+    ['55 – <57','D+','1.3'],['52 – <55','D','1.0'],['50 – <52','D-','0.7'],
     ['< 50','F','0.0'],
   ];
   body.innerHTML = rows.map(r => `<tr><td class="mono">${r[0]}</td><td style="color:${GRADE_COLOR[r[1]]}">${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('');
@@ -416,7 +416,7 @@ function buildScaleTable(){
 // `lab: true` marks courses that are commonly run with an accompanying lab/practical
 // component; `project: true` marks courses centered on a capstone or term project.
 // This is a general guide compiled from public course records, not an official
-// curriculum document - always confirm the current requirement against BRACU's
+// curriculum document — always confirm the current requirement against BRACU's
 // own course pages before registering.
 const COURSE_DB = {
   // Foundation / General Education
@@ -500,7 +500,7 @@ const PROGRAM_POOLS = {
 // Maps the CGPA-table "Degree" select (136 / 124 credit programs) onto the
 // same course pools used by the planner, and adds any of that program's
 // foundation + core courses that aren't already on the table. Existing rows
-// (and any grades already entered) are left untouched - this only fills in
+// (and any grades already entered) are left untouched — this only fills in
 // what's missing, it never overwrites or removes anything.
 function defaultCourseCodesForProgram(programValue){
   const poolKey = programValue === '124' ? 'CS' : 'CSE';
@@ -528,7 +528,7 @@ function getCourseInfo(code) {
     return state.customCourses[code];
   }
   if (COURSE_DB[code]) {
-    return { code: code, name: COURSE_DB[code].name, credits: COURSE_DB[code].credits, tag: 'course', lab: !!COURSE_DB[code].lab, project: !!COURSE_DB[code].project };
+    return { code: code, name: COURSE_DB[code].name, credits: COURSE_DB[code].credits, tag: 'course', lab: !!COURSE_DB[code].lab, project: !!COURSE_DB[code].project, prereqs: prereqsOf(code) };
   }
   return null;
 }
@@ -573,7 +573,7 @@ let isGuest = false;
 let cloudWasNew = false;
 function writeGuest(){
   try { localStorage.setItem(GUEST_KEY, JSON.stringify(state)); setSyncStatus('Saved on this device', 'saved'); }
-  catch(err){ console.error('Guest save failed:', err); setSyncStatus('Not saved', 'error'); showToast('Could not save to this device - browser storage may be full or blocked'); }
+  catch(err){ console.error('Guest save failed:', err); setSyncStatus('Not saved', 'error'); showToast('Could not save to this device — browser storage may be full or blocked'); }
 }
 function readGuest(){
   try {
@@ -598,6 +598,32 @@ function saveState(){
   saveTimer = setTimeout(flushSave, 500);
 }
 
+// ---- deadline email reminders: server-side index ----
+// The reminder emails are sent by a scheduled Cloud Function (see /functions), not by this page.
+// To find users with a reminder due without scanning every account, each save also stores the time of
+// the next pending reminder (epoch ms) on the user document. Keep this in step with nextReminderTime()
+// in functions/lib/reminders.js.
+const REMINDER_GRACE_MS = 15 * 60 * 1000;
+function computeNextReminderAt(){
+  const d = state && state.deadlines;
+  if (!d || !Array.isArray(d.items) || (d.prefs && d.prefs.emailRem === false)) return null;
+  const now = Date.now();
+  let next = null;
+  d.items.forEach(it => {
+    if (!it || it.completedAt) return;
+    const t = new Date(it.due).getTime();
+    if (!(t > now)) return;                                   // overdue or invalid: no reminders
+    (Array.isArray(it.reminders) ? it.reminders : []).forEach(m => {
+      m = Number(m);
+      if (!(m > 0)) return;
+      const fireAt = t - m * 60000;
+      if (fireAt + REMINDER_GRACE_MS <= now) return;           // too old to be sent any more
+      if (next === null || fireAt < next) next = fireAt;
+    });
+  });
+  return next;
+}
+
 async function flushSave(){
   clearTimeout(saveTimer);
   if (!pendingSaveUid || !db) return;
@@ -606,15 +632,17 @@ async function flushSave(){
   try{
     state.schemaVersion = APP_SCHEMA_VERSION;
     state.curriculumVersion = CURRICULUM_DATA_VERSION;
+    const nextReminderAt = computeNextReminderAt();
     await db.collection('users').doc(uid).set(
-      { data: JSON.stringify(state) },
+      { data: JSON.stringify(state),
+        nextReminderAt: nextReminderAt === null ? firebase.firestore.FieldValue.delete() : nextReminderAt },
       { merge: true }
     );
     setSyncStatus('Saved ✓', 'saved');
   } catch(err){
     console.error('Save failed:', err);
     setSyncStatus('Not saved', 'error');
-    showToast('Could not save - check your connection');
+    showToast('Could not save — check your connection');
   }
 }
 
@@ -665,303 +693,530 @@ async function loadState(){
   }
 }
 
-// ---- semester planner ----
-function activeSemester(){
-  return state.planner.semesters.find(s => s.id === state.planner.activeSemesterId);
+// ---- semester roadmap planner ----
+// Visual, semester-by-semester roadmap. Data lives in state.planner (persisted with the rest of the
+// app state): { program, activeSemesterId, currentSemester, roadmapSeeded,
+//               semesters: [{ id, number, label, codes: [courseId, ...] }] }.
+// Course definitions (titles, credits, lab/project flags, prerequisites) are NOT stored here: they are
+// looked up through getCourseInfo() / prereqsOf(), i.e. the curriculum data the app already uses.
+const RM_MAX = 5;                    // max courses per semester block
+const RM_DEFAULT_BLOCKS = 4;         // upcoming blocks generated by default
+const RM_SEMESTERS_TO_GRADUATE = 12; // used only to estimate the current semester from credits earned
+const rmEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rmEl = id => document.getElementById(id);
+let rmNotice = null;                 // inline message shown in the detail panel (limits, duplicates…)
+
+function rmRequiredCredits(){ return state.planner.program === 'CSE' ? 136 : 124; }
+
+// Estimate: credits earned (CGPA tab + prior credits) divided by the typical credits per semester.
+function rmEstimateCurrent(){
+  const earned = computeStats().earnedCredits;
+  if (!(earned > 0)) return 0;                                   // nothing completed yet
+  const per = rmRequiredCredits() / RM_SEMESTERS_TO_GRADUATE;
+  return Math.floor(earned / per) + 1;
+}
+function rmCurrentSemester(){
+  const m = state.planner.currentSemester;
+  return Number.isInteger(m) && m >= 0 ? m : rmEstimateCurrent();
 }
 
+// Prerequisites come from the curriculum data (generated into curriculum-data.js from
+// src/data/curriculum.json); custom courses may carry their own `prereqs` array.
+function prereqsOf(codeId){
+  const custom = state.customCourses && state.customCourses[codeId];
+  if (custom) return Array.isArray(custom.prereqs) ? custom.prereqs : [];
+  const cur = window.GRADACUS_CURRICULUM;
+  const entry = cur && cur.courses && cur.courses[codeId];
+  return entry && Array.isArray(entry.prereqs) ? entry.prereqs : [];
+}
+
+function activeSemester(){
+  return state.planner.semesters.find(s => s.id === state.planner.activeSemesterId) || null;
+}
 function allPlacedCodes(){
   const set = new Set();
   state.planner.semesters.forEach(s => s.codes.forEach(c => set.add(c)));
   return set;
 }
+function rmSemesterOf(code){
+  return state.planner.semesters.find(s => s.codes.includes(code)) || null;
+}
+
+// Makes the stored planner data valid (older saves have only {id,label,codes}); idempotent.
+// Returns true if it just generated the default blocks.
+function rmNormalize(){
+  const pl = state.planner;
+  if (!Array.isArray(pl.semesters)) pl.semesters = [];
+  pl.semesters.forEach(s => {
+    if (!s.id) s.id = crypto.randomUUID();
+    s.codes = Array.isArray(s.codes) ? [...new Set(s.codes)] : [];
+  });
+
+  // numbers: keep valid unique ones, recover from old "Semester 3"-style labels, else append
+  const used = new Set();
+  pl.semesters.forEach(s => {
+    let n = Number.isInteger(s.number) && s.number >= 1 ? s.number : parseInt((String(s.label || '').match(/\d+/) || [])[0], 10);
+    if (!(n >= 1) || used.has(n)) n = null;
+    s.number = n;
+    if (n) used.add(n);
+  });
+  let top = Math.max(0, ...used);
+  pl.semesters.forEach(s => { if (!s.number){ s.number = ++top; used.add(s.number); } });
+
+  let seeded = false;
+  if (!pl.roadmapSeeded){
+    pl.roadmapSeeded = true;
+    if (pl.semesters.length === 0){
+      const start = rmCurrentSemester() + 1;
+      for (let i = 0; i < RM_DEFAULT_BLOCKS; i++){
+        pl.semesters.push({ id: crypto.randomUUID(), number: start + i, label: '', codes: [] });
+      }
+      pl.activeSemesterId = pl.semesters[0].id;
+      seeded = true;
+    }
+  }
+  pl.semesters.sort((a, b) => a.number - b.number);
+  pl.semesters.forEach(s => { s.label = 'Semester ' + s.number; });   // label is derived from the number
+  if (!pl.semesters.some(s => s.id === pl.activeSemesterId)) pl.activeSemesterId = null;
+  return seeded;
+}
+
+function rmStats(sem){
+  const infos = sem.codes.map(c => getCourseInfo(c));
+  return {
+    count: sem.codes.length,
+    lab: infos.filter(i => i && i.lab).length,
+    project: infos.filter(i => i && i.project).length,
+    credits: infos.reduce((sum, i) => sum + (i ? (parseFloat(i.credits) || 0) : 0), 0)
+  };
+}
 
 function renderPlanner(){
-  document.getElementById('plannerProgram').value = state.planner.program;
-  renderSemesterTabs();
-  renderSemesterCard();
-  renderPool();
+  const seeded = rmNormalize();
+  if (seeded) saveState();
+  rmEl('plannerProgram').value = state.planner.program;
+  rmRenderToolbar();
+  rmRenderTrack();
+  rmRenderDetail();
   renderPlannerSummary();
 }
 
-function renderSemesterTabs(){
-  const wrap = document.getElementById('semesterTabs');
-  wrap.innerHTML = '';
-  state.planner.semesters.forEach(sem => {
-    const total = sem.codes.reduce((sum, c) => {
-      const info = getCourseInfo(c);
-      return sum + (info?.credits || 0);
-    }, 0);
-    const tab = document.createElement('button');
-    tab.className = 'sem-tab' + (sem.id === state.planner.activeSemesterId ? ' active' : '');
-    tab.innerHTML = `${sem.label} <span class="credits">${total}cr</span>`;
-    tab.addEventListener('click', () => { state.planner.activeSemesterId = sem.id; renderPlanner(); saveState(); });
-    wrap.appendChild(tab);
-  });
-  const addBtn = document.createElement('button');
-  addBtn.className = 'add-sem-btn';
-  addBtn.textContent = '+ Add semester';
-  addBtn.addEventListener('click', () => {
-    let defaultLabel = "Semester " + (state.planner.semesters.length + 1);
-    if(state.planner.semesters.length === 0) defaultLabel = "Semester 1";
-
-    const id = crypto.randomUUID();
-    state.planner.semesters.push({ id, label: defaultLabel, codes: [] });
-    state.planner.activeSemesterId = id;
-    renderPlanner();
-    saveState();
-
-    // Jump straight into the inline rename field so the user can type
-    // the real name immediately - no popup involved.
-    setTimeout(() => {
-      const input = document.getElementById('semLabelInput');
-      if (input){ input.focus(); input.select(); }
-    }, 50);
-  });
-  wrap.appendChild(addBtn);
+function rmRenderToolbar(){
+  const cur = rmCurrentSemester();
+  const input = rmEl('rmCurrent');
+  if (document.activeElement !== input) input.value = cur;
+  const manual = Number.isInteger(state.planner.currentSemester);
+  rmEl('rmCurrentAuto').hidden = !manual;
+  const earned = round1(computeStats().earnedCredits);
+  rmEl('rmCurrentNote').textContent = manual
+    ? 'Set by you.'
+    : (earned > 0 ? `Estimated from ${earned} credits earned. Change it if this is off.` : 'No completed credits yet, so you start at Semester 1.');
 }
 
-function removeSemester(id){
+/* ---------------- roadmap track (collapsed blocks) ---------------- */
+function rmRenderTrack(){
+  const track = rmEl('rmTrack');
+  const sems = state.planner.semesters;
+  const sel = state.planner.activeSemesterId;
+  const cur = rmCurrentSemester();
+
+  let html = `<div class="rm-now" title="Your current semester"><span class="rm-now-dot"></span><span class="rm-now-label">Now</span><span class="rm-now-val">${cur ? 'Sem ' + cur : 'Start'}</span></div>`;
+  sems.forEach((sem, i) => {
+    const n = sem.codes.length, full = n >= RM_MAX;
+    const codes = sem.codes.map(c => (getCourseInfo(c) || {}).code || c);
+    const pips = Array.from({ length: RM_MAX }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('');
+    const chip = sem.number === cur ? '<span class="rm-chip-now">current</span>' : (sem.number < cur ? '<span class="rm-chip-past">earlier</span>' : '');
+    html += `
+      <div class="rm-link">${i === 0 ? '' : `<button type="button" class="rm-insert" data-insert="${sem.id}" aria-label="Insert a semester before Semester ${sem.number}" title="Insert a semester here">+</button>`}</div>
+      <article class="rm-card${sel === sem.id ? ' selected' : ''}${full ? ' full' : ''}" data-id="${sem.id}">
+        <button type="button" class="rm-card-main" data-select="${sem.id}" aria-expanded="${sel === sem.id}" aria-controls="rmDetail">
+          <span class="rm-card-top"><span class="rm-sem-label">Semester</span>${chip}</span>
+          <span class="rm-sem-num">${sem.number}</span>
+          <span class="rm-codes">${n ? codes.map(c => `<span class="rm-code">${rmEsc(c)}</span>`).join('<i class="rm-dot">·</i>') : '<span class="rm-empty">No courses yet</span>'}</span>
+          <span class="rm-card-foot"><span class="rm-count">${n} / ${RM_MAX} courses</span><span class="rm-pips" aria-hidden="true">${pips}</span></span>
+        </button>
+        <button type="button" class="rm-card-add" data-add="${sem.id}">${full ? 'Full · 5 / 5' : '+ Add course'}</button>
+      </article>`;
+  });
+  html += `<div class="rm-link"></div><button type="button" class="rm-add-card" data-add-semester>+ Add semester</button>`;
+  track.innerHTML = html;
+}
+
+/* ---------------- detail view (expanded block) ---------------- */
+function rmRenderDetail(){
+  const box = rmEl('rmDetail');
+  const sem = activeSemester();
+  if (!sem){
+    box.innerHTML = `<div class="rm-detail-empty">Select a semester block above to see its courses, totals and edit options.</div>`;
+    return;
+  }
+  const rows = sem.codes.length ? sem.codes.map(code => {
+    const c = getCourseInfo(code);
+    if (c && c.isCustom){
+      return `<div class="rm-row rm-row-custom">
+        <input class="custom-edit rm-in-code" data-id="${rmEsc(code)}" data-field="code" value="${rmEsc(c.code)}" aria-label="Course code">
+        <input class="custom-edit rm-in-name" data-id="${rmEsc(code)}" data-field="name" value="${rmEsc(c.name)}" aria-label="Course title">
+        <span class="rm-row-tags"><span class="tag custom">custom</span></span>
+        <input class="custom-edit rm-in-cr" type="number" min="0" step="0.5" data-id="${rmEsc(code)}" data-field="credits" value="${rmEsc(c.credits)}" aria-label="Credits">
+        <button type="button" class="icon-btn danger" data-remove="${rmEsc(code)}" aria-label="Remove from Semester ${sem.number}" title="Remove from this semester">✕</button>
+      </div>`;
+    }
+    const tags = `${c && c.lab ? '<span class="tag lab" title="Runs with a lab component">lab</span>' : ''}${c && c.project ? '<span class="tag project" title="Project-centered course">project</span>' : ''}`;
+    return `<div class="rm-row">
+      <span class="rm-row-code">${rmEsc(c ? c.code : code)}</span>
+      <span class="rm-row-title">${rmEsc(c ? c.name : 'Unknown course')}</span>
+      <span class="rm-row-tags">${tags}</span>
+      <span class="rm-row-cr">${c ? c.credits : 0} cr</span>
+      <button type="button" class="icon-btn danger" data-remove="${rmEsc(code)}" aria-label="Remove ${rmEsc(c ? c.code : code)} from Semester ${sem.number}" title="Remove from this semester">✕</button>
+    </div>`;
+  }).join('') : `<div class="rm-detail-empty">This semester is empty. Use “Add course” to plan it.</div>`;
+
+  box.innerHTML = `
+    <div class="rm-detail-head">
+      <label class="rm-num-label">Semester
+        <input type="number" id="rmNumInput" min="1" step="1" value="${sem.number}" aria-label="Semester number">
+      </label>
+      <div class="rm-detail-actions">
+        <button type="button" class="btn small" id="rmDetailAdd">+ Add course</button>
+        <button type="button" class="btn small ghost danger" id="rmDetailDelete">Delete semester</button>
+      </div>
+    </div>
+    <div class="rm-alert" id="rmAlert" role="status" aria-live="polite" ${rmNotice ? '' : 'hidden'}>${rmEsc(rmNotice || '')}</div>
+    <div class="rm-rows">${rows}</div>
+    <div id="rmSummary">${rmSummaryHtml(sem)}</div>`;
+}
+
+function rmSummaryHtml(sem){
+  const s = rmStats(sem);
+  return `<h4 class="rm-sum-title">Summary</h4>
+    <div class="rm-sum">
+      <div class="stat"><div class="label">Courses</div><div class="val">${s.count} / ${RM_MAX}</div></div>
+      <div class="stat"><div class="label">Lab courses</div><div class="val">${s.lab}</div></div>
+      <div class="stat"><div class="label">Project courses</div><div class="val">${s.project}</div></div>
+      <div class="stat"><div class="label">Total credits</div><div class="val">${round1(s.credits)}</div></div>
+    </div>`;
+}
+
+function rmNotify(msg){
+  rmNotice = msg;
+  rmRenderDetail();
+  showToast(msg);
+}
+
+/* ---------------- semester actions ---------------- */
+function rmSelect(id, { toggle = false } = {}){
+  rmNotice = null;
+  state.planner.activeSemesterId = (toggle && state.planner.activeSemesterId === id) ? null : id;
+  renderPlanner();
+  saveState();
+  const card = document.querySelector(`.rm-card[data-id="${id}"]`);
+  if (card && card.scrollIntoView) card.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+}
+
+function rmAddSemester(){
+  rmNotice = null;
+  const sems = state.planner.semesters;
+  const number = sems.length ? Math.max(...sems.map(s => s.number)) + 1 : rmCurrentSemester() + 1;
+  const sem = { id: crypto.randomUUID(), number, label: 'Semester ' + number, codes: [] };
+  sems.push(sem);
+  state.planner.activeSemesterId = sem.id;
+  renderPlanner();
+  saveState();
+  showToast(`Added Semester ${number}`);
+  const card = document.querySelector(`.rm-card[data-id="${sem.id}"]`);
+  if (card && card.scrollIntoView) card.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+}
+
+// Insert a block in front of `beforeId`: use the first free number after the previous block, or shift
+// the later blocks up by one when the numbers are consecutive.
+function rmInsertBefore(beforeId){
+  rmNotice = null;
+  const sems = state.planner.semesters;
+  const idx = sems.findIndex(s => s.id === beforeId);
+  if (idx < 0) return;
+  const prev = sems[idx - 1];
+  const candidate = (prev ? prev.number : sems[idx].number - 1) + 1;
+  let shifted = false;
+  if (sems.some(s => s.number === candidate)){
+    sems.forEach(s => { if (s.number >= candidate) s.number += 1; });
+    shifted = true;
+  }
+  const sem = { id: crypto.randomUUID(), number: candidate, label: 'Semester ' + candidate, codes: [] };
+  sems.push(sem);
+  state.planner.activeSemesterId = sem.id;
+  renderPlanner();
+  saveState();
+  showToast(shifted ? `Inserted Semester ${candidate}. Later semesters moved up by one.` : `Inserted Semester ${candidate}`);
+}
+
+function rmChangeNumber(raw){
+  const sem = activeSemester();
+  if (!sem) return;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1){
+    rmNotify('Enter a whole semester number of 1 or more.');
+    rmEl('rmNumInput').value = sem.number;
+    return;
+  }
+  if (n === sem.number) return;
+  const clash = state.planner.semesters.find(s => s.id !== sem.id && s.number === n);
+  if (clash){
+    rmNotice = `Semester ${n} already exists in your roadmap. Choose a different number.`;
+    renderPlanner();
+    showToast(rmNotice);
+    return;
+  }
+  rmNotice = null;
+  sem.number = n;                       // only the label/order changes; courses stay with the block
+  renderPlanner();
+  saveState();
+  showToast(`Renumbered to Semester ${n}`);
+}
+
+function rmDeleteSemester(id){
   const sems = state.planner.semesters;
   const idx = sems.findIndex(s => s.id === id);
-  if (idx === -1) return;
-  const [removed] = sems.splice(idx, 1);
+  if (idx < 0) return;
+  const [removed] = sems.splice(idx, 1);             // only the roadmap block goes; course data is untouched
   if (state.planner.activeSemesterId === id){
     const next = sems[idx] || sems[idx - 1] || null;
     state.planner.activeSemesterId = next ? next.id : null;
   }
+  rmNotice = null;
   renderPlanner();
   saveState();
-  showToast(`Removed “${removed.label || 'semester'}”`);
+  showToast(`Deleted Semester ${removed.number}`);
 }
 
-function renderSemesterCard(){
+function rmRequestDelete(id){
+  const sem = state.planner.semesters.find(s => s.id === id);
+  if (!sem) return;
+  if (sem.codes.length === 0){ rmDeleteSemester(id); return; }
+  const m = rmOpenModal({
+    title: `Delete Semester ${sem.number}?`,
+    body: `<p>Semester ${sem.number} has <b>${sem.codes.length}</b> planned course${sem.codes.length === 1 ? '' : 's'}
+      (${sem.codes.map(c => rmEsc((getCourseInfo(c) || {}).code || c)).join(', ')}).</p>
+      <p>Deleting it removes this block and its plan from your roadmap. The courses themselves are not deleted and can be added to another semester.</p>`,
+    footer: `<button type="button" class="btn ghost" data-act="cancel">Cancel</button><button type="button" class="btn danger" data-act="delete">Delete semester</button>`,
+    focus: '[data-act="cancel"]'
+  });
+  m.q('[data-act="cancel"]').addEventListener('click', m.close);
+  m.q('[data-act="delete"]').addEventListener('click', () => { m.close(); rmDeleteSemester(id); });
+}
+
+function rmRemoveCourse(code){
   const sem = activeSemester();
-  const card = document.getElementById('semesterCard');
-  if (!sem){ 
-    card.innerHTML = `<div class="semester-empty" style="padding:40px 0;">No semester selected. Click "+ Add semester" to start planning.</div>`;
-    return; 
+  if (!sem) return;
+  const i = sem.codes.indexOf(code);
+  if (i < 0) return;
+  sem.codes.splice(i, 1);
+  rmNotice = null;
+  renderPlanner();
+  saveState();
+  showToast(`Removed ${(getCourseInfo(code) || {}).code || code} from Semester ${sem.number}`);
+}
+
+/* ---------------- adding a course ---------------- */
+function rmMaxMessage(sem){
+  return `Semester ${sem.number} already has the maximum of ${RM_MAX} courses. Remove one before adding another.`;
+}
+
+// The only place a course is actually added — re-checks every rule.
+function rmAddCourseToSemester(sem, code){
+  if (sem.codes.length >= RM_MAX){ rmNotify(rmMaxMessage(sem)); return false; }
+  if (sem.codes.includes(code)){ rmNotify(`${(getCourseInfo(code) || {}).code || code} is already in Semester ${sem.number}.`); return false; }
+  const elsewhere = rmSemesterOf(code);
+  if (elsewhere){ rmNotify(`${(getCourseInfo(code) || {}).code || code} is already planned in Semester ${elsewhere.number}.`); return false; }
+  sem.codes.push(code);
+  rmNotice = null;
+  state.planner.activeSemesterId = sem.id;
+  renderPlanner();
+  saveState();
+  showToast(`Added ${(getCourseInfo(code) || {}).code || code} to Semester ${sem.number}`);
+  return true;
+}
+
+function rmPrereqStatus(prereqCode, sem){
+  const key = String(prereqCode).trim().toUpperCase();
+  const done = state.courses.some(c => {
+    if (c.replaced || String(c.code || '').trim().toUpperCase() !== key) return false;
+    const g = gradeFromLetter(c.grade);
+    return g && g.point > 0;
+  });
+  if (done) return { kind: 'done', text: 'Graded on your CGPA tab' };
+  const planned = rmSemesterOf(prereqCode);
+  if (planned){
+    return planned.number < sem.number
+      ? { kind: 'planned', text: `Planned in Semester ${planned.number}` }
+      : { kind: 'late', text: `Planned in Semester ${planned.number}, not before this one` };
   }
+  return { kind: 'none', text: 'No record in Gradacus' };
+}
 
-  const total = sem.codes.reduce((sum, c) => {
-    const info = getCourseInfo(c);
-    return sum + (info?.credits || 0);
-  }, 0);
-  
-  const totalClass = total > 18 ? 'over' : (total >= 12 && total <= 18 ? 'ok' : 'warn');
+function rmOpenPrereqConfirm(sem, code, prereqs, onAdded){
+  const info = getCourseInfo(code) || { code, name: '' };
+  const items = prereqs.map(p => {
+    const pi = getCourseInfo(p);
+    const st = rmPrereqStatus(p, sem);
+    return `<li class="rm-prereq"><span class="rm-prereq-code">${rmEsc(p)}</span>
+      <span class="rm-prereq-title">${rmEsc(pi ? pi.name : 'Title not available')}</span>
+      <span class="rm-chip ${st.kind}">${rmEsc(st.text)}</span></li>`;
+  }).join('');
+  const many = prereqs.length > 1;
+  const m = rmOpenModal({
+    title: 'Prerequisites required',
+    body: `<div class="rm-sel"><b>${rmEsc(info.code)}</b> <span>${rmEsc(info.name)}</span></div>
+      <p class="rm-mlabel">Required prerequisite course${many ? 's' : ''}${many ? ` (${prereqs.length})` : ''}</p>
+      <ul class="rm-prereqs">${items}</ul>
+      <p class="rm-warn">Only add this course if you have <b>already completed ${many ? 'all of these prerequisites' : 'this prerequisite'}</b>.
+      Gradacus can’t check this for you. Choosing “Confirm &amp; Add” means you confirm that you have completed ${many ? 'them' : 'it'}.</p>`,
+    footer: `<button type="button" class="btn ghost" data-act="cancel">Cancel</button><button type="button" class="btn" data-act="ok">Confirm &amp; Add</button>`,
+    focus: '[data-act="cancel"]'
+  });
+  m.q('[data-act="cancel"]').addEventListener('click', m.close);
+  m.q('[data-act="ok"]').addEventListener('click', () => {
+    m.close();
+    if (rmAddCourseToSemester(sem, code) && onAdded) onAdded();
+  });
+}
 
-  let rows = '';
-  if (sem.codes.length === 0){
-    rows = `<div class="semester-empty">No courses yet - add some from the list on the left.</div>`;
-  } else {
-    rows = sem.codes.map((codeId, idx) => {
-      const c = getCourseInfo(codeId);
-      
-      if (c && c.isCustom) {
-        return `
-          <div class="sem-course-row">
-            <div style="display:flex; gap:8px; flex:1; align-items:center;">
-              <input class="custom-edit code-input mono" data-field="code" data-id="${codeId}" value="${c.code}" placeholder="Code">
-              <input class="custom-edit name-input" data-field="name" data-id="${codeId}" value="${c.name}" placeholder="Course Name">
-              <input class="custom-edit credit-input mono" data-field="credits" data-id="${codeId}" type="number" step="0.5" min="0" value="${c.credits}">
-            </div>
-            <div class="sem-course-actions" style="margin-left:8px;">
-              <button class="icon-btn" data-planner-action="up" data-code="${codeId}" ${idx===0?'disabled':''} title="Move up">↑</button>
-              <button class="icon-btn" data-planner-action="down" data-code="${codeId}" ${idx===sem.codes.length-1?'disabled':''} title="Move down">↓</button>
-              <button class="icon-btn danger" data-planner-action="remove" data-code="${codeId}" title="Remove from semester">✕</button>
-            </div>
-          </div>`;
-      } else {
-        const compBadges = c ? `${c.lab ? '<span class="tag lab" title="Runs with a lab component">lab</span>' : ''}${c.project ? '<span class="tag project" title="Project-centered course">project</span>' : ''}` : '';
-        return `
-          <div class="sem-course-row">
-            <div>
-              <span class="code">${c ? c.code : codeId}</span>
-              <span class="name">${c ? c.name : 'Unknown course'}</span>
-              ${compBadges}
-            </div>
-            <div class="sem-course-actions">
-              <button class="icon-btn" data-planner-action="up" data-code="${codeId}" ${idx===0?'disabled':''} title="Move up">↑</button>
-              <button class="icon-btn" data-planner-action="down" data-code="${codeId}" ${idx===sem.codes.length-1?'disabled':''} title="Move down">↓</button>
-              <button class="icon-btn danger" data-planner-action="remove" data-code="${codeId}" title="Remove from semester">✕</button>
-            </div>
-          </div>`;
-      }
+function rmChooseCourse(semId, code, onAdded){
+  const sem = state.planner.semesters.find(s => s.id === semId);
+  if (!sem) return;
+  if (sem.codes.length >= RM_MAX){ rmNotify(rmMaxMessage(sem)); if (onAdded) onAdded(true); return; }
+  const prereqs = prereqsOf(code);
+  if (prereqs.length === 0){
+    if (rmAddCourseToSemester(sem, code) && onAdded) onAdded();
+    return;
+  }
+  rmOpenPrereqConfirm(sem, code, prereqs, onAdded);
+}
+
+function rmOpenPicker(semId){
+  let sem = state.planner.semesters.find(s => s.id === semId);
+  if (!sem) return;
+  if (sem.codes.length >= RM_MAX){
+    state.planner.activeSemesterId = sem.id;
+    renderPlanner();
+    rmNotify(rmMaxMessage(sem));
+    return;
+  }
+  state.planner.activeSemesterId = sem.id;
+  rmNotice = null;
+  renderPlanner();
+
+  const m = rmOpenModal({
+    title: `Add course to Semester ${sem.number}`,
+    wide: true,
+    body: `<div class="rm-pick-filters">
+        <input type="search" id="rmPickSearch" placeholder="Search course or code…" aria-label="Search courses">
+        <select id="rmPickCat" aria-label="Category">
+          <option value="all">All</option><option value="core">Core</option><option value="elective">Elective</option>
+          <option value="foundation">Foundation</option><option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="rm-alert" id="rmPickBanner" role="status" aria-live="polite" hidden></div>
+      <div class="rm-pick-list" id="rmPickList"></div>`,
+    footer: `<button type="button" class="btn ghost" data-act="custom">+ Custom course</button>
+      <span class="rm-spacer"></span><span class="rm-pick-count" id="rmPickCount"></span>
+      <button type="button" class="btn" data-act="done">Done</button>`,
+    focus: '#rmPickSearch'
+  });
+
+  const banner = m.q('#rmPickBanner');
+  const showBanner = msg => { banner.textContent = msg; banner.hidden = !msg; };
+
+  function renderList(){
+    sem = state.planner.semesters.find(s => s.id === semId);
+    if (!sem){ m.close(); return; }
+    const full = sem.codes.length >= RM_MAX;
+    m.q('#rmPickCount').textContent = `${sem.codes.length} / ${RM_MAX} in Semester ${sem.number}`;
+    if (full) showBanner(rmMaxMessage(sem));
+    const search = m.q('#rmPickSearch').value.trim().toLowerCase();
+    const cat = m.q('#rmPickCat').value;
+    const placed = allPlacedCodes();
+
+    const pool = getPoolForProgram(state.planner.program).filter(i => !placed.has(i.code));
+    let items = pool;
+    if (cat !== 'all') items = items.filter(i => i.tag === cat);
+    if (search) items = items.filter(i => {
+      const info = getCourseInfo(i.code);
+      return (info ? info.code : i.code).toLowerCase().includes(search) || (info && String(info.name).toLowerCase().includes(search));
+    });
+    items.sort((a, b) => ((getCourseInfo(a.code) || {}).code || a.code).localeCompare((getCourseInfo(b.code) || {}).code || b.code));
+
+    const list = m.q('#rmPickList');
+    if (items.length === 0){
+      list.innerHTML = `<div class="rm-detail-empty">${pool.length === 0
+        ? 'No courses are available to add. Every course in this list is already planned in your roadmap.'
+        : 'No courses match your search.'}</div>`;
+      return;
+    }
+    const doneCodes = new Set(state.courses.filter(c => { const g = gradeFromLetter(c.grade); return !c.replaced && g && g.point > 0; })
+      .map(c => String(c.code || '').trim().toUpperCase()));
+    list.innerHTML = items.map(i => {
+      const info = getCourseInfo(i.code) || { code: i.code, name: 'Unknown', credits: 3 };
+      const np = prereqsOf(i.code).length;
+      const completed = doneCodes.has(String(info.code).toUpperCase());
+      return `<div class="rm-pick-item${full ? ' is-full' : ''}">
+        <div class="rm-pick-info">
+          <div class="rm-pick-line">
+            <span class="code">${rmEsc(info.code)}</span>
+            <span class="tag ${rmEsc(i.tag)}">${rmEsc(i.tag)}</span>
+            ${info.lab ? '<span class="tag lab">lab</span>' : ''}${info.project ? '<span class="tag project">project</span>' : ''}
+            <span class="credit-badge">${info.credits}cr</span>
+            ${np ? `<span class="rm-prq" title="Has prerequisites">${np} prerequisite${np === 1 ? '' : 's'}</span>` : ''}
+            ${completed ? '<span class="rm-prq done" title="Already graded on your CGPA tab">completed</span>' : ''}
+          </div>
+          <div class="name">${rmEsc(info.name)}</div>
+        </div>
+        <div class="pool-actions">
+          <button type="button" class="btn small" data-pick="${rmEsc(i.code)}">+ Add</button>
+          ${i.tag === 'custom' ? `<button type="button" class="icon-btn text-btn danger" data-delete-custom="${rmEsc(i.code)}">Delete</button>` : ''}
+        </div>
+      </div>`;
     }).join('');
   }
 
-  card.innerHTML = `
-    <div class="semester-card-head">
-      <input class="rename-input" id="semLabelInput" value="${sem.label}" title="Rename this semester">
-      <div class="head-right">
-        <span class="credit-total ${totalClass}">${total} credits</span>
-        <button class="icon-btn text-btn danger" id="removeSemBtn" title="Delete this semester (courses go back to the list)">Remove semester</button>
-      </div>
-    </div>
-    ${rows}
-  `;
+  m.q('#rmPickSearch').addEventListener('input', renderList);
+  m.q('#rmPickCat').addEventListener('change', renderList);
+  m.q('[data-act="done"]').addEventListener('click', m.close);
 
-  // Two-step remove: first click arms it, second click (within 3s) confirms.
-  // Empty semesters are removed immediately.
-  const removeBtn = document.getElementById('removeSemBtn');
-  let armed = false, armTimer = null;
-  removeBtn.addEventListener('click', () => {
-    if (sem.codes.length > 0 && !armed){
-      armed = true;
-      removeBtn.textContent = 'Click again to confirm';
-      removeBtn.classList.add('armed');
-      armTimer = setTimeout(() => {
-        armed = false;
-        removeBtn.textContent = 'Remove semester';
-        removeBtn.classList.remove('armed');
-      }, 3000);
+  m.q('#rmPickList').addEventListener('click', e => {
+    const pick = e.target.closest('[data-pick]');
+    const del = e.target.closest('[data-delete-custom]');
+    if (pick){
+      showBanner('');
+      rmChooseCourse(semId, pick.dataset.pick, full => { if (!full) showBanner(''); renderList(); });
       return;
     }
-    clearTimeout(armTimer);
-    removeSemester(sem.id);
+    if (del){
+      if (!del.classList.contains('armed')){
+        del.classList.add('armed'); del.textContent = 'Confirm?';
+        setTimeout(() => { del.classList.remove('armed'); del.textContent = 'Delete'; }, 3000);
+        return;
+      }
+      deleteCustomCourse(del.dataset.deleteCustom);
+      renderList();
+    }
   });
 
-  document.getElementById('semLabelInput').addEventListener('input', e => {
-    sem.label = e.target.value;
-    renderSemesterTabs();
+  m.q('[data-act="custom"]').addEventListener('click', () => {
+    sem = state.planner.semesters.find(s => s.id === semId);
+    if (!sem) return;
+    if (sem.codes.length >= RM_MAX){ showBanner(rmMaxMessage(sem)); return; }
+    if (!state.customCourses) state.customCourses = {};
+    const id = 'CUST_' + crypto.randomUUID();
+    state.customCourses[id] = { code: 'CUSTOM', name: 'Click here to edit name', credits: 3, tag: 'custom', isCustom: true };
+    sem.codes.push(id);
+    state.planner.activeSemesterId = sem.id;
+    m.close();
+    renderPlanner();
     saveState();
-  });
-  
-  // Attach event listeners for inline custom course edits
-  card.querySelectorAll('.custom-edit').forEach(input => {
-    input.addEventListener('input', e => {
-      const id = e.target.dataset.id;
-      const field = e.target.dataset.field;
-      let val = e.target.value;
-      if (field === 'credits') val = parseFloat(val) || 0;
-      
-      if (state.customCourses[id]) {
-        state.customCourses[id][field] = val;
-        saveState();
-        
-        if (field === 'credits') {
-            renderSemesterTabs(); 
-            renderPlannerSummary();
-            const currentSem = activeSemester();
-            const newTotal = currentSem.codes.reduce((sum, cId) => sum + (getCourseInfo(cId)?.credits || 0), 0);
-            const headerTotal = card.querySelector('.credit-total');
-            if (headerTotal) {
-                headerTotal.textContent = newTotal + ' credits';
-                headerTotal.className = 'credit-total ' + (newTotal > 18 ? 'over' : (newTotal >= 12 && newTotal <= 18 ? 'ok' : 'warn'));
-            }
-        }
-        
-        // Render the pool to reflect the name/code changes there
-        renderPool(); 
-      }
-    });
+    setTimeout(() => { const inp = document.querySelector('#rmDetail .rm-in-code'); if (inp){ inp.focus(); inp.select(); } }, 60);
   });
 
-  card.querySelectorAll('[data-planner-action]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const code = btn.dataset.code;
-      const action = btn.dataset.plannerAction;
-      const idx = sem.codes.indexOf(code);
-      if (action === 'remove'){
-        sem.codes.splice(idx, 1);
-      } else if (action === 'up' && idx > 0){
-        [sem.codes[idx-1], sem.codes[idx]] = [sem.codes[idx], sem.codes[idx-1]];
-      } else if (action === 'down' && idx < sem.codes.length - 1){
-        [sem.codes[idx+1], sem.codes[idx]] = [sem.codes[idx], sem.codes[idx+1]];
-      }
-      renderPlanner();
-      saveState();
-    });
-  });
-}
-
-function renderPool(){
-  const search = (document.getElementById('poolSearch').value || '').trim().toLowerCase();
-  const category = document.getElementById('poolCategory').value;
-  const sort = document.getElementById('poolSort').value;
-  const placed = allPlacedCodes();
-
-  let items = getPoolForProgram(state.planner.program);
-  
-  if (category !== 'all') {
-    items = items.filter(i => i.tag === category);
-  }
-  
-  if (search){
-    items = items.filter(i => {
-      const info = getCourseInfo(i.code);
-      const displayCode = (info?.code || i.code).toLowerCase();
-      return displayCode.includes(search) || (info && info.name.toLowerCase().includes(search));
-    });
-  }
-  
-  items.sort((a, b) => {
-    if (sort === 'name') return (getCourseInfo(a.code)?.name || '').localeCompare(getCourseInfo(b.code)?.name || '');
-    return a.code.localeCompare(b.code);
-  });
-
-  const list = document.getElementById('poolList');
-  if (items.length === 0){
-    list.innerHTML = `<div class="pool-item"><span class="name">No courses match.</span></div>`;
-    return;
-  }
-
-  list.innerHTML = items.map(i => {
-    const info = getCourseInfo(i.code) || { name:'Unknown', credits:3, code: i.code };
-    const displayCode = info.code || i.code;
-    const isPlaced = placed.has(i.code);
-    const compBadges = `${info.lab ? '<span class="tag lab" title="Runs with a lab component">lab</span>' : ''}${info.project ? '<span class="tag project" title="Project-centered course">project</span>' : ''}`;
-    return `
-      <div class="pool-item ${isPlaced ? 'placed' : ''}">
-        <div class="info">
-          <span class="code">${displayCode}</span>
-          <span class="tag ${i.tag}">${i.tag}</span>
-          ${compBadges}
-          <span class="credit-badge">${info.credits}cr</span>
-          <div class="name">${info.name}</div>
-        </div>
-        <div class="pool-actions">
-          <button class="btn small" data-add-code="${i.code}" ${isPlaced ? 'disabled' : ''}>${isPlaced ? 'Added' : '+ Add'}</button>
-          ${i.tag === 'custom' ? `<button class="icon-btn text-btn danger" data-delete-custom="${i.code}" title="Delete this custom course">Delete</button>` : ''}
-        </div>
-      </div>`;
-  }).join('');
-
-  // Two-step delete: first click arms the button, second click (within 3s) confirms.
-  list.querySelectorAll('[data-delete-custom]').forEach(btn => {
-    let armed = false, timer = null;
-    btn.addEventListener('click', () => {
-      if (!armed){
-        armed = true;
-        btn.textContent = 'Confirm?';
-        btn.classList.add('armed');
-        timer = setTimeout(() => {
-          armed = false;
-          btn.textContent = 'Delete';
-          btn.classList.remove('armed');
-        }, 3000);
-        return;
-      }
-      clearTimeout(timer);
-      deleteCustomCourse(btn.dataset.deleteCustom);
-    });
-  });
-
-  list.querySelectorAll('[data-add-code]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const sem = activeSemester();
-      if (!sem) {
-        showToast("Please add or select a semester first.");
-        return;
-      }
-      const code = btn.dataset.addCode;
-      if (!sem.codes.includes(code)){
-        sem.codes.push(code);
-        renderPlanner();
-        saveState();
-      }
-    });
-  });
+  renderList();
 }
 
 // Delete a custom course entirely (also pulls it out of any semester it was placed in).
@@ -969,41 +1224,111 @@ function deleteCustomCourse(id){
   const info = state.customCourses && state.customCourses[id];
   if (!info) return;
   delete state.customCourses[id];
-  state.planner.semesters.forEach(sem => {
-    sem.codes = sem.codes.filter(c => c !== id);
-  });
+  state.planner.semesters.forEach(sem => { sem.codes = sem.codes.filter(c => c !== id); });
   renderPlanner();
   saveState();
   showToast(`Deleted custom course ${info.code || ''}`.trim());
 }
 
-// Add Custom Course Logic
-document.getElementById('addCustomCourseBtn').addEventListener('click', () => {
-  const sem = activeSemester();
-  if (!sem) {
-    showToast("Please add or select a semester first.");
-    return;
+/* ---------------- modal helper (stackable, Esc closes the top one) ---------------- */
+const rmModalStack = [];
+function rmOpenModal({ title, body, footer, wide, focus }){
+  const prevFocus = document.activeElement;
+  const uid = 'rmM' + Math.random().toString(36).slice(2, 8);
+  const overlay = document.createElement('div');
+  overlay.className = 'rm-modal';
+  overlay.innerHTML = `<div class="rm-mbox${wide ? ' wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="${uid}">
+      <div class="rm-mhead"><h3 id="${uid}">${rmEsc(title)}</h3><button type="button" class="icon-btn" data-x aria-label="Close">✕</button></div>
+      <div class="rm-mbody">${body}</div>${footer ? `<div class="rm-mfoot">${footer}</div>` : ''}
+    </div>`;
+  document.body.appendChild(overlay);
+  document.body.classList.add('rm-modal-open');
+  let closed = false;
+  const api = {
+    el: overlay,
+    q: sel => overlay.querySelector(sel),
+    close(){
+      if (closed) return;
+      closed = true;
+      const i = rmModalStack.indexOf(api);
+      if (i >= 0) rmModalStack.splice(i, 1);
+      overlay.remove();
+      if (!rmModalStack.length) document.body.classList.remove('rm-modal-open');
+      if (prevFocus && prevFocus.focus && document.contains(prevFocus)) prevFocus.focus();
+    }
+  };
+  rmModalStack.push(api);
+  overlay.addEventListener('mousedown', e => { if (e.target === overlay) api.close(); });
+  overlay.querySelector('[data-x]').addEventListener('click', api.close);
+  const first = (focus && overlay.querySelector(focus)) || overlay.querySelector('button, input, select');
+  if (first) setTimeout(() => first.focus(), 0);
+  return api;
+}
+document.addEventListener('keydown', e => {
+  if (!rmModalStack.length) return;
+  const top = rmModalStack[rmModalStack.length - 1];
+  if (e.key === 'Escape'){ e.preventDefault(); top.close(); return; }
+  if (e.key === 'Tab'){                                   // keep focus inside the dialog
+    const f = Array.from(top.el.querySelectorAll('button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])'));
+    if (!f.length) return;
+    const a = f[0], z = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); }
+    else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); }
   }
-  
-  if(!state.customCourses) state.customCourses = {};
-  
-  const id = 'CUST_' + crypto.randomUUID();
-  state.customCourses[id] = { code: 'CUSTOM', name: 'Click here to edit name', credits: 3, tag: 'custom', isCustom: true };
-  
-  sem.codes.push(id);
-  
-  // Refresh the planner view to show the new inline editable inputs in the active semester
+});
+
+/* ---------------- events ---------------- */
+rmEl('rmTrack').addEventListener('click', e => {
+  const sel = e.target.closest('[data-select]');
+  const add = e.target.closest('[data-add]');
+  const ins = e.target.closest('[data-insert]');
+  const addSem = e.target.closest('[data-add-semester]');
+  if (add) return rmOpenPicker(add.dataset.add);
+  if (sel) return rmSelect(sel.dataset.select, { toggle: true });
+  if (ins) return rmInsertBefore(ins.dataset.insert);
+  if (addSem) return rmAddSemester();
+});
+
+rmEl('rmDetail').addEventListener('click', e => {
+  const sem = activeSemester();
+  if (!sem) return;
+  if (e.target.closest('#rmDetailAdd')) return rmOpenPicker(sem.id);
+  if (e.target.closest('#rmDetailDelete')) return rmRequestDelete(sem.id);
+  const rem = e.target.closest('[data-remove]');
+  if (rem) rmRemoveCourse(rem.dataset.remove);
+});
+rmEl('rmDetail').addEventListener('change', e => {
+  if (e.target.id === 'rmNumInput') rmChangeNumber(e.target.value);
+});
+rmEl('rmDetail').addEventListener('keydown', e => {
+  if (e.target.id === 'rmNumInput' && e.key === 'Enter'){ e.preventDefault(); e.target.blur(); }
+});
+// inline edits of custom courses (title / code / credits) — update totals without rebuilding the rows
+rmEl('rmDetail').addEventListener('input', e => {
+  const input = e.target.closest('.custom-edit');
+  if (!input) return;
+  const { id, field } = input.dataset;
+  if (!state.customCourses || !state.customCourses[id]) return;
+  state.customCourses[id][field] = field === 'credits' ? (parseFloat(input.value) || 0) : input.value;
+  saveState();
+  rmRenderTrack();
+  const sem = activeSemester();
+  if (sem) rmEl('rmSummary').innerHTML = rmSummaryHtml(sem);
+  renderPlannerSummary();
+});
+
+rmEl('rmAddSemester').addEventListener('click', rmAddSemester);
+rmEl('rmCurrent').addEventListener('change', e => {
+  const n = parseInt(e.target.value, 10);
+  if (!Number.isInteger(n) || n < 0){ rmEl('rmCurrent').value = rmCurrentSemester(); return; }
+  state.planner.currentSemester = n;
   renderPlanner();
   saveState();
-  
-  // Auto-focus the new course code input if possible
-  setTimeout(() => {
-    const newInput = document.querySelector(`.custom-edit.code-input[data-id="${id}"]`);
-    if (newInput) {
-        newInput.focus();
-        newInput.select();
-    }
-  }, 50);
+});
+rmEl('rmCurrentAuto').addEventListener('click', () => {
+  state.planner.currentSemester = null;
+  renderPlanner();
+  saveState();
 });
 
 function renderPlannerSummary(){
@@ -1015,7 +1340,7 @@ function renderPlannerSummary(){
       return s2 + (info?.credits || 0);
     }, 0), 0);
 
-  const required = state.planner.program === 'CSE' ? 136 : 124;
+  const required = rmRequiredCredits();
   const remaining = Math.max(required - completed - planned, 0);
 
   const completedEl = document.getElementById('plannerCompleted');
@@ -1030,9 +1355,6 @@ document.getElementById('plannerProgram').addEventListener('change', e => {
   renderPlanner();
   saveState();
 });
-document.getElementById('poolSearch').addEventListener('input', renderPool);
-document.getElementById('poolCategory').addEventListener('change', renderPool);
-document.getElementById('poolSort').addEventListener('change', renderPool);
 
 
 // Swap default courses when the degree changes. Only rows that are clearly
@@ -1065,7 +1387,7 @@ document.getElementById('program').addEventListener('change', e => {
   const parts = [];
   if (added) parts.push(`${added} added`);
   if (removed) parts.push(`${removed} removed`);
-  showToast(parts.length ? `Degree switched - ${parts.join(', ')}` : 'Degree switched');
+  showToast(parts.length ? `Degree switched — ${parts.join(', ')}` : 'Degree switched');
 });
 
 document.getElementById('loadDefaultCoursesBtn').addEventListener('click', () => {
@@ -1147,7 +1469,7 @@ document.getElementById('importFile').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
   e.target.value = '';
   if (!file) return;
-  try { await importStateFile(file); } catch(err) { console.error(err); showToast('Import failed - invalid backup file'); }
+  try { await importStateFile(file); } catch(err) { console.error(err); showToast('Import failed — invalid backup file'); }
 });
 
 let authMode = 'login';
@@ -1202,7 +1524,7 @@ async function submitAuth(){
 
   submitBtn.disabled = true;
   // Any auth-state change from here on is the direct result of this click, not
-  // a session Firebase silently restored on page load - so it should never
+  // a session Firebase silently restored on page load — so it should never
   // trigger the old-session migration sign-out below.
   justSignedIn = true;
   try{
@@ -1233,7 +1555,7 @@ document.getElementById('authForgotBtn').addEventListener('click', async () => {
   if (!email){ setAuthMessage('Enter your email above first, then click "Forgot password?".'); return; }
   try{
     await auth.sendPasswordResetEmail(email);
-    setAuthMessage('Password reset email sent - check your inbox (and spam).', true);
+    setAuthMessage('Password reset email sent — check your inbox (and spam).', true);
   } catch(err){
     console.error('Reset error:', err);
     setAuthMessage(friendlyAuthError(err));
@@ -1255,7 +1577,7 @@ function friendlyAuthError(err){
     'auth/user-not-found': 'No account found with that email.',
     'auth/wrong-password': 'Incorrect password.',
     'auth/invalid-credential': 'Incorrect email or password.',
-    'auth/email-already-in-use': 'An account with that email already exists - try logging in instead.',
+    'auth/email-already-in-use': 'An account with that email already exists — try logging in instead.',
     'auth/weak-password': 'Password should be at least 6 characters.',
     'auth/user-disabled': 'This account has been disabled.',
     'auth/too-many-requests': 'Too many attempts. Wait a few minutes and try again.',
@@ -1263,7 +1585,7 @@ function friendlyAuthError(err){
     'auth/operation-not-allowed': 'Email/password sign-in is not enabled for this Firebase project.',
     'auth/unauthorized-domain': "This site's domain isn't in Firebase's authorised domains list.",
     'auth/invalid-api-key': 'The Firebase API key is invalid.',
-    'auth/operation-not-supported-in-this-environment': 'Sign-in needs the page to be served over http(s) with browser storage enabled - it will not work from a local file.',
+    'auth/operation-not-supported-in-this-environment': 'Sign-in needs the page to be served over http(s) with browser storage enabled — it will not work from a local file.',
   };
   return map[err && err.code] || `Something went wrong (${(err && err.code) || 'unknown error'}). Please try again.`;
 }
@@ -1344,6 +1666,7 @@ async function enterApp(user){
   document.getElementById('appRoot').style.display = 'block';
   document.getElementById('userEmail').textContent = user.email;
   setUserBar('user');
+  if (ok && !adopted) saveState();     // refreshes the server-side reminder index (nextReminderAt) and saved time zone
   if (adopted){ saveState(); clearGuest(); showToast('Your guest data was moved into your new account'); }
   document.getElementById('loadBanner').style.display = ok ? 'none' : 'flex';
   setSyncStatus(ok ? 'Saved ✓' : 'Not saved', ok ? 'saved' : 'error');
@@ -1359,7 +1682,7 @@ if (auth){
   auth.onAuthStateChanged(user => {
     if (user){
       if (!sessionMigrationDone && !justSignedIn){
-        // This user wasn't just typed in - Firebase restored them from a
+        // This user wasn't just typed in — Firebase restored them from a
         // session saved under the old "remember forever" persistence. Sign
         // them out once so they land on the login screen like everyone else;
         // once they log back in it's stored session-only from then on.
@@ -1415,12 +1738,20 @@ const find = id => D().items.find(i => i.id === id);
 const course = id => D().courses.find(c => c.id === id);
 const prog = it => it.subtasks && it.subtasks.length ? Math.round(it.subtasks.filter(s => s.done).length / it.subtasks.length * 100) : (+it.progress || 0);
 const plural = (t, n) => n > 1 ? (/quiz$/i.test(t) ? t + 'zes' : t + 's') : t;
+const reminderHint = () => isGuest
+  ? 'Reminders are sent by email to your account address. Sign in to receive them.'
+  : (D().prefs.emailRem === false
+    ? 'Deadline email reminders are turned off. Turn them on in Courses &amp; settings to be emailed.'
+    : `Reminders are emailed to ${currentUser && currentUser.email ? esc(currentUser.email) : 'your account address'}, even when this page is closed.`);
 const remLabel = m => m % 1440 === 0 ? `${m/1440} day${m/1440>1?'s':''}` : m % 60 === 0 ? `${m/60} hour${m/60>1?'s':''}` : `${m} min`;
 
 function ensure(){
   const d = state.deadlines = state.deadlines || {};
   d.items = d.items || []; d.courses = d.courses || []; d.customTypes = d.customTypes || [];
-  d.prefs = Object.assign({ defRem:[1440,60], urgentH:48, notif:false, view:'list', period:14 }, d.prefs || {});
+  d.prefs = Object.assign({ defRem:[1440,60], urgentH:48, emailRem:true, view:'list', period:14 }, d.prefs || {});
+  delete d.prefs.notif;                                   // browser notifications were removed — reminders are emailed now
+  // The server turns a deadline's wall-clock time into an instant using this zone.
+  try { d.prefs.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || d.prefs.tz; } catch (e) {}
 }
 function commit(){ saveState(); render(); }
 
@@ -1474,9 +1805,9 @@ function renderViz(){
   const el = $('dlViz'); if (!el) return;
   const now = Date.now(), items = D().items, act = items.filter(i => !i.completedAt);
   if (!items.length){ el.innerHTML = ''; return; }
-  const DAYS = 7, today = sod(new Date());
+  const DAYS = 14, today = sod(new Date());
 
-  /* 1. next-7-days workload (line chart: deadlines due per day) */
+  /* 1. next-14-days workload (stacked by course) */
   const over = act.filter(i => +due(i) < now).length;
   const cols = [];
   for (let k = 0; k < DAYS; k++){
@@ -1484,41 +1815,32 @@ function renderViz(){
     const its = act.filter(i => +due(i) >= now && dstr(due(i)) === key);
     cols.push({ d, key, its });
   }
-  const mx = Math.max(3, ...cols.map(c => c.its.length));
+  const mx = Math.max(3, over, ...cols.map(c => c.its.length));
+  const colorOf = i => { const c = course(i.courseId); return c ? c.color : 'var(--steel)'; };
+  const bar = (n, segs, label, title, extra) => `<button type="button" class="vz-col ${extra || ''}" ${title.key ? `data-vday="${title.key}"` : ''} title="${esc(title.t)}">
+      <span class="vz-n">${n || ''}</span>
+      <span class="vz-stack" style="height:${n / mx * 100}%">${segs}</span>
+      <span class="vz-lab">${label}</span></button>`;
+  const seg = c => `<i style="background:${c};flex:1"></i>`;
+  const bars = bar(over, Array(over).fill(seg('var(--ash)')).join(''), '<b>!</b><small>late</small>',
+      { t: `${over} overdue` }, over ? 'vz-over' : 'vz-zero') +
+    cols.map((c, k) => bar(c.its.length, c.its.map(i => seg(colorOf(i))).join(''),
+      `<b>${c.d.getDate()}</b><small>${k === 0 ? 'today' : WD[c.d.getDay()]}</small>`,
+      { key: c.key, t: `${c.d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}: ${c.its.length} due` + (c.its.length ? ' — ' + c.its.map(i => i.title).join(', ') : '') },
+      (k === 0 ? 'vz-today ' : '') + (c.its.length ? '' : 'vz-zero'))).join('');
   const nextN = cols.reduce((s, c) => s + c.its.length, 0);
-  const px = k => (k + .5) / DAYS * 100, py = n => 8 + (1 - n / mx) * 84;       /* shared % mapping for svg + html layers */
-  const P = cols.map((c, k) => [px(k) * 7, py(c.its.length)]);                    /* svg is 700 x 100 */
-  let path = `M${P[0][0]} ${P[0][1]}`;
-  for (let k = 1; k < P.length; k++){ const mxp = (P[k-1][0] + P[k][0]) / 2; path += ` C${mxp} ${P[k-1][1]} ${mxp} ${P[k][1]} ${P[k][0]} ${P[k][1]}`; }
-  const area = `${path} L${P[P.length-1][0]} 100 L${P[0][0]} 100 Z`;
-  const grid = [0, 1, 2, 3].map(g => `<line x1="0" x2="700" y1="${py(mx * g / 3)}" y2="${py(mx * g / 3)}"/>`).join('');
-  const tip = c => `${c.d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}: ${c.its.length} due` + (c.its.length ? ' - ' + c.its.map(i => i.title).join(', ') : '');
-  const lineChart = `<div class="vz-line">
-      <svg viewBox="0 0 700 100" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="vzArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9382ff" stop-opacity=".35"/><stop offset="1" stop-color="#9382ff" stop-opacity="0"/></linearGradient>
-          <linearGradient id="vzStroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9cb2ff"/><stop offset=".5" stop-color="#ba9cff"/><stop offset="1" stop-color="#e59cff"/></linearGradient></defs>
-        <g class="vz-grid">${grid}</g><path d="${area}" fill="url(#vzArea)"/><path d="${path}" class="vz-ln" stroke="url(#vzStroke)"/></svg>
-      ${cols.map((c, k) => `<button type="button" class="vz-pt ${k === 0 ? 'vz-today' : ''}" data-vday="${c.key}" title="${esc(tip(c))}" style="left:${px(k)}%;top:${py(c.its.length)}%"><span>${c.its.length}</span></button>`).join('')}
-    </div>
-    <div class="vz-xl">${cols.map((c, k) => `<div class="${k === 0 ? 'vz-today' : ''}"><b>${c.d.getDate()}</b><small>${k === 0 ? 'today' : WD[c.d.getDay()]}</small></div>`).join('')}</div>`;
 
-  /* 2. completion streak (consecutive days with at least one deadline completed) */
-  const dn = d => Math.round(+sod(d) / DAY);               // day number, DST-safe
-  const doneDays = new Set(items.filter(i => i.completedAt).map(i => dn(new Date(i.completedAt))));
-  const t0 = dn(today), doneToday = doneDays.has(t0);
-  let streak = 0;
-  for (let k = doneToday ? t0 : t0 - 1; doneDays.has(k); k--) streak++;   // today not done yet? the streak is still alive until midnight
-  let best = 0, run = 0, prev = null;
-  [...doneDays].sort((x, y) => x - y).forEach(k => { run = prev !== null && k === prev + 1 ? run + 1 : 1; prev = k; if (run > best) best = run; });
-  const nd = String(streak).length;
-  const flame = `<svg class="vz-fire ${streak ? 'on' : ''}" viewBox="0 0 100 120" role="img" aria-label="${streak} day streak">
-      <defs><linearGradient id="vzFire" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5046e4"/><stop offset=".55" stop-color="#9382ff"/><stop offset="1" stop-color="#e59cff"/></linearGradient></defs>
-      <path class="vz-fire-o" d="M50 3C54 22 79 37 85 66C91 95 73 117 50 117C27 117 9 95 15 66C18 52 27 44 31 33C35 46 40 51 45 50C42 34 44 18 50 3Z" fill="url(#vzFire)"/>
-      <path class="vz-fire-i" d="M50 22C53 36 71 47 75 67C79 88 66 105 50 105C34 105 21 88 25 67C27 58 33 52 36 46C39 54 43 57 47 56C45 44 46 33 50 22Z" fill="var(--midnight)"/>
-      <text x="50" y="${nd > 2 ? 83 : 86}" text-anchor="middle" class="vz-fire-n" style="font-size:${nd > 2 ? 30 : nd > 1 ? 38 : 46}px">${streak}</text></svg>`;
-  const streakHtml = `<div class="vz-streak">${flame}
-      <div class="vz-streak-lbl">day streak</div>
-      <div class="vz-best">Best streak <b>${best} day${best === 1 ? '' : 's'}</b></div></div>`;
+  /* 2. by-course donut (incomplete) */
+  const by = {};
+  act.forEach(i => { const c = course(i.courseId), k = c ? c.id : '_'; (by[k] = by[k] || { code: c ? c.code : 'No course', color: c ? c.color : 'var(--steel)', n: 0 }).n++; });
+  const parts = Object.values(by).sort((a, b) => b.n - a.n), tot = act.length, R = 52, C = 2 * Math.PI * R;
+  let off = 0;
+  const arcs = parts.map(p => { const len = p.n / tot * C, s = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${p.color}" stroke-width="16" stroke-dasharray="${Math.max(len - (parts.length > 1 ? 2 : 0), 0.1)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"><title>${esc(p.code)}: ${p.n}</title></circle>`; off += len; return s; }).join('');
+  const donut = tot ? `<div class="vz-donut"><svg viewBox="0 0 140 140" role="img" aria-label="Incomplete deadlines by course">
+      <circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--rim)" stroke-width="16" opacity=".35"/>${arcs}
+      <text x="70" y="68" text-anchor="middle" class="vz-big">${tot}</text><text x="70" y="86" text-anchor="middle" class="vz-sm">incomplete</text></svg>
+      <div class="vz-legend">${parts.slice(0, 6).map(p => `<div><i style="background:${p.color}"></i><span>${esc(p.code)}</span><b>${p.n}</b></div>`).join('')}${parts.length > 6 ? `<div class="vz-more">+${parts.length - 6} more</div>` : ''}</div></div>`
+    : '<div class="dl-empty" style="padding:20px 6px">All caught up 🎉</div>';
 
   /* 3. status breakdown */
   const done = items.filter(i => i.completedAt);
@@ -1531,10 +1853,10 @@ function renderViz(){
 
   el.innerHTML = `<div class="panel vz-wide"><h2><span class="dot"></span>Next ${DAYS} days</h2>
       <div class="vz-sub">${nextN} due${over ? ` · <b>${over} overdue</b>` : ''} · click a day to open it in the calendar</div>
-      ${lineChart}</div>
-    <div class="panel"><h2><span class="dot"></span>Streak</h2>${streakHtml}</div>
+      <div class="vz-bars">${bars}</div></div>
+    <div class="panel"><h2><span class="dot"></span>By course</h2>${donut}</div>
     <div class="panel"><h2><span class="dot"></span>Status</h2>
-      <div class="vz-stat"><b>${pct === null ? '-' : pct + '%'}</b><span>completed on time</span></div>
+      <div class="vz-stat"><b>${pct === null ? '—' : pct + '%'}</b><span>completed on time</span></div>
       <div class="vz-seg">${st.map(s => `<i style="flex:${s[1]};background:${s[2]}" title="${s[0]}: ${s[1]}"></i>`).join('')}</div>
       <div class="vz-legend">${st.map(s => `<div><i style="background:${s[2]}"></i><span>${s[0]}</span><b>${s[1]}</b></div>`).join('')}</div></div>`;
 }
@@ -1592,7 +1914,7 @@ function card(it){
   return `<div class="dl-card ${it.completedAt ? 'done' : ''}" data-id="${it.id}" style="--cc:${c ? c.color : 'var(--text-dim)'}">
     <button class="dl-check" data-done="${it.id}" title="${it.completedAt ? 'Reopen' : 'Mark complete'}">${it.completedAt ? '✓' : ''}</button>
     <div class="dl-main">
-      <div class="dl-course">${c ? esc(c.code) + (c.name ? ' - ' + esc(c.name) : '') : 'No course'}</div>
+      <div class="dl-course">${c ? esc(c.code) + (c.name ? ' — ' + esc(c.name) : '') : 'No course'}</div>
       <div class="dl-title">${esc(it.title)}</div>
       <div class="dl-meta"><span class="dl-tag">${esc(it.type)}</span><span class="dl-tag" style="color:${pr.c}">${pr.l}</span>${it.seriesId ? '<span class="dl-tag">🔁 repeats</span>' : ''}</div>
       <div class="dl-time">${cdHtml(it)} · Due ${fmtDate(d)} · ${fmtTime(d)}</div>
@@ -1686,7 +2008,6 @@ function remWidget(id, list, onChange){
   };
   paint();
 }
-function norm(it){ const t = +due(it), now = Date.now(); it.fired = {}; (it.reminders || []).forEach(m => { if (t - m*6e4 <= now) it.fired[m] = 1; }); }
 
 /* ---------- add / edit form ---------- */
 function openForm(it, pre){
@@ -1699,7 +2020,7 @@ function openForm(it, pre){
   const nc = pre.newCourse;
   const b = openModal(`${pre.note ? `<div class="dl-note">${pre.note}</div>` : ''}<h2>${it ? 'Edit deadline' : 'Add deadline'}</h2>
     <div class="field"><label>Title</label><input type="text" id="f_title" value="${esc(v.title)}" placeholder="e.g. Assignment 2"></div>
-    <div class="field-row"><div class="field"><label>Course</label><select id="f_course"><option value="">No course</option>${D().courses.map(c => `<option value="${c.id}" ${v.courseId === c.id ? 'selected' : ''}>${esc(c.code)}${c.name ? ' - ' + esc(c.name) : ''}</option>`).join('')}<option value="__new" ${nc ? 'selected' : ''}>+ New course…</option></select></div>
+    <div class="field-row"><div class="field"><label>Course</label><select id="f_course"><option value="">No course</option>${D().courses.map(c => `<option value="${c.id}" ${v.courseId === c.id ? 'selected' : ''}>${esc(c.code)}${c.name ? ' — ' + esc(c.name) : ''}</option>`).join('')}<option value="__new" ${nc ? 'selected' : ''}>+ New course…</option></select></div>
       <div class="field"><label>Type</label><select id="f_type">${types().map(t => `<option ${v.type === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}<option value="__new">+ New type…</option></select></div></div>
     <div class="field-row" id="f_newc" style="display:${nc ? 'flex' : 'none'}"><div class="field"><label>New course code</label><input type="text" id="f_ccode" value="${esc(nc ? nc.code : '')}" placeholder="CSE422"></div><div class="field"><label>Course name</label><input type="text" id="f_cname" value="${esc(nc ? nc.name : '')}" placeholder="Artificial Intelligence"></div></div>
     <div class="field" id="f_newt" style="display:none"><label>New type name</label><input type="text" id="f_tnew" placeholder="e.g. Lab report"></div>
@@ -1707,7 +2028,7 @@ function openForm(it, pre){
       <div class="field"><label>Priority</label><select id="f_prio">${Object.keys(PRIO).map(k => `<option value="${k}" ${v.prio === k ? 'selected' : ''}>${PRIO[k].l}</option>`).join('')}</select></div></div>
     ${it ? `<div class="field"><label>Progress: <span id="f_pv">${v.prog}%</span></label><input type="range" id="f_prog" min="0" max="100" step="5" value="${v.prog}"><div class="hint" id="f_ph"></div></div>` : '<div class="hint" style="margin:-6px 0 14px">Progress is calculated from your subtasks. Add some below to track it.</div>'}
     <div class="field"><label>Subtasks</label><div id="f_subs"></div><div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="f_subin" placeholder="Add a subtask…"><button class="btn small" id="f_subadd" type="button">Add</button></div></div>
-    <div class="field"><label>Reminders</label><div id="f_rem"></div><div class="hint">Reminders are delivered while this page is open in a browser tab.</div></div>
+    <div class="field"><label>Reminders</label><div id="f_rem"></div><div class="hint">${reminderHint()}</div></div>
     <div class="field"><label>Notes</label><textarea id="f_notes" placeholder="Optional notes">${esc(v.notes)}</textarea></div>
     ${it && it.seriesId ? `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_series"> Apply title, course, type, priority, time, notes &amp; reminders to later items in this series</label>` : ''}
     <div class="row-actions" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" id="f_cancel" type="button">Cancel</button><button class="btn" id="f_save" type="button">Save</button></div>`);
@@ -1757,18 +2078,17 @@ function openForm(it, pre){
     const base = { title, courseId: courseId || null, type, priority: $('f_prio').value, notes: $('f_notes').value.trim(), reminders: rem.slice().sort((a,b) => b-a),
       subtasks: subs.filter(s => s.text.trim()).map(s => ({ id: s.id || uid(), text: s.text.trim(), done: !!s.done })), progress: $('f_prog') ? +$('f_prog').value : (it ? it.progress || 0 : 0) };
     if (it){
-      const changed = it.due !== dueStr || JSON.stringify(it.reminders) !== JSON.stringify(base.reminders);
-      Object.assign(it, base, { due: dueStr }); if (changed) norm(it);
+      Object.assign(it, base, { due: dueStr });
       if ($('f_series') && $('f_series').checked) D().items.forEach(o => {
         if (o !== it && o.seriesId === it.seriesId && !o.completedAt && +due(o) > +due(it)){
           Object.assign(o, { title, courseId: base.courseId, type, priority: base.priority, notes: base.notes, reminders: base.reminders.slice() });
-          o.due = dstr(due(o)) + 'T' + time; norm(o);
+          o.due = dstr(due(o)) + 'T' + time;
         }
       });
     } else {
       const o = Object.assign({}, base, { id: uid(), due: dueStr, seriesId: null, completedAt: null, createdAt: new Date().toISOString(),
         reminders: base.reminders.slice(), subtasks: base.subtasks.map(s => ({ id: uid(), text: s.text, done: s.done })) });
-      norm(o); D().items.push(o);
+      D().items.push(o);
     }
     commit(); closeModal(); showToast(it ? 'Deadline updated' : 'Deadline added');
   }
@@ -1780,7 +2100,7 @@ function openDetails(id){
   const it = find(id); if (!it) return closeModal();
   const c = course(it.courseId), d = due(it), p = it.completedAt ? 100 : prog(it), pr = PRIO[it.priority], hasSub = it.subtasks.length;
   const b = openModal(`<h2>${esc(it.title)}</h2>
-    <div class="dl-course" style="--cc:${c ? c.color : 'var(--text-dim)'}">${c ? esc(c.code) + (c.name ? ' - ' + esc(c.name) : '') : 'No course'}</div>
+    <div class="dl-course" style="--cc:${c ? c.color : 'var(--text-dim)'}">${c ? esc(c.code) + (c.name ? ' — ' + esc(c.name) : '') : 'No course'}</div>
     <div class="dl-meta" style="margin:10px 0"><span class="dl-tag">${esc(it.type)}</span><span class="dl-tag" style="color:${pr.c}">${pr.l} priority</span>${it.seriesId ? '<span class="dl-tag">🔁 repeating</span>' : ''}</div>
     <div class="field-row"><div class="stat" style="flex:1"><div class="label">Due</div><div style="font-size:0.95rem">${fmtDate(d)} · ${fmtTime(d)}</div></div>
       <div class="stat" style="flex:1"><div class="label">${it.completedAt ? 'Status' : 'Time remaining'}</div><div style="font-size:0.95rem">${cdHtml(it)}</div></div></div>
@@ -1788,7 +2108,7 @@ function openDetails(id){
       <div class="progress-track" style="margin:0"><div class="progress-fill" style="width:${p}%"></div></div>
       ${hasSub ? '' : `<input type="range" data-prog min="0" max="100" step="5" value="${it.progress || 0}" style="margin-top:10px" ${it.completedAt ? 'disabled' : ''}>`}</div>
     <div class="field"><label>Subtasks ${hasSub ? `(${it.subtasks.filter(s => s.done).length}/${hasSub})` : ''}</label>
-      ${it.subtasks.map(s => `<div class="dl-sub ${s.done ? 'done' : ''}"><input type="checkbox" data-tg="${s.id}" ${s.done ? 'checked' : ''}><span class="t">${esc(s.text)}</span><button class="icon-btn" data-rs="${s.id}">✕</button></div>`).join('') || '<div class="hint">No subtasks yet - break this deadline into smaller steps to track progress automatically.</div>'}
+      ${it.subtasks.map(s => `<div class="dl-sub ${s.done ? 'done' : ''}"><input type="checkbox" data-tg="${s.id}" ${s.done ? 'checked' : ''}><span class="t">${esc(s.text)}</span><button class="icon-btn" data-rs="${s.id}">✕</button></div>`).join('') || '<div class="hint">No subtasks yet — break this deadline into smaller steps to track progress automatically.</div>'}
       <div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="d_sub" placeholder="Add a subtask…"><button class="btn small" data-addsub>Add</button></div></div>
     ${it.notes ? `<div class="field"><label>Notes</label><div style="white-space:pre-wrap;font-size:0.88rem">${esc(it.notes)}</div></div>` : ''}
     ${it.reminders.length ? `<div class="hint">Reminders: ${it.reminders.map(remLabel).join(', ')} before</div>` : ''}
@@ -1831,8 +2151,8 @@ function openSettings(){
       <div style="display:flex;gap:8px;margin-top:4px"><input type="text" id="s_type" placeholder="New type, e.g. Lab report"><button class="btn small" data-addt>Add</button></div></div>
     <div class="field"><label>Default reminders for new deadlines</label><div id="s_rem"></div></div>
     <div class="field-row"><div class="field"><label>“Urgent” means due within</label><select id="s_urg">${[24,48,72].map(h => `<option value="${h}" ${P.urgentH === h ? 'selected' : ''}>${h} hours</option>`).join('')}</select></div>
-      <div class="field"><label>Browser notifications</label><button class="btn small ${P.notif ? '' : 'ghost'}" data-notif>${P.notif ? 'On - click to turn off' : 'Turn on'}</button></div></div>
-    <div class="hint">Reminders fire while this page is open in a browser tab (or a background tab). They can't be delivered when the page is closed.</div>`);
+      <div class="field"><label>Deadline email reminders</label><button class="btn small ${P.emailRem && !isGuest ? '' : 'ghost'}" data-emailrem ${isGuest ? 'disabled' : ''}>${isGuest ? 'Sign in to use' : (P.emailRem ? 'On — click to turn off' : 'Off — click to turn on')}</button></div></div>
+    <div class="hint">${reminderHint()}</div>`);
   remWidget('s_rem', P.defRem, saveState);
   b.onchange = e => {
     const t = e.target;
@@ -1864,10 +2184,9 @@ function openSettings(){
     } else if (t.dataset.dt !== undefined){
       const name = D().customTypes[+t.dataset.dt]; D().items.forEach(i => { if (i.type === name) i.type = 'Other'; });
       D().customTypes.splice(+t.dataset.dt, 1); commit(); openSettings();
-    } else if (t.dataset.notif !== undefined){
-      if (P.notif){ P.notif = false; commit(); openSettings(); }
-      else if (!('Notification' in window)) showToast('This browser does not support notifications');
-      else Notification.requestPermission().then(r => { P.notif = r === 'granted'; if (!P.notif) showToast('Notifications are blocked in your browser settings'); commit(); openSettings(); });
+    } else if (t.dataset.emailrem !== undefined){
+      P.emailRem = !P.emailRem; commit(); openSettings();
+      showToast(P.emailRem ? 'Deadline email reminders are on' : 'Deadline email reminders are off');
     }
   };
 }
@@ -1901,16 +2220,16 @@ function parseQuick(txt){
     if (diff === 0){ const t = new Date(dt); t.setHours(h === null ? 23 : h, h === null ? 59 : mi); if (t < now) dt.setDate(dt.getDate() + 7); }
   }
   r.assumed = [];
-  if (h === null){ h = 23; mi = 59; if (dt) r.assumed.push('no time given - assumed 11:59 PM'); }
+  if (h === null){ h = 23; mi = 59; if (dt) r.assumed.push('no time given — assumed 11:59 PM'); }
   r.time = `${pad(h)}:${pad(mi)}`; r.date = dt;
   const low = s.toLowerCase();
   r.type = types().find(t => t !== 'Other' && new RegExp('\\b' + t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + 's?\\b').test(low));
   if (!r.type) [['Presentation',/\b(presentation|pres|slides?)\b/],['Project',/\b(project|proj)\b/],['Quiz',/\bquiz(?:zes)?\b/],['Exam',/\b(exam|midterm|mid|final|test)\b/],['Assignment',/\b(assignment|asg|assign|homework|hw|lab)\b/]].some(x => x[1].test(low) && (r.type = x[0]));
-  if (!r.type){ r.type = 'Assignment'; r.assumed.push('no type recognised - assumed Assignment'); }
+  if (!r.type){ r.type = 'Assignment'; r.assumed.push('no type recognised — assumed Assignment'); }
   let title = s.replace(/\b(due|by|on|at|deadline)\b/gi, ' ').replace(/[,;]+/g, ' ').replace(/\s+/g, ' ').trim();
   if (!title || title.toLowerCase().replace(/s$/, '') === r.type.toLowerCase()) title = r.type;
   r.title = title.charAt(0).toUpperCase() + title.slice(1);
-  if (!dt) r.assumed.push('no date found - please pick one');
+  if (!dt) r.assumed.push('no date found — please pick one');
   return r;
 }
 function quickAdd(){
@@ -1924,30 +2243,9 @@ function quickAdd(){
   $('dlQuick').value = ''; openForm(null, pre);
 }
 
-/* ---------- reminders ---------- */
-function banner(text){
-  const el = document.createElement('div'); el.className = 'dl-banner';
-  el.innerHTML = `<span>🔔 ${esc(text)}</span><button class="icon-btn" style="flex-shrink:0">✕</button>`;
-  el.querySelector('button').onclick = () => el.remove(); $('dlBanners').appendChild(el); setTimeout(() => el.remove(), 20000);
-}
-function checkRem(){
-  const now = Date.now(); let dirty = false;
-  D().items.forEach(it => {
-    if (it.completedAt || +due(it) <= now) return;
-    it.fired = it.fired || {};
-    const ready = (it.reminders || []).filter(m => !it.fired[m] && +due(it) - m*6e4 <= now);
-    if (!ready.length) return;
-    ready.forEach(m => it.fired[m] = 1); dirty = true;
-    const c = course(it.courseId), msg = `${c ? c.code + ' · ' : ''}${it.title} - due in ${cd(+due(it) - now).replace(' remaining', '')}`;
-    banner(msg);
-    if (D().prefs.notif && 'Notification' in window && Notification.permission === 'granted') try { new Notification('Deadline reminder', { body: msg }); } catch (e) {}
-  });
-  if (dirty) saveState();
-}
-
 /* ---------- wiring ---------- */
 function init(){
-  document.body.insertAdjacentHTML('beforeend', '<div class="dl-modal" id="dlModal"><div class="dl-mbox"><button class="icon-btn dl-x" id="dlClose">✕</button><div id="dlMbody"></div></div></div><div class="dl-banners" id="dlBanners"></div>');
+  document.body.insertAdjacentHTML('beforeend', '<div class="dl-modal" id="dlModal"><div class="dl-mbox"><button class="icon-btn dl-x" id="dlClose">✕</button><div id="dlMbody"></div></div></div>');
   $('dlClose').onclick = closeModal;
   $('dlModal').addEventListener('mousedown', e => { if (e.target === $('dlModal')) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('dlModal').classList.contains('open')) closeModal(); });
@@ -1993,7 +2291,6 @@ function init(){
       const ms = +el.dataset.due - Date.now();
       el.textContent = cd(ms); el.classList.toggle('over', ms < 0); el.classList.toggle('soon', ms >= 0 && ms < D().prefs.urgentH * 36e5);
     });
-    if (tk % 15 === 0) checkRem();
     if (tk % 60 === 0 && $('page-deadlines').classList.contains('active') && !$('dlModal').classList.contains('open')){ renderSummary(); renderContent(); }
   }, 1000);
 }
@@ -2046,8 +2343,8 @@ function dbRender(){
   }).join('') : '<div class="dl-empty">Nothing pending. Add a deadline to see it here.</div>';
 
   // current semester
-  const sems = state.planner.semesters || [];
-  const sem = sems.find(x => x.id === state.planner.activeSemesterId) || sems[0];
+  const sems = (state.planner.semesters || []).slice().sort((x, y) => (x.number || 0) - (y.number || 0));
+  const sem = sems.find(x => x.codes.length) || sems[0];       // first roadmap block that has courses
   if (!sem){
     el('dbSemester').innerHTML = '<div class="dl-empty">No semester planned yet.</div>';
   } else {

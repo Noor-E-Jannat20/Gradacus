@@ -40,8 +40,8 @@ export function round1(n) {
 
 /**
  * Single CGPA model:
- * - GPA hours: letter grades A+-F (including F at 0.0).
- * - Earned credits toward the degree: A+-D- and P (pass). F, I, W earn none.
+ * - GPA hours: letter grades A+–F (including F at 0.0).
+ * - Earned credits toward the degree: A+–D- and P (pass). F, I, W earn none.
  * - I/W/P do not affect quality points.
  */
 export function computeStats(state) {

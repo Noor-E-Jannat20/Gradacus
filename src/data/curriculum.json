@@ -9,8 +9,8 @@
     "catalogue": "https://cse.sds.bracu.ac.bd/course/list"
   },
   "programs": {
-    "CSE": { "label": "CSE - Computer Science & Engineering", "credits": 136 },
-    "CS": { "label": "CS - Computer Science", "credits": 124 }
+    "CSE": { "label": "CSE — Computer Science & Engineering", "credits": 136 },
+    "CS": { "label": "CS — Computer Science", "credits": 124 }
   },
   "foundation": ["ENG101", "ENG102", "MAT110", "MAT120", "MAT215", "MAT216", "PHY111", "PHY112", "STA201", "DEV101", "HUM103"],
   "pools": {
