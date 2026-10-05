@@ -234,37 +234,6 @@ function syncCoursesToProgram(oldValue, newValue) {
   return { added, removed };
 }
 
-function exportState() {
-  const payload = {
-    app: 'Academic Console',
-    schemaVersion: getState().schemaVersion,
-    curriculumVersion: getState().curriculumVersion,
-    exportedAt: new Date().toISOString(),
-    data: getState()
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `academic-console-backup-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-async function importStateFile(file) {
-  const raw = await file.text();
-  const parsed = JSON.parse(raw);
-  const incoming = parsed && parsed.data ? parsed.data : parsed;
-  if (!incoming || !Array.isArray(incoming.courses) || !incoming.planner) throw new Error('Invalid Academic Console backup');
-  if (!confirm('Import this backup and replace the current data? You can undo from the banner that appears.')) return;
-  snapshotUndo();
-  const { replaceState } = await import('./state.js');
-  replaceState(incoming, { persist: true });
-  renderAll();
-  showUndoBanner();
-  showToast('Backup imported');
-}
-
 function showUndoBanner() {
   const el = $('undoBanner');
   if (!el) return;
@@ -345,14 +314,6 @@ export function initCgpa() {
     }
   });
 
-  $('exportBtn').addEventListener('click', exportState);
-  $('importBtn').addEventListener('click', () => $('importFile').click());
-  $('importFile').addEventListener('change', async e => {
-    const file = e.target.files && e.target.files[0];
-    e.target.value = '';
-    if (!file) return;
-    try { await importStateFile(file); } catch (err) { console.error(err); showToast('Import failed — invalid backup file'); }
-  });
   $('undoImportBtn')?.addEventListener('click', () => {
     if (restoreUndo()) {
       renderAll();

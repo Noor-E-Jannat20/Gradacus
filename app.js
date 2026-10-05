@@ -533,6 +533,20 @@ function getCourseInfo(code) {
   return null;
 }
 
+
+// Name shown for a planned course in compact spots (cards, toasts, dashboard).
+// Custom courses show the title the user typed; if it's still unset, fall back to the code.
+const CUSTOM_NAME_PLACEHOLDER = 'Click here to edit name';
+function courseLabel(id){
+  const info = getCourseInfo(id);
+  if (!info) return id;
+  if (info.isCustom){
+    const name = String(info.name || '').trim();
+    if (name && name !== CUSTOM_NAME_PLACEHOLDER) return name;
+  }
+  return info.code || id;
+}
+
 function getPoolForProgram(program){
   const pools = PROGRAM_POOLS[program];
   const items = [];
@@ -823,7 +837,7 @@ function rmRenderTrack(){
   let html = `<div class="rm-now" title="Your current semester"><span class="rm-now-dot"></span><span class="rm-now-label">Now</span><span class="rm-now-val">${cur ? 'Sem ' + cur : 'Start'}</span></div>`;
   sems.forEach((sem, i) => {
     const n = sem.codes.length, full = n >= RM_MAX;
-    const codes = sem.codes.map(c => (getCourseInfo(c) || {}).code || c);
+    const codes = sem.codes.map(courseLabel);
     const pips = Array.from({ length: RM_MAX }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('');
     const chip = sem.number === cur ? '<span class="rm-chip-now">current</span>' : (sem.number < cur ? '<span class="rm-chip-past">earlier</span>' : '');
     html += `
@@ -854,8 +868,8 @@ function rmRenderDetail(){
     const c = getCourseInfo(code);
     if (c && c.isCustom){
       return `<div class="rm-row rm-row-custom">
-        <input class="custom-edit rm-in-code" data-id="${rmEsc(code)}" data-field="code" value="${rmEsc(c.code)}" aria-label="Course code">
-        <input class="custom-edit rm-in-name" data-id="${rmEsc(code)}" data-field="name" value="${rmEsc(c.name)}" aria-label="Course title">
+        <input class="custom-edit rm-in-code" data-id="${rmEsc(code)}" data-field="code" value="${rmEsc(c.code)}" placeholder="Code" aria-label="Course code">
+        <input class="custom-edit rm-in-name" data-id="${rmEsc(code)}" data-field="name" value="${rmEsc(c.name === CUSTOM_NAME_PLACEHOLDER ? '' : c.name)}" placeholder="Course name" aria-label="Course title">
         <span class="rm-row-tags"><span class="tag custom">custom</span></span>
         <input class="custom-edit rm-in-cr" type="number" min="0" step="0.5" data-id="${rmEsc(code)}" data-field="credits" value="${rmEsc(c.credits)}" aria-label="Credits">
         <button type="button" class="icon-btn danger" data-remove="${rmEsc(code)}" aria-label="Remove from Semester ${sem.number}" title="Remove from this semester">✕</button>
@@ -995,7 +1009,7 @@ function rmRequestDelete(id){
   const m = rmOpenModal({
     title: `Delete Semester ${sem.number}?`,
     body: `<p>Semester ${sem.number} has <b>${sem.codes.length}</b> planned course${sem.codes.length === 1 ? '' : 's'}
-      (${sem.codes.map(c => rmEsc((getCourseInfo(c) || {}).code || c)).join(', ')}).</p>
+      (${sem.codes.map(c => rmEsc(courseLabel(c))).join(', ')}).</p>
       <p>Deleting it removes this block and its plan from your roadmap. The courses themselves are not deleted and can be added to another semester.</p>`,
     footer: `<button type="button" class="btn ghost" data-act="cancel">Cancel</button><button type="button" class="btn danger" data-act="delete">Delete semester</button>`,
     focus: '[data-act="cancel"]'
@@ -1013,7 +1027,7 @@ function rmRemoveCourse(code){
   rmNotice = null;
   renderPlanner();
   saveState();
-  showToast(`Removed ${(getCourseInfo(code) || {}).code || code} from Semester ${sem.number}`);
+  showToast(`Removed ${courseLabel(code)} from Semester ${sem.number}`);
 }
 
 /* ---------------- adding a course ---------------- */
@@ -1024,15 +1038,15 @@ function rmMaxMessage(sem){
 // The only place a course is actually added — re-checks every rule.
 function rmAddCourseToSemester(sem, code){
   if (sem.codes.length >= RM_MAX){ rmNotify(rmMaxMessage(sem)); return false; }
-  if (sem.codes.includes(code)){ rmNotify(`${(getCourseInfo(code) || {}).code || code} is already in Semester ${sem.number}.`); return false; }
+  if (sem.codes.includes(code)){ rmNotify(`${courseLabel(code)} is already in Semester ${sem.number}.`); return false; }
   const elsewhere = rmSemesterOf(code);
-  if (elsewhere){ rmNotify(`${(getCourseInfo(code) || {}).code || code} is already planned in Semester ${elsewhere.number}.`); return false; }
+  if (elsewhere){ rmNotify(`${courseLabel(code)} is already planned in Semester ${elsewhere.number}.`); return false; }
   sem.codes.push(code);
   rmNotice = null;
   state.planner.activeSemesterId = sem.id;
   renderPlanner();
   saveState();
-  showToast(`Added ${(getCourseInfo(code) || {}).code || code} to Semester ${sem.number}`);
+  showToast(`Added ${courseLabel(code)} to Semester ${sem.number}`);
   return true;
 }
 
@@ -1168,7 +1182,7 @@ function rmOpenPicker(semId){
             ${np ? `<span class="rm-prq" title="Has prerequisites">${np} prerequisite${np === 1 ? '' : 's'}</span>` : ''}
             ${completed ? '<span class="rm-prq done" title="Already graded on your CGPA tab">completed</span>' : ''}
           </div>
-          <div class="name">${rmEsc(info.name)}</div>
+          <div class="name">${rmEsc(info.isCustom ? courseLabel(i.code) : info.name)}</div>
         </div>
         <div class="pool-actions">
           <button type="button" class="btn small" data-pick="${rmEsc(i.code)}">+ Add</button>
@@ -1207,7 +1221,7 @@ function rmOpenPicker(semId){
     if (sem.codes.length >= RM_MAX){ showBanner(rmMaxMessage(sem)); return; }
     if (!state.customCourses) state.customCourses = {};
     const id = 'CUST_' + crypto.randomUUID();
-    state.customCourses[id] = { code: 'CUSTOM', name: 'Click here to edit name', credits: 3, tag: 'custom', isCustom: true };
+    state.customCourses[id] = { code: 'CUSTOM', name: '', credits: 3, tag: 'custom', isCustom: true };
     sem.codes.push(id);
     state.planner.activeSemesterId = sem.id;
     m.close();
@@ -1428,48 +1442,6 @@ document.addEventListener('input', (e) => {
       }
     }
   }
-});
-
-function exportState(){
-  const payload = {
-    app: 'Academic Console',
-    schemaVersion: APP_SCHEMA_VERSION,
-    curriculumVersion: state.curriculumVersion || CURRICULUM_DATA_VERSION,
-    exportedAt: new Date().toISOString(),
-    data: state
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `academic-console-backup-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-async function importStateFile(file){
-  const raw = await file.text();
-  const parsed = JSON.parse(raw);
-  const incoming = parsed && parsed.data ? parsed.data : parsed;
-  if (!incoming || !Array.isArray(incoming.courses) || !incoming.planner) throw new Error('Invalid Academic Console backup');
-  if (!confirm('Import this backup and replace the current data? This cannot be undone.')) return;
-  state = incoming;
-  state.schemaVersion = APP_SCHEMA_VERSION;
-  state.curriculumVersion = state.curriculumVersion || CURRICULUM_DATA_VERSION;
-  if (!state.customCourses) state.customCourses = {};
-  if (!state.planner.semesters) state.planner = defaultPlanner();
-  render(); renderPlanner(); if (window.dlRender) dlRender();
-  saveState();
-  showToast('Backup imported');
-}
-
-document.getElementById('exportBtn').addEventListener('click', exportState);
-document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0];
-  e.target.value = '';
-  if (!file) return;
-  try { await importStateFile(file); } catch(err) { console.error(err); showToast('Import failed — invalid backup file'); }
 });
 
 let authMode = 'login';
@@ -2361,8 +2333,8 @@ function dbRender(){
     const rows = sem.codes.map(code => {
       const info = getCourseInfo(code), cr = info ? info.credits : 0;
       total += cr;
-      return `<div class="db-row"><div class="db-row-main"><div class="db-row-title">${esc(code)}</div>
-        <div class="db-row-meta">${esc(info ? info.name : '')}</div></div><div class="db-row-side">${cr} cr</div></div>`;
+      return `<div class="db-row"><div class="db-row-main"><div class="db-row-title">${esc(info ? (info.isCustom ? courseLabel(code) : info.code) : code)}</div>
+        <div class="db-row-meta">${esc(info ? (info.isCustom ? info.code : info.name) : '')}</div></div><div class="db-row-side">${cr} cr</div></div>`;
     }).join('');
     el('dbSemester').innerHTML = `<div class="db-sem-head"><b>${esc(sem.label)}</b><span>${round1(total)} credits</span></div>` +
       (rows || '<div class="dl-empty">No courses added to this semester yet.</div>');

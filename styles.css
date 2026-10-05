@@ -1452,3 +1452,7 @@ footer{margin-top:var(--s5)!important;padding-bottom:var(--s3)!important}
   .fc-back-content .feature-icon,.fc-back-content .feature-icon svg{width:28px!important;height:28px!important}
   .fc-front-content p{display:none}
 }
+
+/* long custom course names must not blow out the semester cards */
+.rm-code{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rm-codes{min-width:0}
