@@ -541,8 +541,12 @@ function courseLabel(id){
   const info = getCourseInfo(id);
   if (!info) return id;
   if (info.isCustom){
+    // same order as built-in courses: code first. Only fall back to the title while the code is still the default.
+    const code = String(info.code || '').trim();
+    if (code && code.toUpperCase() !== 'CUSTOM') return code;
     const name = String(info.name || '').trim();
     if (name && name !== CUSTOM_NAME_PLACEHOLDER) return name;
+    return code || id;
   }
   return info.code || id;
 }
@@ -1182,7 +1186,7 @@ function rmOpenPicker(semId){
             ${np ? `<span class="rm-prq" title="Has prerequisites">${np} prerequisite${np === 1 ? '' : 's'}</span>` : ''}
             ${completed ? '<span class="rm-prq done" title="Already graded on your CGPA tab">completed</span>' : ''}
           </div>
-          <div class="name">${rmEsc(info.isCustom ? courseLabel(i.code) : info.name)}</div>
+          <div class="name">${rmEsc(info.name === CUSTOM_NAME_PLACEHOLDER ? '' : info.name)}</div>
         </div>
         <div class="pool-actions">
           <button type="button" class="btn small" data-pick="${rmEsc(i.code)}">+ Add</button>
@@ -2333,8 +2337,8 @@ function dbRender(){
     const rows = sem.codes.map(code => {
       const info = getCourseInfo(code), cr = info ? info.credits : 0;
       total += cr;
-      return `<div class="db-row"><div class="db-row-main"><div class="db-row-title">${esc(info ? (info.isCustom ? courseLabel(code) : info.code) : code)}</div>
-        <div class="db-row-meta">${esc(info ? (info.isCustom ? info.code : info.name) : '')}</div></div><div class="db-row-side">${cr} cr</div></div>`;
+      return `<div class="db-row"><div class="db-row-main"><div class="db-row-title">${esc(courseLabel(code))}</div>
+        <div class="db-row-meta">${esc(info && info.name !== CUSTOM_NAME_PLACEHOLDER && info.name !== courseLabel(code) ? info.name : '')}</div></div><div class="db-row-side">${cr} cr</div></div>`;
     }).join('');
     el('dbSemester').innerHTML = `<div class="db-sem-head"><b>${esc(sem.label)}</b><span>${round1(total)} credits</span></div>` +
       (rows || '<div class="dl-empty">No courses added to this semester yet.</div>');
