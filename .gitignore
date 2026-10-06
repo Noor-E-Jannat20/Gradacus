@@ -2,3 +2,11 @@ node_modules
 dist
 .DS_Store
 *.local
+
+# Firebase service-account keys must never be committed
+*-firebase-adminsdk-*.json
+serviceAccount*.json
+functions/.env
+functions/.env.*
+!functions/.env.example
+.wrangler

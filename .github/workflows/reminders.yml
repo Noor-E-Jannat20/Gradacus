@@ -1,0 +1,51 @@
+name: Send deadline reminders
+
+on:
+  # Backup schedule. GitHub may start this late (5-30+ min), which is why GRACE_MS is 45 min.
+  schedule:
+    - cron: '*/15 * * * *'
+  # Precise trigger: an external cron (cron-job.org) POSTs to the "workflow_dispatch" API every 5 minutes.
+  workflow_dispatch:
+
+# Never run two at once: the daily-email counter and duplicate protection assume a single runner.
+concurrency:
+  group: send-reminders
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache npm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: reminders-npm-${{ hashFiles('functions/package.json') }}
+
+      - name: Install dependencies
+        working-directory: functions
+        run: npm install --omit=dev --no-audit --no-fund
+
+      - name: Send due reminders
+        working-directory: functions
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_HOST: ${{ vars.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_USER: ${{ vars.SMTP_USER }}
+          MAIL_FROM: ${{ vars.MAIL_FROM }}
+          APP_URL: ${{ vars.APP_URL }}
+          DEFAULT_TIMEZONE: ${{ vars.DEFAULT_TIMEZONE }}
+          DAILY_EMAIL_CAP: ${{ vars.DAILY_EMAIL_CAP }}
+        run: node run-reminders.js

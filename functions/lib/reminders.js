@@ -14,7 +14,8 @@ const MINUTE = 60 * 1000;
 const DAY = 24 * 60 * MINUTE;
 // A reminder is still sent if the scheduler is late by up to this much. Anything older is skipped
 // (e.g. a 1-day reminder for a deadline that was only created 3 hours before it is due).
-const GRACE_MS = 15 * MINUTE;
+// 45 min (was 15): the job now runs on GitHub Actions, whose schedule can start 5-30+ min late.
+const GRACE_MS = 45 * MINUTE;
 
 function validTimeZone(tz) {
   if (!tz || typeof tz !== 'string') return false;
@@ -181,8 +182,61 @@ function buildEmail({ item, deadlines, dueAt, now, tz, appUrl }) {
   return { subject, text, html };
 }
 
+/* ------------------------------ digest email ------------------------------ */
+
+function describeItem(item, deadlines) {
+  const course = (deadlines.courses || []).find(c => c.id === item.courseId) || null;
+  const code = course && course.code ? String(course.code).trim() : '';
+  const type = item.type ? String(item.type).trim() : '';
+  const label = [code, type].filter(Boolean).join(' ');
+  const title = (item.title && String(item.title).trim()) || 'Untitled deadline';
+  return { label, title };
+}
+
+/**
+ * One email for everything that is due for a user in the same run.
+ * entries = [{ item, dueAt }]. A single entry produces exactly the normal single-reminder email.
+ */
+function buildDigestEmail({ entries, deadlines, now, tz, appUrl }) {
+  if (entries.length === 1) {
+    return buildEmail({ item: entries[0].item, deadlines, dueAt: entries[0].dueAt, now, tz, appUrl });
+  }
+  const sorted = entries.slice().sort((a, b) => a.dueAt - b.dueAt);
+  const rows = sorted.map(e => {
+    const d = describeItem(e.item, deadlines);
+    return {
+      name: d.label ? `${d.label} — ${d.title}` : d.title,
+      due: formatDue(e.dueAt, tz),
+      left: humanizeRemaining(e.dueAt - now),
+      when: dueWhen(now, e.dueAt, tz)
+    };
+  });
+  const subject = `Deadline Reminder — ${rows.length} deadlines coming up`;
+  const intro = `You have ${rows.length} upcoming deadlines.`;
+  const closing = 'Make sure to complete and submit them before the deadlines.';
+  const footerText = 'You get this email because Deadline Email Reminders are on for your Gradacus account. ' +
+    'Turn them off in Deadline Tracker → Courses & settings.' + (appUrl ? `\n${appUrl}` : '');
+
+  const text = [intro, '',
+    ...rows.map(r => `• ${r.name}\n  Due ${r.when}: ${r.due} (${r.left} left)`),
+    '', closing, '', '—', footerText].join('\n');
+
+  const html = `<!doctype html><html><body style="margin:0;background:#f4f0ff;padding:24px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1b1535">
+<div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;padding:28px;border:1px solid #e3dcff">
+  <p style="margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#7a6fb5">Deadline reminder</p>
+  <p style="margin:0 0 20px;font-size:18px;line-height:1.4">You have <b>${rows.length} upcoming deadlines</b>.</p>
+  ${rows.map(r => `<div style="padding:12px 0;border-top:1px solid #eee9ff"><div style="font-size:15px;font-weight:600">${esc(r.name)}</div><div style="font-size:14px;color:#5b5290;margin-top:2px">Due ${esc(r.when)}: ${esc(r.due)} &middot; ${esc(r.left)} left</div></div>`).join('')}
+  <p style="margin:20px 0 0;font-size:14px">${esc(closing)}</p>
+  <hr style="border:0;border-top:1px solid #eee9ff;margin:24px 0 12px">
+  <p style="margin:0;font-size:12px;color:#8b84ad;line-height:1.5">You get this email because Deadline Email Reminders are on for your Gradacus account.
+  Turn them off in Deadline Tracker → Courses &amp; settings.${appUrl ? `<br><a href="${esc(appUrl)}" style="color:#5046e4">${esc(appUrl)}</a>` : ''}</p>
+</div></body></html>`;
+
+  return { subject, text, html };
+}
+
 module.exports = {
   MINUTE, DAY, GRACE_MS,
   validTimeZone, zonedToEpoch, resolveTimeZone, emailEnabled, reminderKey,
-  collectDueReminders, nextReminderTime, humanizeRemaining, dueWhen, formatDue, buildEmail
+  collectDueReminders, nextReminderTime, humanizeRemaining, dueWhen, formatDue, buildEmail, buildDigestEmail
 };

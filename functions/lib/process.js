@@ -4,6 +4,10 @@
  * All I/O is injected (deps) so the logic can be tested without Firebase:
  *   deps = { db, FieldValue, Timestamp, getUserEmail(uid), sendMail({to,subject,text,html}), defaultTz, appUrl, log }
  *
+ * All reminders that are due for a user in the same run are sent as ONE digest email (saves daily email quota).
+ * Optional deps.reserveEmail()/refundEmail() enforce a daily sending cap; when the cap is hit the claims are
+ * released (without counting an attempt) and retried on a later run while still inside the grace window.
+ *
  * Duplicate protection: each reminder owns a document  users/{uid}/reminderLog/{reminderKey}.
  * It is claimed inside a Firestore transaction BEFORE the email is sent, then marked
  * { emailSent: true, emailSentAt }. A reminder that is already sent (or currently claimed by a
@@ -46,10 +50,19 @@ async function claimReminder(deps, logRef, meta, now) {
   });
 }
 
+async function releaseClaim(logRef, FieldValue, errMsg) {
+  const patch = { claimedAt: FieldValue.delete() };
+  if (errMsg !== undefined) {                      // a real failure counts as an attempt; a deferral does not
+    patch.attempts = FieldValue.increment(1);
+    patch.lastError = String(errMsg).slice(0, 300);
+  }
+  try { await logRef.update(patch); } catch (e) { /* ignore */ }
+}
+
 async function processUser(deps, uid, userRef, now = Date.now()) {
   const { db, FieldValue, Timestamp, getUserEmail, sendMail, defaultTz, appUrl } = deps;
   const log = deps.log || (() => {});
-  const result = { uid, sent: 0, skipped: 0, failed: 0 };
+  const result = { uid, sent: 0, emails: 0, skipped: 0, failed: 0, deferred: 0 };
 
   const snap = await userRef.get();
   if (!snap.exists) return result;
@@ -66,32 +79,56 @@ async function processUser(deps, uid, userRef, now = Date.now()) {
     try { email = await getUserEmail(uid); } catch (e) { log('no account email for', uid, e && e.message); }
   }
 
+  // 1) claim every due reminder (transaction each) so none can be sent twice
+  const claimed = [];
   for (const r of due) {
     if (!email) { result.skipped++; continue; }
     const logRef = userRef.collection('reminderLog').doc(r.key);
     const meta = { itemId: r.item.id, title: String(r.item.title || ''), reminderMinutes: r.minutes,
                    dueLocal: r.item.due, dueAt: r.dueAt, fireAt: r.fireAt };
-    let claimed = false;
+    let ok = false;
     try {
-      claimed = await claimReminder(deps, logRef, meta, now);
+      ok = await claimReminder(deps, logRef, meta, now);
     } catch (e) {
       log('claim failed', uid, r.key, e && e.message);
       result.failed++;
       continue;
     }
-    if (!claimed) { result.skipped++; continue; }
+    if (!ok) { result.skipped++; continue; }
+    claimed.push({ r, logRef });
+  }
 
-    try {
-      const msg = R.buildEmail({ item: r.item, deadlines, dueAt: r.dueAt, now, tz, appUrl });
-      await sendMail({ to: email, subject: msg.subject, text: msg.text, html: msg.html });
-      await logRef.update({ emailSent: true, emailSentAt: Timestamp.fromMillis(Date.now()), claimedAt: FieldValue.delete(), lastError: FieldValue.delete() });
-      result.sent++;
-    } catch (e) {
-      result.failed++;
-      log('send failed', uid, r.key, e && e.message);
-      try {                                                    // release the claim so the next run can retry (bounded by attempts + grace window)
-        await logRef.update({ claimedAt: FieldValue.delete(), attempts: FieldValue.increment(1), lastError: String((e && e.message) || e).slice(0, 300) });
-      } catch (e2) { /* ignore */ }
+  if (claimed.length) {
+    // 2) daily email cap (optional)
+    let reserved = true;
+    if (deps.reserveEmail) {
+      try { reserved = await deps.reserveEmail(); } catch (e) { reserved = false; log('quota check failed', e && e.message); }
+    }
+    if (!reserved) {
+      for (const c of claimed) await releaseClaim(c.logRef, FieldValue);
+      result.deferred += claimed.length;
+    } else {
+      // 3) one email for everything that is due
+      let delivered = false;
+      try {
+        const msg = R.buildDigestEmail({ entries: claimed.map(c => ({ item: c.r.item, dueAt: c.r.dueAt })), deadlines, now, tz, appUrl });
+        await sendMail({ to: email, subject: msg.subject, text: msg.text, html: msg.html });
+        delivered = true;
+      } catch (e) {
+        result.failed += claimed.length;
+        log('send failed', uid, e && e.message);
+        if (deps.refundEmail) { try { await deps.refundEmail(); } catch (e2) { /* ignore */ } }
+        for (const c of claimed) await releaseClaim(c.logRef, FieldValue, (e && e.message) || e);   // retry next run (bounded by attempts + grace window)
+      }
+      if (delivered) {
+        result.sent += claimed.length;
+        result.emails++;
+        for (const c of claimed) {
+          try {
+            await c.logRef.update({ emailSent: true, emailSentAt: Timestamp.fromMillis(Date.now()), claimedAt: FieldValue.delete(), lastError: FieldValue.delete() });
+          } catch (e) { log('could not mark sent', uid, c.r.key, e && e.message); }
+        }
+      }
     }
   }
 
@@ -101,8 +138,8 @@ async function processUser(deps, uid, userRef, now = Date.now()) {
     if (!fresh.exists) return;
     const d = parseDeadlines(fresh.data());
     const next = d ? R.nextReminderTime(d, now, R.resolveTimeZone(d, defaultTz)) : null;
-    // a failed send is retried on the next run (until its grace window ends)
-    const retry = result.failed > 0 ? now : null;
+    // a failed or deferred (daily cap) send is retried on the next run (until its grace window ends)
+    const retry = (result.failed > 0 || result.deferred > 0) ? now : null;
     const value = next === null ? retry : (retry === null ? next : Math.min(next, retry));
     tx.update(userRef, { nextReminderAt: value === null ? FieldValue.delete() : value });
   });

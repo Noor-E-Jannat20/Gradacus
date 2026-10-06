@@ -19,9 +19,9 @@ for each user                      ─►  read existing deadline data, find rem
 * **Exactly once:** each reminder (deadline id + minutes-before + due time) has a log document claimed inside a
   Firestore transaction *before* sending and marked `emailSent: true, emailSentAt` afterwards. Re-runs, overlapping
   runs and retries cannot send it twice. A failed send releases the claim and is retried on the next run (max 5 attempts,
-  and only while the reminder is still within its 15-minute grace window).
+  and only while the reminder is still within its 45-minute grace window).
 * **Late/stale reminders are skipped:** a "1 day before" reminder for a deadline created 3 hours before it is due is
-  not sent. A reminder is sent at most 15 minutes after its time.
+  not sent. A reminder is sent at most 45 minutes after its time.
 * `reminderLog` documents carry an `expireAt` field. Optional housekeeping: add a Firestore TTL policy on
   collection group `reminderLog`, field `expireAt`.
 

@@ -5,10 +5,13 @@
   "description": "Server-side deadline email reminders for Gradacus (Firebase Cloud Functions, scheduled).",
   "main": "index.js",
   "type": "commonjs",
-  "engines": { "node": "20" },
+  "engines": {
+    "node": "20"
+  },
   "scripts": {
-    "test": "node --test test/reminders.node-test.js test/process.node-test.js",
-    "deploy": "firebase deploy --only functions"
+    "test": "node --test test/reminders.node-test.js test/process.node-test.js test/digest.node-test.js",
+    "deploy": "firebase deploy --only functions",
+    "run-reminders": "node run-reminders.js"
   },
   "dependencies": {
     "firebase-admin": "^12.6.0",
