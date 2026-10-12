@@ -10,8 +10,7 @@
     "test": "vitest run",
     "bust": "npm run data && node scripts/cache-bust.mjs",
     "prebuild": "npm run bust",
-    "data": "node scripts/build-curriculum.mjs",
-    "test:functions": "cd functions && npm test"
+    "data": "node scripts/build-curriculum.mjs"
   },
   "dependencies": {
     "firebase": "^10.13.0"

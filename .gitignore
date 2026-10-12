@@ -6,7 +6,4 @@ dist
 # Firebase service-account keys must never be committed
 *-firebase-adminsdk-*.json
 serviceAccount*.json
-functions/.env
-functions/.env.*
-!functions/.env.example
 .wrangler
