@@ -621,7 +621,7 @@ function saveState(){
 // To find users with a reminder due without scanning every account, each save also stores the time of
 // the next pending reminder (epoch ms) on the user document. Keep this in step with nextReminderTime()
 // in functions/lib/reminders.js.
-const REMINDER_GRACE_MS = 15 * 60 * 1000;
+const REMINDER_GRACE_MS = 45 * 60 * 1000;
 function computeNextReminderAt(){
   const d = state && state.deadlines;
   if (!d || !Array.isArray(d.items) || (d.prefs && d.prefs.emailRem === false)) return null;
