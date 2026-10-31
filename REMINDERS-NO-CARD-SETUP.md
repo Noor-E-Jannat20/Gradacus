@@ -14,12 +14,34 @@ What runs: `.github/workflows/reminders.yml` -> `functions/run-reminders.js` -> 
 5. Firebase console -> Authentication -> Settings -> **Authorized domains** -> add your domain (otherwise login fails).
 6. Deploy Firestore rules (works on Spark): `firebase deploy --only firestore:rules`
 
-## 2. Brevo (free SMTP, 300 emails/day, no card)
-1. Create an account at brevo.com and wait for approval (sending is enabled after review).
-2. SMTP & API -> SMTP -> note the login and generate an SMTP key.
-   Host `smtp-relay.brevo.com`, port `587`.
-3. Add and verify your sending domain/address (Senders & IP) and set up its SPF/DKIM records, or mail lands in spam.
-   `MAIL_FROM` must be a verified sender.
+## 2. SMTP Provider (Free, No Card)
+
+You can use any standard SMTP provider. **Gmail** is the easiest because it requires no approval, no phone verification wait, and allows up to 500 emails/day.
+
+### Option A: Gmail (Recommended & Easiest)
+1. Go to your [Google Account](https://myaccount.google.com/) -> **Security**.
+2. Ensure **2-Step Verification** is turned on.
+3. Open [App Passwords](https://myaccount.google.com/apppasswords) (search "App passwords" in settings if needed).
+4. Enter an app name (e.g. `Gradacus`) and click **Create**.
+5. Copy the generated 16-letter password (e.g. `xxxx xxxx xxxx xxxx`).
+
+Settings for Gmail:
+- `SMTP_HOST`: `smtp.gmail.com`
+- `SMTP_PORT`: `465` (or `587`)
+- `SMTP_USER`: your Gmail address (e.g. `example@gmail.com`)
+- `SMTP_PASS`: the 16-letter app password (without spaces)
+- `MAIL_FROM`: `Gradacus <example@gmail.com>`
+- `DAILY_EMAIL_CAP`: `480`
+
+### Option B: Brevo (if verification works for you)
+1. Account at brevo.com.
+2. SMTP & API -> generate an SMTP key.
+3. `SMTP_HOST`: `smtp-relay.brevo.com`, `SMTP_PORT`: `587`.
+4. `DAILY_EMAIL_CAP`: `280`.
+
+### Option C: Resend / Mailjet
+- Resend (`smtp.resend.com`, port `465`, user `resend`, API key as pass). Requires verified domain.
+- Mailjet (`in-v3.mailjet.com`, port `587`, free 200/day).
 
 ## 3. GitHub secrets and variables
 Firebase console -> Project settings -> Service accounts -> **Generate new private key** (works on Spark).
@@ -27,17 +49,17 @@ Never commit that file.
 
 Repo -> Settings -> Secrets and variables -> Actions:
 
-| Type | Name | Value |
-|---|---|---|
-| Secret | `FIREBASE_SERVICE_ACCOUNT` | the whole key JSON file contents |
-| Secret | `SMTP_PASS` | Brevo SMTP key |
-| Variable | `SMTP_HOST` | `smtp-relay.brevo.com` |
-| Variable | `SMTP_PORT` | `587` |
-| Variable | `SMTP_USER` | Brevo SMTP login |
-| Variable | `MAIL_FROM` | e.g. `Gradacus <reminders@yourdomain.com>` |
-| Variable | `APP_URL` | `https://yourdomain.com` |
-| Variable | `DEFAULT_TIMEZONE` | e.g. `Asia/Dhaka` |
-| Variable | `DAILY_EMAIL_CAP` | `280` (a little under Brevo's 300) |
+| Type | Name | Value (for Gmail) | Value (for Brevo) |
+|---|---|---|---|
+| Secret | `FIREBASE_SERVICE_ACCOUNT` | Firebase service account key JSON | Firebase service account key JSON |
+| Secret | `SMTP_PASS` | 16-character Google App Password | Brevo SMTP key |
+| Variable | `SMTP_HOST` | `smtp.gmail.com` | `smtp-relay.brevo.com` |
+| Variable | `SMTP_PORT` | `465` (or `587`) | `587` |
+| Variable | `SMTP_USER` | `yourname@gmail.com` | Brevo SMTP login |
+| Variable | `MAIL_FROM` | `Gradacus <yourname@gmail.com>` | `Gradacus <reminders@yourdomain.com>` |
+| Variable | `APP_URL` | `https://yourdomain.com` | `https://yourdomain.com` |
+| Variable | `DEFAULT_TIMEZONE` | e.g. `Asia/Dhaka` | e.g. `Asia/Dhaka` |
+| Variable | `DAILY_EMAIL_CAP` | `480` | `280` |
 
 Then Actions tab -> "Send deadline reminders" -> Run workflow, and read the log line starting `deadline reminders {...}`.
 
