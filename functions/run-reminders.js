@@ -110,21 +110,39 @@ async function main() {
       if (allUsers.empty) {
         console.log('  -> No documents in "users" collection. Please ensure you are logged in (not Guest) and saved a deadline.');
       } else {
-        allUsers.forEach(u => {
+        for (const u of allUsers.docs) {
           const d = u.data();
           const nr = d.nextReminderAt;
+          let extra = '';
+          try {
+            const parsed = typeof d.data === 'string' ? JSON.parse(d.data) : d.data;
+            const dl = parsed && parsed.deadlines;
+            if (dl) {
+              const emailRem = dl.prefs && dl.prefs.emailRem !== undefined ? dl.prefs.emailRem : true;
+              const items = (dl.items || []).map(i => `"${i.title}" due:${i.due} rem:[${i.reminders || []}] done:${!!i.completedAt}`).join(' | ');
+              extra = `emailRem: ${emailRem}, deadlines (${(dl.items || []).length}): [${items}]`;
+            } else {
+              extra = 'no deadlines in saved state';
+            }
+          } catch (err) {
+            extra = 'could not parse state data';
+          }
+
+          let accountEmail = '';
+          try { accountEmail = (await admin.auth().getUser(u.id)).email || 'no-email'; } catch(e) { accountEmail = 'auth-lookup-failed'; }
+
           if (nr == null) {
-            console.log(`  - User ${u.id}: nextReminderAt is NOT set (either no upcoming deadlines, email reminders toggled off, or saved in older app version)`);
+            console.log(`  - User ${u.id} (${accountEmail}): nextReminderAt is NOT set | ${extra}`);
           } else {
             const nrDate = new Date(nr).toISOString();
             const diffMin = Math.round((nr - Date.now()) / 60000);
             if (diffMin > 0) {
-              console.log(`  - User ${u.id}: nextReminderAt is scheduled for ${nrDate} (in ${diffMin} minutes / future). It will fire when that time arrives!`);
+              console.log(`  - User ${u.id} (${accountEmail}): nextReminderAt scheduled for ${nrDate} (in ${diffMin}m) | ${extra}`);
             } else {
-              console.log(`  - User ${u.id}: nextReminderAt was ${nrDate} (${Math.abs(diffMin)} minutes ago).`);
+              console.log(`  - User ${u.id} (${accountEmail}): nextReminderAt was ${nrDate} (${Math.abs(diffMin)}m ago) | ${extra}`);
             }
           }
-        });
+        }
       }
     } catch (e) {
       console.warn('[Diagnostic] Could not check users:', e && e.message);
