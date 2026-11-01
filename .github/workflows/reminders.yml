@@ -1,10 +1,16 @@
 name: Send deadline reminders
 
 on:
-  # Backup schedule. GitHub may start this late (5-30+ min), which is why GRACE_MS is 45 min.
+  # Pushing this workflow or the runner code starts the loop immediately (no manual click needed to bootstrap it).
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/reminders.yml'
+      - 'functions/**'
+  # Safety net: restarts the loop if the self-chain ever breaks. GitHub may start this late (5-30+ min).
   schedule:
     - cron: '*/15 * * * *'
-  # Precise trigger: manual or external cron (cron-job.org) POSTs to the "workflow_dispatch" API
+  # Manual run (also used by the job itself to queue its successor; cron-job.org is no longer required)
   workflow_dispatch:
     inputs:
       test_email:
@@ -19,13 +25,22 @@ concurrency:
 
 permissions:
   contents: read
+  actions: write      # lets the job queue its own successor run with the built-in GITHUB_TOKEN
 
 jobs:
   send:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
+
+      # Queue the next run right away. The concurrency group holds it as "pending" until this run ends, so there
+      # is no gap between runs. (workflow_dispatch started with GITHUB_TOKEN is allowed to trigger new runs.)
+      - name: Queue successor run
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run reminders.yml --ref "${{ github.ref_name }}" --repo "${{ github.repository }}"
 
       - uses: actions/setup-node@v4
         with:
@@ -54,4 +69,15 @@ jobs:
           DEFAULT_TIMEZONE: ${{ vars.DEFAULT_TIMEZONE }}
           DAILY_EMAIL_CAP: ${{ vars.DAILY_EMAIL_CAP }}
           TEST_EMAIL: ${{ inputs.test_email }}
+          LOOP_MINUTES: ${{ inputs.test_email != '' && '0' || vars.LOOP_MINUTES || '320' }}
+          POLL_SECONDS: ${{ vars.POLL_SECONDS || '60' }}
         run: node run-reminders.js
+
+      # Second attempt at queuing the successor, in case the first one failed. If one is already pending this just
+      # replaces it, which is harmless.
+      - name: Queue successor run (retry)
+        if: ${{ always() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run reminders.yml --ref "${{ github.ref_name }}" --repo "${{ github.repository }}"
