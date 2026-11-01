@@ -4,8 +4,13 @@ on:
   # Backup schedule. GitHub may start this late (5-30+ min), which is why GRACE_MS is 45 min.
   schedule:
     - cron: '*/15 * * * *'
-  # Precise trigger: an external cron (cron-job.org) POSTs to the "workflow_dispatch" API every 5 minutes.
+  # Precise trigger: manual or external cron (cron-job.org) POSTs to the "workflow_dispatch" API
   workflow_dispatch:
+    inputs:
+      test_email:
+        description: 'Optional: Enter an email address to send an instant test verification email'
+        required: false
+        default: ''
 
 # Never run two at once: the daily-email counter and duplicate protection assume a single runner.
 concurrency:
@@ -48,4 +53,5 @@ jobs:
           APP_URL: ${{ vars.APP_URL }}
           DEFAULT_TIMEZONE: ${{ vars.DEFAULT_TIMEZONE }}
           DAILY_EMAIL_CAP: ${{ vars.DAILY_EMAIL_CAP }}
+          TEST_EMAIL: ${{ inputs.test_email }}
         run: node run-reminders.js

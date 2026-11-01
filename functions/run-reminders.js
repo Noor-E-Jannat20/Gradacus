@@ -10,6 +10,7 @@
  * Optional env:   SMTP_PORT (587 | 465, default 587)      APP_URL
  *                 DEFAULT_TIMEZONE (default Asia/Dhaka)   DAILY_EMAIL_CAP (default 280)
  *                 CONCURRENCY (default 6)                 RUN_BUDGET_MS (default 240000)
+ *                 TEST_EMAIL (optional email address to send an instant test reminder to)
  */
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
@@ -48,6 +49,24 @@ async function main() {
   const quota = await makeQuota({ db, FieldValue, cap }).load();
   console.log(`email quota today: ${quota.used()}/${cap} used`);
 
+  // Optional: instant test email verification if TEST_EMAIL is set
+  const testEmail = env('TEST_EMAIL');
+  if (testEmail) {
+    console.log(`[Test Mode] Sending immediate test email to ${testEmail}...`);
+    try {
+      await transporter.sendMail({
+        from,
+        to: testEmail,
+        subject: 'Gradacus Test Deadline Reminder',
+        text: 'This is a test reminder email from your Gradacus runner. Your SMTP configuration is working properly!',
+        html: '<div style="font-family:sans-serif;padding:20px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px"><h2 style="color:#2563eb;margin-top:0">Gradacus Reminder Test</h2><p>This is a test email sent from your Gradacus GitHub Actions runner.</p><p style="color:#16a34a;font-weight:bold;font-size:16px">✓ Your SMTP setup is working properly!</p><p style="color:#64748b;font-size:13px">When deadlines are due, reminder emails will be delivered automatically to this inbox.</p></div>'
+      });
+      console.log(`[Test Mode] ✓ Test email successfully sent to ${testEmail}`);
+    } catch (e) {
+      console.error(`[Test Mode] ✗ Failed to send test email to ${testEmail}:`, e && e.message);
+    }
+  }
+
   const deps = {
     db, FieldValue, Timestamp,
     defaultTz: env('DEFAULT_TIMEZONE', 'Asia/Dhaka'),
@@ -81,6 +100,35 @@ async function main() {
         console.error('reminder run failed for user', doc.id, e);
       }
     });
+  }
+
+  if (totals.users === 0) {
+    console.log(`[Diagnostic] No users had nextReminderAt <= ${Date.now()} (${new Date().toISOString()}). Checking Firestore collection...`);
+    try {
+      const allUsers = await db.collection('users').limit(10).get();
+      console.log(`[Diagnostic] Found ${allUsers.size} user document(s) in Firestore:`);
+      if (allUsers.empty) {
+        console.log('  -> No documents in "users" collection. Please ensure you are logged in (not Guest) and saved a deadline.');
+      } else {
+        allUsers.forEach(u => {
+          const d = u.data();
+          const nr = d.nextReminderAt;
+          if (nr == null) {
+            console.log(`  - User ${u.id}: nextReminderAt is NOT set (either no upcoming deadlines, email reminders toggled off, or saved in older app version)`);
+          } else {
+            const nrDate = new Date(nr).toISOString();
+            const diffMin = Math.round((nr - Date.now()) / 60000);
+            if (diffMin > 0) {
+              console.log(`  - User ${u.id}: nextReminderAt is scheduled for ${nrDate} (in ${diffMin} minutes / future). It will fire when that time arrives!`);
+            } else {
+              console.log(`  - User ${u.id}: nextReminderAt was ${nrDate} (${Math.abs(diffMin)} minutes ago).`);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('[Diagnostic] Could not check users:', e && e.message);
+    }
   }
 
   await quota.flush();
